@@ -13,12 +13,24 @@ type Atom interface{}
 type List []Atom
 type Number int
 
+const (
+	Regular = iota
+	Array
+)
+
+type Variable struct {
+	Type int
+	Loc  int
+	// Used by arrays
+	Size int
+}
+
 type Compiler struct {
 	// Last memory position will figure out where to store the next
 	// variable in memory
 	lastMemPos int
 	// The store holds locations for each named variable in memory
-	store map[string]int
+	store map[string]*Variable
 
 	parser *peg.Language
 
@@ -32,7 +44,11 @@ func NewCompiler() *Compiler {
 		panic(err)
 	}
 
-	return &Compiler{-32, make(map[string]int), parser, []interface{}{}}
+	return &Compiler{0, make(map[string]*Variable), parser, []interface{}{}}
+}
+
+func (c *Compiler) Pos() int {
+	return c.lastMemPos
 }
 
 func (c *Compiler) Write(str string, v ...interface{}) {
@@ -51,20 +67,27 @@ func (c *Compiler) storeSet(p *peg.ParseTree) {
 // Compile a single instruction to ASM
 func (c *Compiler) compile(p *peg.ParseTree) Atom {
 	switch p.Type {
-	case "expr":
-		fmt.Println("expr")
-	case "assignment":
+	case "assign_expression":
 		// Get the right hand side assignment expression
 		c.compile(p.Children[2])
 
 		if p.Children[0].Type == "store" {
 			c.storeSet(p.Children[0])
 		} else {
-			// Set memory position for current variable
-			c.lastMemPos += 32
-			c.Write("PUSH", c.lastMemPos)
+			// Resole the variables memory location.
+			// If non is present allocate new memory
+			// otherwise overwrite the memory
+			var loc int
+			if c.store[string(p.Children[0].Data)] == nil {
+				loc = c.lastMemPos
+				c.store[string(p.Children[0].Data)] = &Variable{Regular, c.lastMemPos, 0}
+
+				c.lastMemPos += 32
+			} else {
+				loc = c.store[string(p.Children[0].Data)].Loc
+			}
+			c.Write("PUSH", loc)
 			c.Write("MSTORE")
-			c.store[string(p.Children[0].Data)] = c.lastMemPos
 		}
 	case "number":
 		c.Write("PUSH", string(p.Data))
@@ -72,18 +95,43 @@ func (c *Compiler) compile(p *peg.ParseTree) Atom {
 
 		return Number(n)
 	case "name":
-		c.Write("PUSH", c.store[string(p.Data)])
+		c.Write("PUSH", c.store[string(p.Data)].Loc)
 		c.Write("MLOAD")
 	case "store":
 		c.compile(p.Children[1])
 		c.Write("SLOAD")
-	case "arithmetic":
+	case "call":
+		//args := p.Children[2]
+		if len(p.Children[2].Children) != 4 {
+			panic("Invalid amount of arguments to call")
+		}
+
+		for i := 0; i < len(p.Children[2].Children); i++ {
+			c.compile(p.Children[2].Children[i])
+		}
+		c.Write("CALL")
+	case "array":
+		n, _ := strconv.Atoi(string(p.Children[2].Data))
+		c.Write("PUSH", c.store[string(p.Children[0].Data)].Loc*n)
+		c.Write("MLOAD")
+	case "create_array":
+		n, _ := strconv.Atoi(string(p.Children[2].Data))
+
+		c.store[string(p.Children[0].Data)] = &Variable{Array, c.lastMemPos, n}
+		c.lastMemPos += n * 32
+	case "arithmetic_expression":
 		c.compile(p.Children[0])
 		c.compile(p.Children[2])
 
 		switch string(p.Children[1].Data) {
 		case "+":
 			c.Write("ADD")
+		case "-":
+			c.Write("SUB")
+		case "/":
+			c.Write("DIV")
+		case "*":
+			c.Write("MUL")
 		}
 	}
 
