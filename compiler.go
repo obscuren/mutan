@@ -74,20 +74,31 @@ func (c *Compiler) compile(p *peg.ParseTree) Atom {
 		if p.Children[0].Type == "store" {
 			c.storeSet(p.Children[0])
 		} else {
-			// Resole the variables memory location.
-			// If non is present allocate new memory
-			// otherwise overwrite the memory
-			var loc int
-			if c.store[string(p.Children[0].Data)] == nil {
-				loc = c.lastMemPos
-				c.store[string(p.Children[0].Data)] = &Variable{Regular, c.lastMemPos, 0}
+			if p.Children[2].Type == "create_array" {
 
-				c.lastMemPos += 32
 			} else {
-				loc = c.store[string(p.Children[0].Data)].Loc
+				// Resole the variables memory location.
+				// If non is present allocate new memory
+				// otherwise overwrite the memory
+				var loc int
+				if c.store[string(p.Children[0].Data)] == nil {
+					loc = c.lastMemPos
+					c.store[string(p.Children[0].Data)] = &Variable{Regular, c.lastMemPos, 0}
+
+					c.lastMemPos += 32
+				} else {
+					v := c.store[string(p.Children[0].Data)]
+					if v.Type == Array {
+						n, _ := strconv.Atoi(string(p.Children[0].Children[2].Data))
+						loc = v.Loc + n*32
+					} else {
+						loc = v.Loc
+					}
+				}
+
+				c.Write("PUSH", loc)
+				c.Write("MSTORE")
 			}
-			c.Write("PUSH", loc)
-			c.Write("MSTORE")
 		}
 	case "number":
 		c.Write("PUSH", string(p.Data))
@@ -115,9 +126,10 @@ func (c *Compiler) compile(p *peg.ParseTree) Atom {
 		c.Write("PUSH", c.store[string(p.Children[0].Data)].Loc*n)
 		c.Write("MLOAD")
 	case "create_array":
+		fmt.Println("create array")
 		n, _ := strconv.Atoi(string(p.Children[2].Data))
 
-		c.store[string(p.Children[0].Data)] = &Variable{Array, c.lastMemPos, n}
+		c.store[string(p.Data)] = &Variable{Array, c.lastMemPos, n}
 		c.lastMemPos += n * 32
 	case "arithmetic_expression":
 		c.compile(p.Children[0])
