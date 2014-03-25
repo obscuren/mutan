@@ -60,22 +60,22 @@ func (c *Compiler) Write(str string, v ...interface{}) {
 }
 
 func (c *Compiler) storeSet(p *peg.ParseTree) {
-	c.compile(p.Children[1])
+	c.compile(p.Children[2])
 	c.Write("SSTORE")
 }
 
 // Compile a single instruction to ASM
-func (c *Compiler) compile(p *peg.ParseTree) Atom {
+func (c *Compiler) compile(p *peg.ParseTree) *Variable {
 	switch p.Type {
 	case "assign_expression":
 		// Get the right hand side assignment expression
-		c.compile(p.Children[2])
+		v := c.compile(p.Children[2])
 
 		if p.Children[0].Type == "store" {
 			c.storeSet(p.Children[0])
 		} else {
 			if p.Children[2].Type == "create_array" {
-
+				c.store[string(p.Children[0].Data)] = v
 			} else {
 				// Resole the variables memory location.
 				// If non is present allocate new memory
@@ -102,14 +102,11 @@ func (c *Compiler) compile(p *peg.ParseTree) Atom {
 		}
 	case "number":
 		c.Write("PUSH", string(p.Data))
-		n, _ := strconv.Atoi(string(p.Data))
-
-		return Number(n)
 	case "name":
 		c.Write("PUSH", c.store[string(p.Data)].Loc)
 		c.Write("MLOAD")
 	case "store":
-		c.compile(p.Children[1])
+		c.compile(p.Children[2])
 		c.Write("SLOAD")
 	case "call":
 		//args := p.Children[2]
@@ -126,11 +123,13 @@ func (c *Compiler) compile(p *peg.ParseTree) Atom {
 		c.Write("PUSH", c.store[string(p.Children[0].Data)].Loc*n)
 		c.Write("MLOAD")
 	case "create_array":
-		fmt.Println("create array")
 		n, _ := strconv.Atoi(string(p.Children[2].Data))
 
-		c.store[string(p.Data)] = &Variable{Array, c.lastMemPos, n}
+		v := &Variable{Array, c.lastMemPos, n}
+		c.store[string(p.Data)] = v
 		c.lastMemPos += n * 32
+
+		return v
 	case "arithmetic_expression":
 		c.compile(p.Children[0])
 		c.compile(p.Children[2])
@@ -147,7 +146,7 @@ func (c *Compiler) compile(p *peg.ParseTree) Atom {
 		}
 	}
 
-	return 0
+	return nil
 }
 
 // Compile program
