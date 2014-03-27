@@ -31,7 +31,9 @@ func TestArrayAccassing(t *testing.T) {
 	a := compiler.Compile(strings.NewReader(`
 	a = array(20)
 	a[1] = 10
+	a[ 2] = 20
 	b = a[1]
+	a222 = 2
 	`))
 
 	fmt.Println(a)
