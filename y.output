@@ -1,0 +1,96 @@
+
+state 0
+	$accept: .program $end 
+	statement_list: .    (3)
+
+	.  reduce 3 (src line 31)
+
+	program  goto 1
+	statement_list  goto 2
+
+state 1
+	$accept:  program.$end 
+
+	$end  accept
+	.  error
+
+
+state 2
+	program:  statement_list.    (1)
+	statement_list:  statement_list.statement 
+
+	ID  shift 6
+	.  reduce 1 (src line 25)
+
+	statement  goto 3
+	expression  goto 4
+	assign_expression  goto 5
+	simple_expression  goto 7
+	get_variable  goto 8
+
+state 3
+	statement_list:  statement_list statement.    (2)
+
+	.  reduce 2 (src line 29)
+
+
+state 4
+	statement:  expression.    (4)
+
+	.  reduce 4 (src line 34)
+
+
+state 5
+	expression:  assign_expression.    (5)
+
+	.  reduce 5 (src line 38)
+
+
+state 6
+	assign_expression:  ID.ASSIGN assign_expression 
+	get_variable:  ID.    (9)
+
+	ASSIGN  shift 9
+	.  reduce 9 (src line 56)
+
+
+state 7
+	assign_expression:  simple_expression.    (7)
+
+	.  reduce 7 (src line 49)
+
+
+state 8
+	simple_expression:  get_variable.    (8)
+
+	.  reduce 8 (src line 52)
+
+
+state 9
+	assign_expression:  ID ASSIGN.assign_expression 
+
+	ID  shift 6
+	.  error
+
+	assign_expression  goto 10
+	simple_expression  goto 7
+	get_variable  goto 8
+
+state 10
+	assign_expression:  ID ASSIGN assign_expression.    (6)
+
+	.  reduce 6 (src line 42)
+
+
+6 terminals, 8 nonterminals
+10 grammar rules, 11/2000 states
+0 shift/reduce, 0 reduce/reduce conflicts reported
+57 working sets used
+memory: parser 9/30000
+0 extra closures
+3 shift entries, 1 exceptions
+8 goto entries
+2 entries saved by goto default
+Optimizer space used: output 11/30000
+11 table entries, 1 zero
+maximum spread: 5, maximum offset: 9
