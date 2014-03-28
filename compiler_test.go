@@ -7,7 +7,7 @@ import (
 )
 
 func TestCompiler(t *testing.T) {
-	a := NewCompiler().Compile(strings.NewReader(`
+	a, _ := NewCompiler().Compile(strings.NewReader(`
 	a = 10
 	store[10] = a
 	`))
@@ -28,7 +28,7 @@ func TestArrayAllocation(t *testing.T) {
 
 func TestArrayAccassing(t *testing.T) {
 	compiler := NewCompiler()
-	a := compiler.Compile(strings.NewReader(`
+	a, _ := compiler.Compile(strings.NewReader(`
 	a = array(20)
 	a[1] = 10
 	a[ 2] = 20

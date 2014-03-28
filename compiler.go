@@ -157,7 +157,7 @@ func (c *Compiler) compileProgram(p *peg.ParseTree, out chan Atom) {
 	close(out)
 }
 
-func (c *Compiler) CompileFile(fn string) []interface{} {
+func (c *Compiler) CompileFile(fn string) ([]interface{}, error) {
 	source, err := os.Open(fn)
 	if err != nil {
 		panic(err)
@@ -170,7 +170,13 @@ func (c *Compiler) CompileFile(fn string) []interface{} {
 	return c.Compile(source)
 }
 
-func (c *Compiler) Compile(reader io.Reader) []interface{} {
+func (c *Compiler) Compile(reader io.Reader) (asm []interface{}, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("Compile error: %v", r)
+		}
+	}()
+
 	tree, err := c.parser.Parse(reader)
 	if err != nil {
 		panic(err)
@@ -182,6 +188,7 @@ func (c *Compiler) Compile(reader io.Reader) []interface{} {
 	for a := range lists {
 		fmt.Sprintln(a)
 	}
+	asm = c.asm
 
-	return c.asm
+	return
 }
