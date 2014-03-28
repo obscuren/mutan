@@ -2,7 +2,7 @@
 package main
 
 import (
-	"fmt"
+	_"fmt"
 )
 
 var Tree *SyntaxTree
@@ -58,10 +58,4 @@ get_variable
 	;
 
 %%
-
-func main() {
-	lex := lexer("example", "a = b")
-	yyParse(lex)
-	fmt.Println(Tree)
-}
 
