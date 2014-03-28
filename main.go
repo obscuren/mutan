@@ -38,7 +38,8 @@ const yyMaxDepth = 200
 
 
 func main() {
-	yyParse(lexer("example", "a = 0"))
+	lex := lexer("example", "a = b")
+	yyParse(lex)
 	fmt.Println(Tree)
 }
 
@@ -50,45 +51,47 @@ var yyExca = []int{
 	-2, 0,
 }
 
-const yyNprod = 10
+const yyNprod = 11
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 11
+const yyLast = 12
 
 var yyAct = []int{
 
-	5, 6, 9, 8, 7, 4, 3, 2, 1, 0,
-	10,
+	5, 6, 9, 10, 8, 7, 4, 3, 2, 1,
+	0, 11,
 }
 var yyPact = []int{
 
-	-1000, -1000, -4, -1000, -1000, -1000, -2, -1000, -1000, -4,
-	-1000,
+	-1000, -1000, -4, -1000, -1000, -1000, -1, -1000, -1000, -1000,
+	-4, -1000,
 }
 var yyPgo = []int{
 
-	0, 8, 7, 6, 5, 0, 4, 3,
+	0, 9, 8, 7, 6, 0, 5, 4,
 }
 var yyR1 = []int{
 
-	0, 1, 2, 2, 3, 4, 5, 5, 6, 7,
+	0, 1, 2, 2, 3, 4, 5, 5, 6, 6,
+	7,
 }
 var yyR2 = []int{
 
 	0, 1, 2, 0, 1, 1, 3, 1, 1, 1,
+	1,
 }
 var yyChk = []int{
 
-	-1000, -1, -2, -3, -4, -5, 5, -6, -7, 4,
-	-5,
+	-1000, -1, -2, -3, -4, -5, 5, -6, -7, 6,
+	4, -5,
 }
 var yyDef = []int{
 
-	3, -2, 1, 2, 4, 5, 9, 7, 8, 0,
-	6,
+	3, -2, 1, 2, 4, 5, 10, 7, 8, 9,
+	0, 6,
 }
 var yyTok1 = []int{
 
@@ -328,34 +331,37 @@ yydefault:
 	switch yynt {
 
 	case 1:
-		//line mutan.y:26
+		//line mutan.y:25
 		{ Tree = yyS[yypt-0].tnode }
 	case 2:
-		//line mutan.y:30
+		//line mutan.y:29
 		{ yyVAL.tnode = NewNode(StatementListTy, yyS[yypt-1].tnode, yyS[yypt-0].tnode) }
 	case 3:
-		//line mutan.y:31
+		//line mutan.y:30
 		{ yyVAL.tnode = NewNode(EmptyTy) }
 	case 4:
-		//line mutan.y:35
+		//line mutan.y:34
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 5:
-		//line mutan.y:39
+		//line mutan.y:38
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 6:
-		//line mutan.y:44
+		//line mutan.y:43
 		{
 		      node := NewNode(SetLocalTy)
 		      node.Constant = yyS[yypt-2].str
 		      yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, node)
 		  }
 	case 7:
-		//line mutan.y:49
+		//line mutan.y:48
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 8:
-		//line mutan.y:53
+		//line mutan.y:52
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 9:
+		//line mutan.y:53
+		{ yyVAL.tnode = NewNode(ConstantTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
+	case 10:
 		//line mutan.y:57
 		{ yyVAL.tnode = NewNode(ConstantTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	}

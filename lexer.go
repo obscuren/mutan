@@ -24,6 +24,7 @@ type itemType int
 const (
 	itemEof        itemType = 0
 	itemIdentifier          = ID
+	itemAssign              = ASSIGN
 	itemLeftBracket
 	itemRightBracket
 )
@@ -49,6 +50,8 @@ func lexIdentifyState(l *Lexer) stateFn {
 			l.backup()
 
 			return lexIdentifier
+		case r == '=':
+			l.emit(itemAssign)
 		default:
 			return nil
 		}
@@ -169,5 +172,5 @@ func lexer(name, input string) *Lexer {
 }
 
 func (l *Lexer) Error(s string) {
-	fmt.Printf(s)
+	fmt.Println(s)
 }

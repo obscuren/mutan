@@ -16,8 +16,7 @@ var Tree *SyntaxTree
 }
 
 %token ASSIGN
-%token <str> ID
-%token <num> NUMBER
+%token <str> ID NUMBER
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 
 %%
@@ -51,6 +50,7 @@ assign_expression
 
 simple_expression
 	: get_variable { $$ = $1 }
+	| NUMBER       { $$ = NewNode(ConstantTy); $$.Constant = $1 }
 	;
 
 get_variable
@@ -60,7 +60,8 @@ get_variable
 %%
 
 func main() {
-	yyParse(lexer("example", "a = 0"))
+	lex := lexer("example", "a = b")
+	yyParse(lex)
 	fmt.Println(Tree)
 }
 
