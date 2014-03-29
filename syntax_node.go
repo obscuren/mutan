@@ -11,8 +11,12 @@ const (
 	EmptyTy
 	StatementListTy
 	AssignmentTy
+	IdentifierTy
 	ConstantTy
 	SetLocalTy
+	BlockTy
+	IfThenTy
+	EqualTy
 )
 
 var astAsString = []string{
@@ -20,8 +24,12 @@ var astAsString = []string{
 	"Empty",
 	"Statement list",
 	"Assignment",
+	"Identifier",
 	"Constant",
 	"Set local",
+	"Block",
+	"If then",
+	"Equal",
 }
 
 func (ast AstType) String() string {

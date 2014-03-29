@@ -16,6 +16,10 @@ func isSpace(t rune) bool {
 	return unicode.IsSpace(t)
 }
 
+func isNumber(t rune) bool {
+	return unicode.IsNumber(t)
+}
+
 const eof = -1
 
 type stateFn func(*Lexer) stateFn
@@ -24,9 +28,14 @@ type itemType int
 const (
 	itemEof        itemType = 0
 	itemIdentifier          = ID
+	itemNumber              = NUMBER
 	itemAssign              = ASSIGN
 	itemLeftBracket
 	itemRightBracket
+	itemLeftBrace  = LEFT_BRACES
+	itemRightBrace = RIGHT_BRACES
+	itemEqual      = EQUAL
+	itemIf         = IF
 )
 
 type item struct {
@@ -35,8 +44,30 @@ type item struct {
 }
 
 func lexIdentifier(l *Lexer) stateFn {
-	l.acceptRun("abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ")
-	l.emit(itemIdentifier)
+	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
+	l.accept(acceptance)
+
+	if l.accept("1234567890") {
+		acceptance += "1234567890"
+	}
+	l.acceptRun(acceptance)
+
+	if l.blob() == "if" {
+		l.emit(itemIf)
+	} else {
+		l.emit(itemIdentifier)
+	}
+
+	return lexIdentifyState
+}
+
+func lexNumber(l *Lexer) stateFn {
+	l.accept("+-")
+
+	digits := "1234567890"
+	l.acceptRun(digits)
+
+	l.emit(itemNumber)
 
 	return lexIdentifyState
 }
@@ -50,8 +81,21 @@ func lexIdentifyState(l *Lexer) stateFn {
 			l.backup()
 
 			return lexIdentifier
+		case isNumber(r):
+			l.backup()
+
+			return lexNumber
+		case r == '{':
+			l.emit(itemLeftBrace)
+		case r == '}':
+			l.emit(itemRightBrace)
 		case r == '=':
-			l.emit(itemAssign)
+			if l.peek() == '=' {
+				l.next()
+				l.emit(itemEqual)
+			} else {
+				l.emit(itemAssign)
+			}
 		default:
 			return nil
 		}
@@ -70,8 +114,12 @@ type Lexer struct {
 	items chan item
 }
 
+func (l *Lexer) blob() string {
+	return l.input[l.start:l.pos]
+}
+
 func (l *Lexer) emit(t itemType) {
-	l.items <- item{t, l.input[l.start:l.pos]}
+	l.items <- item{t, l.blob()}
 	l.start = l.pos
 }
 
