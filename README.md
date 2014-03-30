@@ -8,7 +8,7 @@ Mutan is in its design state. Features:
 * Int code generator
 * Compiler
 
-```golang
+```go
 asm, err := mutan.Compile(strings.NewReader(`
 	a = 10
 	b = 10
