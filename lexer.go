@@ -8,6 +8,8 @@ import (
 	"unicode/utf8"
 )
 
+// This lexer is heavily inspired on Rob Pike's lexer
+
 func isAlphaNumeric(t rune) bool {
 	return unicode.IsLetter(t)
 }
@@ -43,7 +45,7 @@ type item struct {
 	val string
 }
 
-func lexIdentifier(l *Lexer) stateFn {
+func lexStatement(l *Lexer) stateFn {
 	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
 	l.accept(acceptance)
 
@@ -52,44 +54,46 @@ func lexIdentifier(l *Lexer) stateFn {
 	}
 	l.acceptRun(acceptance)
 
-	if l.blob() == "if" {
+	switch l.blob() {
+	case "if":
 		l.emit(itemIf)
-	} else {
+	default:
 		l.emit(itemIdentifier)
 	}
 
-	return lexIdentifyState
+	return lexText
 }
 
 func lexNumber(l *Lexer) stateFn {
-	l.accept("+-")
-
 	digits := "1234567890"
 	l.acceptRun(digits)
 
 	l.emit(itemNumber)
 
-	return lexIdentifyState
+	return lexText
 }
 
-func lexIdentifyState(l *Lexer) stateFn {
+// Lex text attempts to identify the current state that *might*
+// be and calls the appropriate lexing method. The lexing method
+// should then take care of anything that is current (even validating)
+func lexText(l *Lexer) stateFn {
 	for {
 		switch r := l.next(); {
-		case isSpace(r):
+		case isSpace(r): // Check whether this is a space (which we ignore)
 			l.ignore()
-		case isAlphaNumeric(r):
+		case isAlphaNumeric(r): // Check if it's alpha numeric (var, if, else etc)
 			l.backup()
 
-			return lexIdentifier
-		case isNumber(r):
+			return lexStatement
+		case isNumber(r): // Check if it's a number (constant)
 			l.backup()
 
 			return lexNumber
-		case r == '{':
+		case r == '{': // Block check
 			l.emit(itemLeftBrace)
 		case r == '}':
 			l.emit(itemRightBrace)
-		case r == '=':
+		case r == '=': // TODO turn this in to an operator check
 			if l.peek() == '=' {
 				l.next()
 				l.emit(itemEqual)
@@ -112,17 +116,32 @@ type Lexer struct {
 	width int
 	state stateFn
 	items chan item
+	err   bool
 }
 
+func lexer(name, input string) *Lexer {
+	l := &Lexer{
+		name:  name,
+		input: input,
+		state: lexText,
+		items: make(chan item, 2),
+	}
+
+	return l
+}
+
+// Grabs the current blob of text
 func (l *Lexer) blob() string {
 	return l.input[l.start:l.pos]
 }
 
+// Emits a new item on to item channel for processing
 func (l *Lexer) emit(t itemType) {
 	l.items <- item{t, l.blob()}
 	l.start = l.pos
 }
 
+// Accepts checks whether the given input matches the next rune
 func (l *Lexer) accept(valid string) bool {
 	if strings.IndexRune(valid, l.next()) >= 0 {
 		return true
@@ -133,6 +152,7 @@ func (l *Lexer) accept(valid string) bool {
 	return false
 }
 
+// Continues *eating* the next rune until no longer valid
 func (l *Lexer) acceptRegexp(valid string) bool {
 	if MatchRegexp(valid, []byte(string(l.next()))) {
 		return true
@@ -159,6 +179,7 @@ func (l *Lexer) acceptRun(valid string) {
 	l.backup()
 }
 
+// Grabs the next item of the channel and returns it, or nil if we're done
 func (l *Lexer) nextItem() item {
 	for {
 		select {
@@ -175,6 +196,7 @@ func (l *Lexer) nextItem() item {
 	panic("not reached")
 }
 
+// Takes the next rune and returns it or returns EOF
 func (l *Lexer) next() (rune rune) {
 	if l.pos >= len(l.input) {
 		l.width = 0
@@ -187,20 +209,24 @@ func (l *Lexer) next() (rune rune) {
 	return rune
 }
 
+// Look ahead
 func (l *Lexer) peek() rune {
 	rune := l.next()
 	l.backup()
 	return rune
 }
 
+// Backup a previous *next*
 func (l *Lexer) backup() {
 	l.pos -= l.width
 }
 
+// Ignore the current rune
 func (l *Lexer) ignore() {
 	l.start = l.pos
 }
 
+// yacc's lexing method
 func (l *Lexer) Lex(lval *yySymType) int {
 	item := l.nextItem()
 	lval.str = item.val
@@ -208,17 +234,8 @@ func (l *Lexer) Lex(lval *yySymType) int {
 	return int(item.typ)
 }
 
-func lexer(name, input string) *Lexer {
-	l := &Lexer{
-		name:  name,
-		input: input,
-		state: lexIdentifyState,
-		items: make(chan item, 2),
-	}
-
-	return l
-}
-
 func (l *Lexer) Error(s string) {
+	l.err = true
+
 	fmt.Println(s)
 }
