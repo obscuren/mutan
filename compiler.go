@@ -1,7 +1,9 @@
-package main
+package mutan
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 )
 
 type varType byte
@@ -89,4 +91,32 @@ func (c *Compiler) Compile(intCode *IntInstr) ([]interface{}, error) {
 	}
 
 	return c.asm, nil
+}
+
+func Compile(source io.Reader, debug bool) (asm []interface{}, err error) {
+	var buff []byte
+	// Read all at once
+	buff, err = ioutil.ReadAll(source)
+	if err != nil {
+		return
+	}
+	ast := MakeAst(string(buff))
+
+	if debug {
+		fmt.Println(ast)
+	}
+
+	intCode := MakeIntCode(ast)
+
+	if debug {
+		fmt.Println(intCode)
+	}
+
+	comp := NewCompiler()
+	asm, err = comp.Compile(intCode)
+	if debug {
+		fmt.Println(asm)
+	}
+
+	return
 }

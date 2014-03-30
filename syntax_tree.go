@@ -1,4 +1,4 @@
-package main
+package mutan
 
 import (
 	"fmt"
@@ -70,4 +70,11 @@ func (p *SyntaxTree) prettyPrint(indent string) string {
 
 func (p *SyntaxTree) String() string {
 	return p.prettyPrint("")
+}
+
+func MakeAst(source string) *SyntaxTree {
+	lex := lexer("mutan", source)
+	yyParse(lex)
+
+	return Tree
 }

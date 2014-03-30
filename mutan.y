@@ -1,5 +1,5 @@
 %{
-package main
+package mutan
 
 import (
 	_"fmt"
