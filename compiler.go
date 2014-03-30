@@ -6,28 +6,10 @@ import (
 	"io/ioutil"
 )
 
-type varType byte
-
-const (
-	varNumTy varType = iota
-	varStrTy
-)
-
-type Variable struct {
-	typ varType
-	val string
-	pos int
-}
-
 type Compiler struct {
 	intInsrs *IntInstr
 
 	asm []interface{}
-
-	locals map[string]*Variable
-
-	memPos   int
-	lastPush *IntInstr
 }
 
 func NewCompiler() *Compiler {
@@ -38,53 +20,35 @@ func (c *Compiler) add(v ...interface{}) {
 	c.asm = append(c.asm, v...)
 }
 
-// Generates asm for getting a memory address
-func (c *Compiler) getMemory(name string) error {
-	if c.locals[name] == nil {
-		return fmt.Errorf("undefined: %v", name)
-	}
-
-	c.add("PUSH", c.locals[name].pos, "MLOAD")
-
-	return nil
-}
-
-// Generates asm for setting a memory address
-func (c *Compiler) setMemory(instr *IntInstr) {
-	// TODO Only accept numbers. Lnegth checking will have to
-	// occur when I implement strings
-	local := c.locals[instr.Constant]
-	if local == nil {
-		local = &Variable{typ: varNumTy, pos: c.memPos}
-		c.locals[instr.Constant] = local
-		c.memPos += 32
-	}
-	local.val = c.lastPush.Constant
-
-	c.add("PUSH", local.pos, "MSTORE")
-}
-
-func (c *Compiler) Compile(intCode *IntInstr) ([]interface{}, error) {
+func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 	c.asm = nil
-	c.locals = make(map[string]*Variable)
 
-	instr := intCode
 	for instr != nil {
 		switch instr.Code {
-		case intEqual:
-		case intAssign:
-		case intConst:
+		case intPush:
 			c.add("PUSH")
+		case intConst:
 			c.add(instr.Constant)
-			c.lastPush = instr
-		case intMemSet:
-			c.setMemory(instr)
+		case intEqual:
+			c.add("EQ")
+		case intAssign:
 		case intEmpty:
-		case intIdentifier:
-			err := c.getMemory(instr.Constant)
-			if err != nil {
-				return nil, err
-			}
+		case intJump:
+			fmt.Println("Jump with target", instr.Target.n)
+		case intMStore:
+			c.add("MSTORE")
+		case intMLoad:
+			c.add("MLOAD")
+
+		case intNot:
+			c.add("NOT")
+		case intJumpi:
+			c.add("PUSH")
+			c.add(instr.Target.n + 1)
+			c.add("JUMPI")
+		case intTarget:
+			// XXX Ignore this, it's not really an actual opcode. It just helps in figuring out where to
+			// jump to if a jump is set.
 		}
 
 		instr = instr.Next
@@ -106,7 +70,15 @@ func Compile(source io.Reader, debug bool) (asm []interface{}, err error) {
 		fmt.Println(ast)
 	}
 
-	intCode := MakeIntCode(ast)
+	gen := NewGen()
+	intCode := gen.MakeIntCode(ast)
+	if len(gen.errors) > 0 {
+		for _, genErr := range gen.errors {
+			fmt.Println(genErr)
+		}
+		return nil, fmt.Errorf("Exited with errors\n")
+	}
+	intCode.setNumbers(0)
 
 	if debug {
 		fmt.Println(intCode)

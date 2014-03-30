@@ -20,7 +20,9 @@ func TestCompiler(t *testing.T) {
 	_, err := Compile(strings.NewReader(`
         a = 100000
 	b = a
-	b = a
+	if a == b {
+		b = 10000
+	}
 	`), true)
 
 	if err != nil {

@@ -1,8 +1,30 @@
 package mutan
 
+/*
+int code generator takes care of memory allocation
+generate all opcode and instructions
+sets pc for each instruction afterwards
+
+compiler transforms int code to ASM (very static)
+*/
+
 import (
 	"fmt"
+	"strconv"
 )
+
+type varType byte
+
+const (
+	varNumTy varType = iota
+	varStrTy
+)
+
+type Variable struct {
+	typ varType
+	val string
+	pos int
+}
 
 type Instr byte
 
@@ -10,18 +32,28 @@ const (
 	intEqual Instr = iota
 	intAssign
 	intConst
-	intMemSet
 	intEmpty
-	intIdentifier
+	intJump
+	intTarget
+	intPush
+	intMStore
+	intMLoad
+	intNot
+	intJumpi
 )
 
 var instrAsString = []string{
 	"equal",
 	"assign",
 	"const",
-	"memset",
 	"empty",
-	"identifier",
+	"jump",
+	"target",
+	"push",
+	"mstore",
+	"mload",
+	"not",
+	"jmpi",
 }
 
 func (op Instr) String() string {
@@ -32,26 +64,97 @@ func (op Instr) String() string {
 	return instrAsString[op]
 }
 
+type CodeGen struct {
+	locals map[string]*Variable
+
+	memPos   int
+	lastPush *IntInstr
+
+	errors []error
+}
+
+func NewGen() *CodeGen {
+	return &CodeGen{make(map[string]*Variable), 0, nil, nil}
+}
+
+func (gen *CodeGen) addError(e error) {
+	gen.errors = append(gen.errors, e)
+}
+
 type IntInstr struct {
 	Code     Instr
 	Constant string
+	Number   int
 	Next     *IntInstr
+	Target   *IntInstr
+	n        int
 }
 
 func NewIntInstr(code Instr, constant string) *IntInstr {
 	return &IntInstr{Code: code, Constant: constant}
 }
-func (instr *IntInstr) String() string {
-	str := fmt.Sprintf("%-12v : %v\n", instr.Code, instr.Constant)
-	if instr.Next != nil {
-		str += instr.Next.String()
+
+func (instr *IntInstr) setNumbers(i int) {
+	num := instr
+	for num != nil {
+		if num.Code != intTarget {
+			i++
+		}
+		num.n = i
+		num = num.Next
+	}
+}
+
+// Generates asm for getting a memory address
+func (gen *CodeGen) getMemory(name string) (push *IntInstr, err error) {
+	var pos string
+	if gen.locals[name] == nil {
+		err = fmt.Errorf("undefined: %v", name)
+	} else {
+		pos = strconv.Itoa(gen.locals[name].pos)
 	}
 
-	return str
+	push = NewIntInstr(intPush, "")
+	cons := NewIntInstr(intConst, pos)
+	load := NewIntInstr(intMLoad, "")
+	concat(push, cons)
+	concat(cons, load)
+
+	return
+}
+
+// Generates asm for setting a memory address
+func (gen *CodeGen) setMemory(name string) *IntInstr {
+	// TODO Only accept numbers. Lnegth checking will have to
+	// occur when I implement strings
+	local := gen.locals[name]
+	if local == nil {
+		local = &Variable{typ: varNumTy, pos: gen.memPos}
+		gen.locals[name] = local
+		gen.memPos += 32
+	}
+	local.val = gen.lastPush.Constant
+
+	push := NewIntInstr(intPush, "")
+	cons := NewIntInstr(intConst, strconv.Itoa(local.pos))
+	store := NewIntInstr(intMStore, "")
+
+	concat(push, cons)
+	concat(cons, store)
+
+	return push
 }
 
 // Concatenate two block of code together
 func concat(blk1 *IntInstr, blk2 *IntInstr) *IntInstr {
+	if blk2.Code == intEmpty {
+		return blk1
+	}
+
+	if blk1.Code == intEmpty {
+		return blk2
+	}
+
 	search := blk1
 	for search.Next != nil {
 		search = search.Next
@@ -63,30 +166,65 @@ func concat(blk1 *IntInstr, blk2 *IntInstr) *IntInstr {
 }
 
 // Recursive intermediate code generator
-func MakeIntCode(tree *SyntaxTree) *IntInstr {
+func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	switch tree.Type {
 	case StatementListTy:
-		blk1 := MakeIntCode(tree.Children[0])
-		blk2 := MakeIntCode(tree.Children[1])
-		concat(blk1, blk2)
+		blk1 := gen.MakeIntCode(tree.Children[0])
+		blk2 := gen.MakeIntCode(tree.Children[1])
 
-		return blk1
+		return concat(blk1, blk2)
 	case AssignmentTy:
-		blk1 := MakeIntCode(tree.Children[0])
-		blk2 := MakeIntCode(tree.Children[1])
+		blk1 := gen.MakeIntCode(tree.Children[0])
+		blk2 := gen.MakeIntCode(tree.Children[1])
+
+		return concat(blk1, blk2)
+	case IfThenTy:
+		cond := gen.MakeIntCode(tree.Children[0])
+		not := NewIntInstr(intNot, "")
+		jmpi := NewIntInstr(intJumpi, "")
+		then := gen.MakeIntCode(tree.Children[1])
+		target := NewIntInstr(intTarget, "")
+		jmpi.Target = target
+
+		concat(cond, not)
+		concat(not, jmpi)
+		concat(jmpi, then)
+		concat(then, target)
+
+		return cond
+	case EqualTy:
+		blk1 := gen.MakeIntCode(tree.Children[0])
+		blk2 := gen.MakeIntCode(tree.Children[1])
 		concat(blk1, blk2)
 
-		return blk1
+		return concat(blk1, NewIntInstr(intEqual, ""))
 	case IdentifierTy:
-		return NewIntInstr(intIdentifier, tree.Constant)
-	case ConstantTy:
-		return NewIntInstr(intConst, tree.Constant)
-	case SetLocalTy:
-		return NewIntInstr(intMemSet, tree.Constant)
+		c, err := gen.getMemory(tree.Constant)
+		if err != nil {
+			gen.addError(err)
+		}
 
+		return c
+	case ConstantTy:
+		blk1 := NewIntInstr(intPush, "")
+		blk2 := NewIntInstr(intConst, tree.Constant)
+		gen.lastPush = blk2
+
+		return concat(blk1, blk2)
+	case SetLocalTy:
+		return gen.setMemory(tree.Constant)
 	case EmptyTy:
 		return NewIntInstr(intEmpty, "")
 	}
 
 	return nil
+}
+
+func (instr *IntInstr) String() string {
+	str := fmt.Sprintf("%-3d %-12v : %v\n", instr.n, instr.Code, instr.Constant)
+	if instr.Next != nil {
+		str += instr.Next.String()
+	}
+
+	return str
 }
