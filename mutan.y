@@ -15,7 +15,7 @@ var Tree *SyntaxTree
 	tnode *SyntaxTree
 }
 
-%token ASSIGN EQUAL IF LEFT_BRACES RIGHT_BRACES
+%token ASSIGN EQUAL IF LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET
 %token <str> ID NUMBER
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement equal_expression
@@ -56,6 +56,11 @@ assign_expression
 	      node.Constant = $1
 	      $$ = NewNode(AssignmentTy, $3, node)
 	  }
+	| STORE LEFT_BRACKET expression RIGHT_BRACKET ASSIGN assign_expression
+	  {
+	      node := NewNode(SetStoreTy, $3)
+	      $$ = NewNode(AssignmentTy, $6, node)
+	  }
 	| simple_expression { $$ = $1 }
 	;
 
@@ -66,6 +71,7 @@ simple_expression
 get_variable
 	: ID { $$ = NewNode(IdentifierTy); $$.Constant = $1 }
 	| NUMBER { $$ = NewNode(ConstantTy); $$.Constant = $1 }
+	| STORE LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(StoreTy, $3) }
 	;
 
 %%

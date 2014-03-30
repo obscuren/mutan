@@ -22,7 +22,14 @@ func TestCompiler(t *testing.T) {
 	b = a
 	if a == b {
 		b = 10000
+		if b == a {
+			c = 10
+		}
 	}
+
+	store[0] = 10
+	a = store[0]
+	store[a] = 300
 	`), true)
 
 	if err != nil {

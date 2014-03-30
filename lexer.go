@@ -28,16 +28,17 @@ type stateFn func(*Lexer) stateFn
 type itemType int
 
 const (
-	itemEof        itemType = 0
-	itemIdentifier          = ID
-	itemNumber              = NUMBER
-	itemAssign              = ASSIGN
-	itemLeftBracket
-	itemRightBracket
-	itemLeftBrace  = LEFT_BRACES
-	itemRightBrace = RIGHT_BRACES
-	itemEqual      = EQUAL
-	itemIf         = IF
+	itemEof          itemType = 0
+	itemIdentifier            = ID
+	itemNumber                = NUMBER
+	itemAssign                = ASSIGN
+	itemLeftBracket           = LEFT_BRACKET
+	itemRightBracket          = RIGHT_BRACKET
+	itemLeftBrace             = LEFT_BRACES
+	itemRightBrace            = RIGHT_BRACES
+	itemEqual                 = EQUAL
+	itemIf                    = IF
+	itemStore                 = STORE
 )
 
 type item struct {
@@ -57,6 +58,8 @@ func lexStatement(l *Lexer) stateFn {
 	switch l.blob() {
 	case "if":
 		l.emit(itemIf)
+	case "store":
+		l.emit(itemStore)
 	default:
 		l.emit(itemIdentifier)
 	}
@@ -93,6 +96,10 @@ func lexText(l *Lexer) stateFn {
 			l.emit(itemLeftBrace)
 		case r == '}':
 			l.emit(itemRightBrace)
+		case r == '[':
+			l.emit(itemLeftBracket)
+		case r == ']':
+			l.emit(itemRightBracket)
 		case r == '=': // TODO turn this in to an operator check
 			if l.peek() == '=' {
 				l.next()

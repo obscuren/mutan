@@ -46,6 +46,10 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("PUSH")
 			c.add(instr.Target.n + 1)
 			c.add("JUMPI")
+		case intSStore:
+			c.add("SSTORE")
+		case intSLoad:
+			c.add("SLOAD")
 		case intTarget:
 			// XXX Ignore this, it's not really an actual opcode. It just helps in figuring out where to
 			// jump to if a jump is set.

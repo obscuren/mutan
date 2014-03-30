@@ -40,6 +40,8 @@ const (
 	intMLoad
 	intNot
 	intJumpi
+	intSStore
+	intSLoad
 )
 
 var instrAsString = []string{
@@ -54,6 +56,8 @@ var instrAsString = []string{
 	"mload",
 	"not",
 	"jmpi",
+	"sstore",
+	"sload",
 }
 
 func (op Instr) String() string {
@@ -145,6 +149,11 @@ func (gen *CodeGen) setMemory(name string) *IntInstr {
 	return push
 }
 
+func (gen *CodeGen) setStorage(tree *SyntaxTree) *IntInstr {
+	fmt.Println(tree)
+	return nil
+}
+
 // Concatenate two block of code together
 func concat(blk1 *IntInstr, blk2 *IntInstr) *IntInstr {
 	if blk2.Code == intEmpty {
@@ -213,6 +222,16 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return concat(blk1, blk2)
 	case SetLocalTy:
 		return gen.setMemory(tree.Constant)
+	case SetStoreTy:
+		blk1 := gen.MakeIntCode(tree.Children[0])
+		blk2 := NewIntInstr(intSStore, "")
+
+		return concat(blk1, blk2)
+	case StoreTy:
+		blk1 := gen.MakeIntCode(tree.Children[0])
+		blk2 := NewIntInstr(intSLoad, "")
+
+		return concat(blk1, blk2)
 	case EmptyTy:
 		return NewIntInstr(intEmpty, "")
 	}

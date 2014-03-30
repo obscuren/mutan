@@ -17,7 +17,8 @@ const (
 	BlockTy
 	IfThenTy
 	EqualTy
-	VarTy
+	StoreTy
+	SetStoreTy
 )
 
 var astAsString = []string{
@@ -31,6 +32,8 @@ var astAsString = []string{
 	"Block",
 	"If then",
 	"Equal",
+	"Store",
+	"Set store",
 }
 
 func (ast AstType) String() string {
