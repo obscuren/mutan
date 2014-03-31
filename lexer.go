@@ -39,6 +39,10 @@ const (
 	itemEqual                 = EQUAL
 	itemIf                    = IF
 	itemStore                 = STORE
+	itemAsm                   = ASM
+	itemInlineAsm             = INLINE_ASM
+	itemLeftPar               = LEFT_PAR
+	itemRightPar              = RIGHT_PAR
 )
 
 type item struct {
@@ -60,6 +64,10 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemIf)
 	case "store":
 		l.emit(itemStore)
+	case "asm":
+		l.emit(itemAsm)
+
+		return lexInsideAsm
 	default:
 		l.emit(itemIdentifier)
 	}
@@ -72,6 +80,28 @@ func lexNumber(l *Lexer) stateFn {
 	l.acceptRun(digits)
 
 	l.emit(itemNumber)
+
+	return lexText
+}
+
+func lexInsideAsm(l *Lexer) stateFn {
+out:
+	for {
+		switch r := l.next(); {
+		case isSpace(r):
+			l.ignore()
+		case r == '(':
+			l.emit(itemLeftPar)
+		case r == ')':
+			l.backup()
+
+			break out
+		default:
+			l.acceptRunUntill(')')
+
+			l.emit(itemInlineAsm)
+		}
+	}
 
 	return lexText
 }
@@ -100,6 +130,10 @@ func lexText(l *Lexer) stateFn {
 			l.emit(itemLeftBracket)
 		case r == ']':
 			l.emit(itemRightBracket)
+		case r == '(':
+			l.emit(itemLeftPar)
+		case r == ')':
+			l.emit(itemRightPar)
 		case r == '=': // TODO turn this in to an operator check
 			if l.peek() == '=' {
 				l.next()
@@ -123,7 +157,7 @@ type Lexer struct {
 	width int
 	state stateFn
 	items chan item
-	err   bool
+	err   error
 }
 
 func lexer(name, input string) *Lexer {
@@ -186,6 +220,13 @@ func (l *Lexer) acceptRun(valid string) {
 	l.backup()
 }
 
+func (l *Lexer) acceptRunUntill(until rune) {
+	// Continues running until a rune is found
+	for strings.IndexRune(string(until), l.next()) == -1 {
+	}
+	l.backup()
+}
+
 // Grabs the next item of the channel and returns it, or nil if we're done
 func (l *Lexer) nextItem() item {
 	for {
@@ -242,7 +283,5 @@ func (l *Lexer) Lex(lval *yySymType) int {
 }
 
 func (l *Lexer) Error(s string) {
-	l.err = true
-
-	fmt.Println(s)
+	l.err = fmt.Errorf("%s", s)
 }

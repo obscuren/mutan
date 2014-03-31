@@ -50,6 +50,8 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("SSTORE")
 		case intSLoad:
 			c.add("SLOAD")
+		case intASM:
+			c.add(instr.Constant)
 		case intTarget:
 			// XXX Ignore this, it's not really an actual opcode. It just helps in figuring out where to
 			// jump to if a jump is set.
@@ -68,7 +70,12 @@ func Compile(source io.Reader, debug bool) (asm []interface{}, err error) {
 	if err != nil {
 		return
 	}
-	ast := MakeAst(string(buff))
+
+	var ast *SyntaxTree
+	ast, err = MakeAst(string(buff))
+	if err != nil {
+		return
+	}
 
 	if debug {
 		fmt.Println(ast)

@@ -19,6 +19,7 @@ const (
 	EqualTy
 	StoreTy
 	SetStoreTy
+	InlineAsmTy
 )
 
 var astAsString = []string{
@@ -34,6 +35,7 @@ var astAsString = []string{
 	"Equal",
 	"Store",
 	"Set store",
+	"Inline asm",
 }
 
 func (ast AstType) String() string {
@@ -75,9 +77,9 @@ func (p *SyntaxTree) String() string {
 	return p.prettyPrint("")
 }
 
-func MakeAst(source string) *SyntaxTree {
+func MakeAst(source string) (*SyntaxTree, error) {
 	lex := lexer("mutan", source)
 	yyParse(lex)
 
-	return Tree
+	return Tree, lex.err
 }

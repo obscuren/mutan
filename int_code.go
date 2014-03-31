@@ -11,6 +11,7 @@ compiler transforms int code to ASM (very static)
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type varType byte
@@ -42,6 +43,9 @@ const (
 	intJumpi
 	intSStore
 	intSLoad
+
+	// Asm is a special opcode. It's not malformed in anyway
+	intASM
 )
 
 var instrAsString = []string{
@@ -58,6 +62,8 @@ var instrAsString = []string{
 	"jmpi",
 	"sstore",
 	"sload",
+
+	"asm",
 }
 
 func (op Instr) String() string {
@@ -232,6 +238,29 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		blk2 := NewIntInstr(intSLoad, "")
 
 		return concat(blk1, blk2)
+
+	case InlineAsmTy:
+		// Remove tabs
+		asm := strings.Replace(tree.Constant, "\t", "", -1)
+		// Remove double spaces
+		asm = strings.Replace(asm, "  ", " ", -1)
+		asmSlice := strings.FieldsFunc(asm, func(r rune) bool {
+			switch r {
+			case '\n', ' ':
+				return true
+			}
+
+			return false
+		})
+
+		firstInstr := NewIntInstr(intASM, asmSlice[0])
+		if len(asmSlice) > 1 {
+			for _, instr := range asmSlice[1:] {
+				concat(firstInstr, NewIntInstr(intASM, instr))
+			}
+		}
+
+		return firstInstr
 	case EmptyTy:
 		return NewIntInstr(intEmpty, "")
 	}

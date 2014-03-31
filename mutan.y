@@ -15,8 +15,8 @@ var Tree *SyntaxTree
 	tnode *SyntaxTree
 }
 
-%token ASSIGN EQUAL IF LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET
-%token <str> ID NUMBER
+%token ASSIGN EQUAL IF LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR
+%token <str> ID NUMBER INLINE_ASM
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement equal_expression
 
@@ -34,6 +34,7 @@ statement_list
 statement
 	: expression { $$ = $1 }
 	| if_statement { $$ = $1 }
+	| ASM LEFT_PAR INLINE_ASM RIGHT_PAR { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
 	;
 
 if_statement
