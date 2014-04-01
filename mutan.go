@@ -40,10 +40,12 @@ const CALLDATASIZE = 57363
 const GASPRICE = 57364
 const DOT = 57365
 const THIS = 57366
-const ID = 57367
-const NUMBER = 57368
-const INLINE_ASM = 57369
-const OP = 57370
+const ARRAY = 57367
+const ID = 57368
+const NUMBER = 57369
+const INLINE_ASM = 57370
+const OP = 57371
+const TYPE = 57372
 
 var yyToknames = []string{
 	"ASSIGN",
@@ -67,10 +69,12 @@ var yyToknames = []string{
 	"GASPRICE",
 	"DOT",
 	"THIS",
+	"ARRAY",
 	"ID",
 	"NUMBER",
 	"INLINE_ASM",
 	"OP",
+	"TYPE",
 }
 var yyStatenames = []string{}
 
@@ -78,7 +82,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line mutan.y:95
+//line mutan.y:124
 
 
 
@@ -87,69 +91,79 @@ var yyExca = []int{
 	-1, 1,
 	1, -1,
 	-2, 0,
+	-1, 2,
+	29, 18,
+	-2, 1,
 }
 
-const yyNprod = 27
+const yyNprod = 33
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 69
+const yyLast = 81
 
 var yyAct = []int{
 
-	8, 9, 18, 47, 11, 9, 26, 6, 11, 40,
-	16, 6, 11, 27, 16, 2, 24, 46, 16, 17,
-	10, 14, 28, 17, 10, 14, 18, 17, 10, 14,
-	54, 4, 22, 53, 18, 32, 33, 34, 35, 36,
-	37, 20, 52, 39, 51, 50, 49, 38, 30, 55,
-	25, 45, 44, 43, 29, 42, 41, 23, 19, 48,
-	21, 31, 15, 7, 5, 13, 12, 3, 1,
+	8, 21, 2, 9, 48, 56, 13, 32, 37, 6,
+	9, 58, 19, 13, 30, 33, 6, 28, 55, 19,
+	64, 20, 21, 10, 17, 34, 35, 15, 20, 13,
+	10, 17, 4, 27, 15, 19, 47, 21, 63, 62,
+	61, 60, 23, 59, 20, 46, 10, 17, 38, 54,
+	15, 53, 52, 51, 31, 50, 49, 29, 65, 36,
+	40, 41, 42, 43, 44, 45, 22, 26, 57, 25,
+	24, 12, 11, 39, 18, 7, 5, 16, 14, 3,
+	1,
 }
 var yyPact = []int{
 
-	-1000, -1000, -1, -1000, -26, -1000, 45, -1000, -1000, 3,
-	56, 22, -1000, -1000, -1000, -1000, 44, -7, 3, -21,
-	6, 3, 3, 34, 18, -26, 33, -1000, -1000, -2,
-	-1000, -1000, 43, 42, 40, 39, 38, 4, -1000, -5,
-	55, 32, 31, 30, 28, 19, 16, -1000, 3, -1000,
+	-1000, -1000, 4, -1000, -28, -1000, 53, -1000, -1000, 20,
+	66, 65, -1000, 57, -1000, 7, -1000, -1000, -1000, 44,
+	-9, 20, -21, 8, 20, 20, 20, -1000, -19, 34,
+	43, -28, 31, -1000, -1000, -1000, -7, 45, -1000, -1000,
+	42, 40, 39, 38, 36, 5, -1000, -3, 64, -15,
+	29, 27, 26, 25, 24, 6, -1000, 20, -1000, -1000,
 	-1000, -1000, -1000, -1000, -1000, -1000,
 }
 var yyPgo = []int{
 
-	0, 68, 15, 67, 31, 0, 66, 65, 64, 63,
-	62, 61,
+	0, 80, 2, 79, 32, 0, 78, 77, 76, 75,
+	74, 73, 72, 71,
 }
 var yyR1 = []int{
 
 	0, 1, 2, 2, 3, 3, 3, 10, 10, 11,
-	11, 11, 11, 11, 11, 8, 4, 4, 9, 5,
-	5, 5, 6, 7, 7, 7, 7,
+	11, 11, 11, 11, 11, 8, 4, 4, 4, 9,
+	5, 5, 5, 5, 5, 5, 12, 13, 6, 7,
+	7, 7, 7,
 }
 var yyR2 = []int{
 
 	0, 1, 2, 0, 1, 1, 4, 3, 3, 3,
-	3, 3, 3, 3, 3, 5, 1, 1, 3, 3,
-	6, 1, 1, 1, 1, 4, 1,
+	3, 3, 3, 3, 3, 5, 1, 1, 0, 3,
+	3, 3, 1, 1, 6, 1, 2, 5, 1, 1,
+	1, 4, 1,
 }
 var yyChk = []int{
 
 	-1000, -1, -2, -3, -4, -8, 12, -9, -5, 6,
-	25, 9, -6, -7, 26, -10, 15, 24, 28, 13,
-	-4, 4, 10, 13, 23, -4, 27, 7, -5, -4,
-	14, -11, 17, 18, 19, 20, 21, 22, 14, -2,
-	11, 13, 13, 13, 13, 13, 13, 8, 4, 14,
+	26, -12, -13, 9, -6, 30, -7, 27, -10, 15,
+	24, 29, 13, -4, 4, 4, 10, 26, 10, 13,
+	23, -4, 28, 7, -5, -5, -4, 27, 14, -11,
+	17, 18, 19, 20, 21, 22, 14, -2, 11, 11,
+	13, 13, 13, 13, 13, 13, 8, 4, 26, 14,
 	14, 14, 14, 14, 14, -5,
 }
 var yyDef = []int{
 
-	3, -2, 1, 2, 4, 5, 0, 16, 17, 0,
-	23, 0, 21, 22, 24, 26, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 18, 0, 3, 19, 0,
-	7, 8, 0, 0, 0, 0, 0, 0, 6, 0,
-	25, 0, 0, 0, 0, 0, 0, 15, 0, 9,
-	10, 11, 12, 13, 14, 20,
+	3, -2, -2, 2, 4, 5, 0, 16, 17, 18,
+	29, 22, 23, 0, 25, 0, 28, 30, 32, 0,
+	0, 18, 0, 0, 0, 0, 18, 26, 0, 0,
+	0, 19, 0, 3, 20, 21, 0, 0, 7, 8,
+	0, 0, 0, 0, 0, 0, 6, 18, 31, 0,
+	0, 0, 0, 0, 0, 0, 15, 0, 27, 9,
+	10, 11, 12, 13, 14, 24,
 }
 var yyTok1 = []int{
 
@@ -159,7 +173,7 @@ var yyTok2 = []int{
 
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 	12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-	22, 23, 24, 25, 26, 27, 28,
+	22, 23, 24, 25, 26, 27, 28, 29, 30,
 }
 var yyTok3 = []int{
 	0,
@@ -442,38 +456,71 @@ yydefault:
 		//line mutan.y:62
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 18:
-		//line mutan.y:66
-		{ yyVAL.tnode = NewNode(OpTy, yyS[yypt-2].tnode, yyS[yypt-0].tnode); yyVAL.tnode.Constant = yyS[yypt-1].str }
+		//line mutan.y:63
+		{ yyVAL.tnode = NewNode(EmptyTy) }
 	case 19:
-		//line mutan.y:71
+		//line mutan.y:67
+		{ yyVAL.tnode = NewNode(OpTy, yyS[yypt-2].tnode, yyS[yypt-0].tnode); yyVAL.tnode.Constant = yyS[yypt-1].str }
+	case 20:
+		//line mutan.y:72
 		{
 		      node := NewNode(SetLocalTy)
 		      node.Constant = yyS[yypt-2].str
 		      yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, node)
 		  }
-	case 20:
-		//line mutan.y:77
+	case 21:
+		//line mutan.y:78
+		{
+		      node := NewNode(SetLocalTy)
+		      node.Constant = yyS[yypt-2].tnode.Constant
+		      yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, yyS[yypt-2].tnode, node)
+		  }
+	case 22:
+		//line mutan.y:83
+		{ yyVAL.tnode = yyS[yypt-0].tnode }
+	case 23:
+		//line mutan.y:84
+		{ yyVAL.tnode = yyS[yypt-0].tnode }
+	case 24:
+		//line mutan.y:86
 		{
 		      node := NewNode(SetStoreTy, yyS[yypt-3].tnode)
 		      yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, node)
 		  }
-	case 21:
-		//line mutan.y:81
-		{ yyVAL.tnode = yyS[yypt-0].tnode }
-	case 22:
-		//line mutan.y:85
-		{ yyVAL.tnode = yyS[yypt-0].tnode }
-	case 23:
-		//line mutan.y:89
-		{ yyVAL.tnode = NewNode(IdentifierTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
-	case 24:
-		//line mutan.y:90
-		{ yyVAL.tnode = NewNode(ConstantTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	case 25:
-		//line mutan.y:91
-		{ yyVAL.tnode = NewNode(StoreTy, yyS[yypt-1].tnode) }
+		//line mutan.y:90
+		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 26:
-		//line mutan.y:92
+		//line mutan.y:95
+		{
+		
+		      yyVAL.tnode = NewNode(NewVarTy)
+		      yyVAL.tnode.Constant = yyS[yypt-0].str
+		      yyVAL.tnode.VarType = yyS[yypt-1].str
+		  }
+	case 27:
+		//line mutan.y:104
+		{
+		      yyVAL.tnode = NewNode(NewArrayTy)
+		      yyVAL.tnode.VarType = yyS[yypt-4].str
+		      yyVAL.tnode.Size = yyS[yypt-2].str
+		      yyVAL.tnode.Constant = yyS[yypt-0].str
+		      
+		  }
+	case 28:
+		//line mutan.y:114
+		{ yyVAL.tnode = yyS[yypt-0].tnode }
+	case 29:
+		//line mutan.y:118
+		{ yyVAL.tnode = NewNode(IdentifierTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
+	case 30:
+		//line mutan.y:119
+		{ yyVAL.tnode = NewNode(ConstantTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
+	case 31:
+		//line mutan.y:120
+		{ yyVAL.tnode = NewNode(StoreTy, yyS[yypt-1].tnode) }
+	case 32:
+		//line mutan.y:121
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	}
 	goto yystack /* stack new state and value */

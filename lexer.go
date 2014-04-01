@@ -58,6 +58,8 @@ const (
 	itemGasPrice              = GASPRICE
 	itemDot                   = DOT
 	itemThis                  = THIS
+	itemArray                 = ARRAY
+	itemVarType               = TYPE
 )
 
 type item struct {
@@ -67,7 +69,7 @@ type item struct {
 
 func lexStatement(l *Lexer) stateFn {
 	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
-	l.accept(acceptance)
+	l.acceptRun(acceptance)
 
 	if l.accept("1234567890") {
 		acceptance += "1234567890"
@@ -89,9 +91,44 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemThis)
 
 		return lexClosureScope
+	case "array":
+		l.emit(itemArray)
+
+		return lexArray
+	case "int8", "int16", "int32", "int64", "int256", "big":
+		l.emit(itemVarType)
 	default:
 		l.emit(itemIdentifier)
 	}
+
+	return lexText
+}
+
+const Numbers = "1234567890"
+
+func lexArray(l *Lexer) stateFn {
+	if !l.accept("(") {
+		l.err = fmt.Errorf("Exepcted '('")
+		return nil
+	}
+
+	l.emit(itemLeftPar)
+
+	if !l.accept(Numbers) {
+		l.err = fmt.Errorf("Expected number")
+		return nil
+	}
+
+	l.acceptRun(Numbers)
+
+	l.emit(itemNumber)
+
+	if !l.accept(")") {
+		l.err = fmt.Errorf("Expected ')'")
+		return nil
+	}
+
+	l.emit(itemRightPar)
 
 	return lexText
 }
@@ -159,6 +196,21 @@ out:
 
 	return lexText
 }
+
+/* TODO
+func lexInsidePar(l *Lexer) stateFn {
+	for {
+		switch r := l.next(); {
+		case isComma(r):
+			l.ignore()
+		case isAlphaNumeric(r):
+			l.backup()
+
+			return lexStatement
+		}
+	}
+}
+*/
 
 func lexOperator(l *Lexer) stateFn {
 	// The only special case there is, assignment
@@ -237,7 +289,7 @@ func lexer(name, input string) *Lexer {
 		name:  name,
 		input: input,
 		state: lexText,
-		items: make(chan item, 2),
+		items: make(chan item, 5),
 	}
 
 	return l

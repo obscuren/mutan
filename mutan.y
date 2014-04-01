@@ -16,10 +16,10 @@ var Tree *SyntaxTree
 }
 
 %token ASSIGN EQUAL IF LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
-%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS
-%token <str> ID NUMBER INLINE_ASM OP
+%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY
+%token <str> ID NUMBER INLINE_ASM OP TYPE
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
-%type <tnode> if_statement op_expression buildins closure_funcs
+%type <tnode> if_statement op_expression buildins closure_funcs new_var new_array
 
 %%
 
@@ -60,6 +60,7 @@ if_statement
 expression
 	: op_expression { $$ = $1 }
 	| assign_expression { $$ = $1 }
+	| /* Empty */  { $$ = NewNode(EmptyTy) }
 	;
 
 op_expression
@@ -73,12 +74,40 @@ assign_expression
 	      node.Constant = $1
 	      $$ = NewNode(AssignmentTy, $3, node)
 	  }
+	| new_var ASSIGN assign_expression
+	  {
+	      node := NewNode(SetLocalTy)
+	      node.Constant = $1.Constant
+	      $$ = NewNode(AssignmentTy, $3, $1, node)
+	  }
+	| new_var { $$ = $1 }
+	| new_array { $$ = $1 }
 	| STORE LEFT_BRACKET expression RIGHT_BRACKET ASSIGN assign_expression
 	  {
 	      node := NewNode(SetStoreTy, $3)
 	      $$ = NewNode(AssignmentTy, $6, node)
 	  }
 	| simple_expression { $$ = $1 }
+	;
+
+new_var
+	: TYPE ID
+	  {
+	
+	      $$ = NewNode(NewVarTy)
+	      $$.Constant = $2
+	      $$.VarType = $1
+	  }
+
+new_array
+	: TYPE LEFT_BRACKET NUMBER RIGHT_BRACKET ID
+	  {
+	      $$ = NewNode(NewArrayTy)
+	      $$.VarType = $1
+	      $$.Size = $3
+	      $$.Constant = $5
+	      
+	  }
 	;
 
 simple_expression

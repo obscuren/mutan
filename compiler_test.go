@@ -8,7 +8,19 @@ import (
 
 func TestCompiler(t *testing.T) {
 	_, err := Compile(strings.NewReader(`
-        a = 100000
+	big[2] c
+
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+/*
+func TestCompiler(t *testing.T) {
+	_, err := Compile(strings.NewReader(`
+        int8 a
 	b = a
 	if a == b {
 		b = 10000
@@ -49,9 +61,11 @@ func TestCompiler(t *testing.T) {
 	d = this.dataLoad()
 	e = this.gasPrice()
 
+	arrayTest = array(20)
 	`), true)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 }
+*/

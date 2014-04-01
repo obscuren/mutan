@@ -24,7 +24,6 @@ const (
 	SetStoreTy
 	InlineAsmTy
 	StopTy
-	AddrTy
 
 	OriginTy
 	CallerTy
@@ -32,6 +31,9 @@ const (
 	CallDataLoadTy
 	CallDataSizeTy
 	GasPriceTy
+
+	NewArrayTy
+	NewVarTy
 )
 
 var astAsString = []string{
@@ -51,15 +53,17 @@ var astAsString = []string{
 	"Store",
 	"Set store",
 	"Inline asm",
-	"Operator",
 	"Stop",
-	"Address",
+
 	"Origin",
 	"Caller",
 	"Value",
 	"Data load",
 	"Data size",
 	"Gas price",
+
+	"Create array",
+	"New var",
 }
 
 func (ast AstType) String() string {
@@ -76,6 +80,7 @@ type SyntaxTree struct {
 	Children []*SyntaxTree
 	Constant string
 	VarType  string
+	Size     string
 }
 
 func NewNode(typ AstType, v ...*SyntaxTree) *SyntaxTree {

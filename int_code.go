@@ -19,12 +19,14 @@ type varType byte
 const (
 	varNumTy varType = iota
 	varStrTy
+	varArrTy
 )
 
 type Variable struct {
-	typ varType
-	val string
-	pos int
+	typ  varType
+	val  string
+	pos  int
+	size int
 }
 
 type Instr byte
@@ -58,6 +60,9 @@ const (
 
 	// Asm is a special opcode. It's not malformed in anyway
 	intASM
+	intArray
+
+	intIgnore
 )
 
 var instrAsString = []string{
@@ -88,6 +93,9 @@ var instrAsString = []string{
 	"gasprice",
 
 	"asm",
+	"array",
+
+	"ignore",
 }
 
 func (op Instr) String() string {
@@ -131,7 +139,7 @@ func NewIntInstr(code Instr, constant string) *IntInstr {
 func (instr *IntInstr) setNumbers(i int) {
 	num := instr
 	for num != nil {
-		if num.Code != intTarget {
+		if num.Code != intTarget && num.Code != intIgnore {
 			i++
 		}
 		num.n = i
@@ -158,11 +166,13 @@ func (gen *CodeGen) getMemory(name string) (push *IntInstr, err error) {
 }
 
 // Generates asm for setting a memory address
-func (gen *CodeGen) setMemory(name string) *IntInstr {
+func (gen *CodeGen) setMemory(name string) (*IntInstr, error) {
 	// TODO Only accept numbers. Lnegth checking will have to
 	// occur when I implement strings
 	local := gen.locals[name]
 	if local == nil {
+		return NewIntInstr(intIgnore, ""), fmt.Errorf("Undefined variable '%s'", name)
+
 		local = &Variable{typ: varNumTy, pos: gen.memPos}
 		gen.locals[name] = local
 		gen.memPos += 32
@@ -176,7 +186,74 @@ func (gen *CodeGen) setMemory(name string) *IntInstr {
 	concat(push, cons)
 	concat(cons, store)
 
-	return push
+	return push, nil
+}
+
+func sizeOf(typ string) int {
+	if typ == "big" {
+		return 32
+	}
+
+	size, _ := strconv.Atoi(typ[3:])
+	// Everything is 256 bit for now untill poc 5 comes along
+	//size /= 8
+	size = 32
+
+	return size
+}
+
+func (gen *CodeGen) initNewVar(tree *SyntaxTree) error {
+	name := tree.Constant
+	if gen.locals[name] != nil {
+		return fmt.Errorf("Redeclaration of variable '%s'", name)
+	}
+
+	var size int
+	switch tree.VarType {
+	case "int8", "int16", "int32", "int64", "int256", "big":
+		size = sizeOf(tree.VarType)
+	}
+
+	variable := &Variable{typ: varNumTy, pos: gen.memPos, size: size}
+	gen.locals[name] = variable
+
+	gen.memPos += size
+
+	return nil
+}
+
+func (gen *CodeGen) initNewArray(tree *SyntaxTree) error {
+	name := tree.Constant
+	if gen.locals[name] != nil {
+		return fmt.Errorf("Redeclaration of variable '%s'", name)
+	}
+
+	var size int
+	switch tree.VarType {
+	case "int8", "int16", "int32", "int64", "int256", "big":
+		size = sizeOf(tree.VarType)
+	}
+	length, _ := strconv.Atoi(tree.Size)
+	size *= length
+
+	variable := &Variable{typ: varArrTy, pos: gen.memPos, size: size}
+	gen.locals[name] = variable
+
+	gen.memPos += size
+
+	return nil
+}
+
+func (gen *CodeGen) setArray(name, size string) error {
+	if gen.locals[name] != nil {
+		return fmt.Errorf("%s already initialized. Can't overwrite", name)
+	}
+
+	s, _ := strconv.Atoi(size)
+	gen.locals[name] = &Variable{typ: varArrTy, pos: gen.memPos, size: s}
+	gen.memPos += s
+
+	return nil
 }
 
 func (gen *CodeGen) setStorage(tree *SyntaxTree) *IntInstr {
@@ -215,8 +292,15 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case AssignmentTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
 		blk2 := gen.MakeIntCode(tree.Children[1])
+		c := concat(blk1, blk2)
+		// Regular assignment a = 10
+		if len(tree.Children) == 2 {
+			return c
+		}
 
-		return concat(blk1, blk2)
+		// Init assignment int8 a = 20
+		blk3 := gen.MakeIntCode(tree.Children[2])
+		return concat(c, blk3)
 	case IfThenTy:
 		cond := gen.MakeIntCode(tree.Children[0])
 		not := NewIntInstr(intNot, "")
@@ -251,7 +335,12 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return concat(blk1, blk2)
 	case SetLocalTy:
-		return gen.setMemory(tree.Constant)
+		c, err := gen.setMemory(tree.Constant)
+		if err != nil {
+			gen.addError(err)
+		}
+
+		return c
 	case SetStoreTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
 		blk2 := NewIntInstr(intSStore, "")
@@ -292,6 +381,21 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return NewIntInstr(intCallDataSize, "")
 	case GasPriceTy:
 		return NewIntInstr(intGasPrice, "")
+	case NewArrayTy:
+		err := gen.initNewArray(tree)
+		if err != nil {
+			gen.addError(err)
+		}
+
+		return NewIntInstr(intIgnore, "")
+	case NewVarTy:
+		err := gen.initNewVar(tree)
+		if err != nil {
+			gen.addError(err)
+			return NewIntInstr(intIgnore, "")
+		}
+
+		return NewIntInstr(intIgnore, "")
 	case InlineAsmTy:
 		// Remove tabs
 		asm := strings.Replace(tree.Constant, "\t", "", -1)
