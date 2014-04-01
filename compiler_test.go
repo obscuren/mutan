@@ -8,8 +8,13 @@ import (
 
 func TestCompiler(t *testing.T) {
 	_, err := Compile(strings.NewReader(`
-	big[2] c
-	big a = c[1]
+	int32 a
+	int32 b
+
+	if 200 < this.value() {
+		a = 20
+		b = 30
+	}
 	`), true)
 
 	if err != nil {

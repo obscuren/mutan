@@ -10,14 +10,17 @@ Mutan is in its design state. Features:
 
 ```go
 asm, err := mutan.Compile(strings.NewReader(`
-	a = 10
-	b = 10
+	int32 a = 10
+	big b = 10
 	if a == b {
 		if b == b {
 			a = 2
 		}
 		a = 3
 	}
+
+	big[10] arrays
+	big b = this.caller()
 `), true)
 if err != nil {
 	fmt.Println(err)

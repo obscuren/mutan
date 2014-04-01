@@ -74,6 +74,12 @@ assign_expression
 	      node.Constant = $1
 	      $$ = NewNode(AssignmentTy, $3, node)
 	  }
+	| ID LEFT_BRACKET expression RIGHT_BRACKET ASSIGN assign_expression
+	  {
+	      node := NewNode(SetLocalTy)
+	      node.Constant = $1
+	      $$ = NewNode(AssignArrayTy, $6, node)
+	  }
 	| new_var ASSIGN assign_expression
 	  {
 	      node := NewNode(SetLocalTy)

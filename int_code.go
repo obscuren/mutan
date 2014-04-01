@@ -254,6 +254,7 @@ func (gen *CodeGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	// Add the result to the memory location
 	add := NewIntInstr(intAdd, "")
 	// b = a[0] // loc(a) + sizeOf(type(a)) * len(a)
+	load := NewIntInstr(intMLoad, "")
 
 	concat(loc, locConst)
 	concat(locConst, offset)
@@ -261,8 +262,19 @@ func (gen *CodeGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	concat(size, sizeConst)
 	concat(sizeConst, mul)
 	concat(mul, add)
+	concat(add, load)
 
 	return loc, nil
+}
+
+func (gen *CodeGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
+	name := tree.Constant
+	local := gen.locals[name]
+	if local == nil {
+		return NewIntInstr(intIgnore, ""), fmt.Errorf("undefined: %v", name)
+	}
+
+	return nil, nil
 }
 
 func (gen *CodeGen) initNewArray(tree *SyntaxTree) error {
@@ -283,18 +295,6 @@ func (gen *CodeGen) initNewArray(tree *SyntaxTree) error {
 	gen.locals[name] = variable
 
 	gen.memPos += size
-
-	return nil
-}
-
-func (gen *CodeGen) setArray(name, size string) error {
-	if gen.locals[name] != nil {
-		return fmt.Errorf("%s already initialized. Can't overwrite", name)
-	}
-
-	s, _ := strconv.Atoi(size)
-	gen.locals[name] = &Variable{typ: varArrTy, pos: gen.memPos, size: s}
-	gen.memPos += s
 
 	return nil
 }

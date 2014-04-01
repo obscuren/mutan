@@ -42,6 +42,8 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("SUB")
 		case intDiv:
 			c.add("DIV")
+		case intAdd:
+			c.add("ADD")
 		case intAssign:
 		case intEmpty:
 		case intJump:
