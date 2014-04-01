@@ -22,6 +22,10 @@ func isNumber(t rune) bool {
 	return unicode.IsNumber(t)
 }
 
+func isOperator(t rune) bool {
+	return strings.IndexRune("=+-/*><", t) >= 0
+}
+
 const eof = -1
 
 type stateFn func(*Lexer) stateFn
@@ -32,6 +36,7 @@ const (
 	itemIdentifier            = ID
 	itemNumber                = NUMBER
 	itemAssign                = ASSIGN
+	itemOp                    = OP
 	itemLeftBracket           = LEFT_BRACKET
 	itemRightBracket          = RIGHT_BRACKET
 	itemLeftBrace             = LEFT_BRACES
@@ -43,6 +48,7 @@ const (
 	itemInlineAsm             = INLINE_ASM
 	itemLeftPar               = LEFT_PAR
 	itemRightPar              = RIGHT_PAR
+	itemStop                  = STOP
 )
 
 type item struct {
@@ -68,6 +74,8 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemAsm)
 
 		return lexInsideAsm
+	case "exit":
+		l.emit(itemStop)
 	default:
 		l.emit(itemIdentifier)
 	}
@@ -106,6 +114,25 @@ out:
 	return lexText
 }
 
+func lexOperator(l *Lexer) stateFn {
+	// The only special case there is, assignment
+
+	acceptance := "="
+	if !l.accept("=") {
+		acceptance += "-/*+><"
+	}
+	l.acceptRun(acceptance)
+
+	switch l.blob() {
+	case "=":
+		l.emit(itemAssign)
+	default:
+		l.emit(itemOp)
+	}
+
+	return lexText
+}
+
 // Lex text attempts to identify the current state that *might*
 // be and calls the appropriate lexing method. The lexing method
 // should then take care of anything that is current (even validating)
@@ -134,13 +161,19 @@ func lexText(l *Lexer) stateFn {
 			l.emit(itemLeftPar)
 		case r == ')':
 			l.emit(itemRightPar)
-		case r == '=': // TODO turn this in to an operator check
-			if l.peek() == '=' {
-				l.next()
-				l.emit(itemEqual)
-			} else {
-				l.emit(itemAssign)
-			}
+			/*
+				case r == '=': // TODO turn this in to an operator check
+					if l.peek() == '=' {
+						l.next()
+						l.emit(itemEqual)
+					} else {
+						l.emit(itemAssign)
+					}
+			*/
+		case isOperator(r):
+			l.backup()
+
+			return lexOperator
 		default:
 			return nil
 		}

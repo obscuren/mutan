@@ -23,6 +23,7 @@ func (c *Compiler) add(v ...interface{}) {
 func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 	c.asm = nil
 
+	// The following code is very explicit. I could have used string.Upcase
 	for instr != nil {
 		switch instr.Code {
 		case intPush:
@@ -31,6 +32,16 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add(instr.Constant)
 		case intEqual:
 			c.add("EQ")
+		case intGt:
+			c.add("GT")
+		case intLt:
+			c.add("LT")
+		case intMul:
+			c.add("MUL")
+		case intSub:
+			c.add("SUB")
+		case intDiv:
+			c.add("DIV")
 		case intAssign:
 		case intEmpty:
 		case intJump:
@@ -50,6 +61,8 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("SSTORE")
 		case intSLoad:
 			c.add("SLOAD")
+		case intStop:
+			c.add("STOP")
 		case intASM:
 			c.add(instr.Constant)
 		case intTarget:

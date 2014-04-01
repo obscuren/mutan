@@ -31,6 +31,11 @@ type Instr byte
 
 const (
 	intEqual Instr = iota
+	intGt
+	intLt
+	intMul
+	intDiv
+	intSub
 	intAssign
 	intConst
 	intEmpty
@@ -43,6 +48,7 @@ const (
 	intJumpi
 	intSStore
 	intSLoad
+	intStop
 
 	// Asm is a special opcode. It's not malformed in anyway
 	intASM
@@ -50,6 +56,11 @@ const (
 
 var instrAsString = []string{
 	"equal",
+	"gt",
+	"lt",
+	"mul",
+	"div",
+	"sub",
 	"assign",
 	"const",
 	"empty",
@@ -62,6 +73,7 @@ var instrAsString = []string{
 	"jmpi",
 	"sstore",
 	"sload",
+	"stop",
 
 	"asm",
 }
@@ -239,6 +251,23 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return concat(blk1, blk2)
 
+	case OpTy:
+		blk1 := gen.MakeIntCode(tree.Children[0])
+		blk2 := gen.MakeIntCode(tree.Children[1])
+		concat(blk1, blk2)
+
+		var op Instr
+
+		switch tree.Constant {
+		case "==":
+			op = intEqual
+		case ">":
+			op = intGt
+		}
+
+		return concat(blk1, NewIntInstr(op, ""))
+	case StopTy:
+		return NewIntInstr(intStop, "")
 	case InlineAsmTy:
 		// Remove tabs
 		asm := strings.Replace(tree.Constant, "\t", "", -1)

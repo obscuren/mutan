@@ -17,9 +17,13 @@ const (
 	BlockTy
 	IfThenTy
 	EqualTy
+	GtTy
+	LtTy
+	OpTy
 	StoreTy
 	SetStoreTy
 	InlineAsmTy
+	StopTy
 )
 
 var astAsString = []string{
@@ -33,9 +37,14 @@ var astAsString = []string{
 	"Block",
 	"If then",
 	"Equal",
+	"Gt",
+	"Lt",
+	"Operator",
 	"Store",
 	"Set store",
 	"Inline asm",
+	"Operator",
+	"Stop",
 }
 
 func (ast AstType) String() string {

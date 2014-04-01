@@ -34,6 +34,15 @@ func TestCompiler(t *testing.T) {
 		PUSH 3
 	)
 
+	if a > b {
+		a = 1
+	}
+	if a < b {
+		test = 100000
+	}
+
+	exit()
+
 	`), true)
 
 	if err != nil {
