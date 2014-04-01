@@ -49,6 +49,15 @@ const (
 	itemLeftPar               = LEFT_PAR
 	itemRightPar              = RIGHT_PAR
 	itemStop                  = STOP
+	itemAddr                  = ADDR
+	itemOrigin                = ORIGIN
+	itemCaller                = CALLER
+	itemCallVal               = CALLVAL
+	itemCallDataLoad          = CALLDATALOAD
+	itemCallDataSize          = CALLDATASIZE
+	itemGasPrice              = GASPRICE
+	itemDot                   = DOT
+	itemThis                  = THIS
 )
 
 type item struct {
@@ -76,8 +85,45 @@ func lexStatement(l *Lexer) stateFn {
 		return lexInsideAsm
 	case "exit":
 		l.emit(itemStop)
+	case "this":
+		l.emit(itemThis)
+
+		return lexClosureScope
 	default:
 		l.emit(itemIdentifier)
+	}
+
+	return lexText
+}
+
+func lexClosureScope(l *Lexer) stateFn {
+	if !l.accept(".") {
+		l.err = fmt.Errorf("Expected '.'")
+
+		return nil
+	}
+
+	l.emit(itemDot)
+
+	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
+	l.acceptRun(acceptance)
+	switch l.blob() {
+	case "caller":
+		l.emit(itemCaller)
+	case "origin":
+		l.emit(itemOrigin)
+	case "value":
+		l.emit(itemCallVal)
+	case "dataLoad":
+		l.emit(itemCallDataLoad)
+	case "dataSize":
+		l.emit(itemCallDataSize)
+	case "gasPrice":
+		l.emit(itemGasPrice)
+	default:
+		l.err = fmt.Errorf("Undefined '%s'", l.blob())
+
+		return nil
 	}
 
 	return lexText
@@ -161,15 +207,8 @@ func lexText(l *Lexer) stateFn {
 			l.emit(itemLeftPar)
 		case r == ')':
 			l.emit(itemRightPar)
-			/*
-				case r == '=': // TODO turn this in to an operator check
-					if l.peek() == '=' {
-						l.next()
-						l.emit(itemEqual)
-					} else {
-						l.emit(itemAssign)
-					}
-			*/
+		case r == '.':
+			l.emit(itemDot)
 		case isOperator(r):
 			l.backup()
 

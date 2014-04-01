@@ -24,6 +24,14 @@ const (
 	SetStoreTy
 	InlineAsmTy
 	StopTy
+	AddrTy
+
+	OriginTy
+	CallerTy
+	CallValTy
+	CallDataLoadTy
+	CallDataSizeTy
+	GasPriceTy
 )
 
 var astAsString = []string{
@@ -45,6 +53,13 @@ var astAsString = []string{
 	"Inline asm",
 	"Operator",
 	"Stop",
+	"Address",
+	"Origin",
+	"Caller",
+	"Value",
+	"Data load",
+	"Data size",
+	"Gas price",
 }
 
 func (ast AstType) String() string {

@@ -43,6 +43,12 @@ func TestCompiler(t *testing.T) {
 
 	exit()
 
+	a = this.caller()
+	b = this.dataSize()
+	c = this.value()
+	d = this.dataLoad()
+	e = this.gasPrice()
+
 	`), true)
 
 	if err != nil {

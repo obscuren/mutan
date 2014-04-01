@@ -49,6 +49,12 @@ const (
 	intSStore
 	intSLoad
 	intStop
+	intOrigin
+	intCaller
+	intCallVal
+	intCallDataLoad
+	intCallDataSize
+	intGasPrice
 
 	// Asm is a special opcode. It's not malformed in anyway
 	intASM
@@ -74,6 +80,12 @@ var instrAsString = []string{
 	"sstore",
 	"sload",
 	"stop",
+	"origin",
+	"caller",
+	"value",
+	"dataload",
+	"datasize",
+	"gasprice",
 
 	"asm",
 }
@@ -268,6 +280,18 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return concat(blk1, NewIntInstr(op, ""))
 	case StopTy:
 		return NewIntInstr(intStop, "")
+	case OriginTy:
+		return NewIntInstr(intOrigin, "")
+	case CallerTy:
+		return NewIntInstr(intCaller, "")
+	case CallValTy:
+		return NewIntInstr(intCallVal, "")
+	case CallDataLoadTy:
+		return NewIntInstr(intCallDataLoad, "")
+	case CallDataSizeTy:
+		return NewIntInstr(intCallDataSize, "")
+	case GasPriceTy:
+		return NewIntInstr(intGasPrice, "")
 	case InlineAsmTy:
 		// Remove tabs
 		asm := strings.Replace(tree.Constant, "\t", "", -1)

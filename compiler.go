@@ -63,6 +63,18 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("SLOAD")
 		case intStop:
 			c.add("STOP")
+		case intOrigin:
+			c.add("ORIGIN")
+		case intCaller:
+			c.add("CALLER")
+		case intCallVal:
+			c.add("CALLVALUE")
+		case intCallDataLoad:
+			c.add("CALLDATALOAD")
+		case intCallDataSize:
+			c.add("CALLDATASIZE")
+		case intGasPrice:
+			c.add("GASPRICE")
 		case intASM:
 			c.add(instr.Constant)
 		case intTarget:

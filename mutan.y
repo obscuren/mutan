@@ -16,9 +16,10 @@ var Tree *SyntaxTree
 }
 
 %token ASSIGN EQUAL IF LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
+%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS
 %token <str> ID NUMBER INLINE_ASM OP
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
-%type <tnode> if_statement op_expression buildins
+%type <tnode> if_statement op_expression buildins closure_funcs
 
 %%
 
@@ -32,14 +33,24 @@ statement_list
 	;
 
 statement
-	: buildins { $$ = $1 }
-	| expression { $$ = $1 }
+	: expression { $$ = $1 }
 	| if_statement { $$ = $1 }
 	| ASM LEFT_PAR INLINE_ASM RIGHT_PAR { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
 	;
 
+
 buildins
 	: STOP LEFT_PAR RIGHT_PAR { $$ = NewNode(StopTy) }
+	| THIS DOT closure_funcs { $$ = $3 }
+	;
+
+closure_funcs
+	: ORIGIN LEFT_PAR RIGHT_PAR { $$ = NewNode(OriginTy) }
+	| CALLER LEFT_PAR RIGHT_PAR { $$ = NewNode(CallerTy) }
+	| CALLVAL LEFT_PAR RIGHT_PAR { $$ = NewNode(CallValTy) }
+	| CALLDATALOAD LEFT_PAR RIGHT_PAR { $$ = NewNode(CallDataLoadTy) }
+	| CALLDATASIZE LEFT_PAR RIGHT_PAR { $$ = NewNode(CallDataSizeTy) }
+	| GASPRICE LEFT_PAR RIGHT_PAR { $$ = NewNode(GasPriceTy) }
 	;
 
 if_statement
@@ -78,6 +89,7 @@ get_variable
 	: ID { $$ = NewNode(IdentifierTy); $$.Constant = $1 }
 	| NUMBER { $$ = NewNode(ConstantTy); $$.Constant = $1 }
 	| STORE LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(StoreTy, $3) }
+	| buildins { $$ = $1 }
 	;
 
 %%
