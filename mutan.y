@@ -117,6 +117,7 @@ simple_expression
 get_variable
 	: ID { $$ = NewNode(IdentifierTy); $$.Constant = $1 }
 	| NUMBER { $$ = NewNode(ConstantTy); $$.Constant = $1 }
+	| ID LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(ArrayTy, $3); $$.Constant = $1 }
 	| STORE LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(StoreTy, $3) }
 	| buildins { $$ = $1 }
 	;

@@ -36,6 +36,7 @@ const (
 	intGt
 	intLt
 	intMul
+	intAdd
 	intDiv
 	intSub
 	intAssign
@@ -70,6 +71,7 @@ var instrAsString = []string{
 	"gt",
 	"lt",
 	"mul",
+	"add",
 	"div",
 	"sub",
 	"assign",
@@ -148,12 +150,19 @@ func (instr *IntInstr) setNumbers(i int) {
 }
 
 // Generates asm for getting a memory address
-func (gen *CodeGen) getMemory(name string) (push *IntInstr, err error) {
+func (gen *CodeGen) getMemory(name string, offset int) (push *IntInstr, err error) {
 	var pos string
-	if gen.locals[name] == nil {
+	local := gen.locals[name]
+	if local == nil {
 		err = fmt.Errorf("undefined: %v", name)
 	} else {
-		pos = strconv.Itoa(gen.locals[name].pos)
+		var p int
+		if local.typ == varArrTy {
+			p = local.pos + (offset * local.size)
+		} else {
+			p = local.pos
+		}
+		pos = strconv.Itoa(p)
 	}
 
 	push = NewIntInstr(intPush, "")
@@ -220,6 +229,40 @@ func (gen *CodeGen) initNewVar(tree *SyntaxTree) error {
 	gen.memPos += size
 
 	return nil
+}
+
+func (gen *CodeGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
+	name := tree.Constant
+	local := gen.locals[name]
+	if local == nil {
+		return NewIntInstr(intIgnore, ""), fmt.Errorf("undefined: %v", name)
+	}
+
+	// TODO optimize if the expression in offset. If regular const (i.e. 0-9)
+	// do an inline calculation instead.
+
+	// Get the location of the variable in memory
+	loc := NewIntInstr(intPush, "")
+	locConst := NewIntInstr(intConst, strconv.Itoa(local.pos))
+	// Get the offset (= expression between brackets [expression])
+	offset := gen.MakeIntCode(tree.Children[0])
+	// Get the size of the variable in bytes
+	size := NewIntInstr(intPush, "")
+	sizeConst := NewIntInstr(intConst, strconv.Itoa(local.size))
+	// Multiply offset with size
+	mul := NewIntInstr(intMul, "")
+	// Add the result to the memory location
+	add := NewIntInstr(intAdd, "")
+	// b = a[0] // loc(a) + sizeOf(type(a)) * len(a)
+
+	concat(loc, locConst)
+	concat(locConst, offset)
+	concat(offset, size)
+	concat(size, sizeConst)
+	concat(sizeConst, mul)
+	concat(mul, add)
+
+	return loc, nil
 }
 
 func (gen *CodeGen) initNewArray(tree *SyntaxTree) error {
@@ -322,7 +365,7 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return concat(blk1, NewIntInstr(intEqual, ""))
 	case IdentifierTy:
-		c, err := gen.getMemory(tree.Constant)
+		c, err := gen.getMemory(tree.Constant, 0)
 		if err != nil {
 			gen.addError(err)
 		}
@@ -388,6 +431,14 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		}
 
 		return NewIntInstr(intIgnore, "")
+	case ArrayTy:
+		c, err := gen.getArray(tree)
+		if err != nil {
+			gen.addError(err)
+		}
+
+		return c
+
 	case NewVarTy:
 		err := gen.initNewVar(tree)
 		if err != nil {

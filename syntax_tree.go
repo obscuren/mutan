@@ -34,6 +34,7 @@ const (
 
 	NewArrayTy
 	NewVarTy
+	ArrayTy
 )
 
 var astAsString = []string{
@@ -64,6 +65,7 @@ var astAsString = []string{
 
 	"Create array",
 	"New var",
+	"Array",
 }
 
 func (ast AstType) String() string {

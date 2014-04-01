@@ -9,7 +9,7 @@ import (
 func TestCompiler(t *testing.T) {
 	_, err := Compile(strings.NewReader(`
 	big[2] c
-
+	big a = c[1]
 	`), true)
 
 	if err != nil {
