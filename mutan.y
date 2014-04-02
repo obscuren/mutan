@@ -76,9 +76,7 @@ assign_expression
 	  }
 	| ID LEFT_BRACKET expression RIGHT_BRACKET ASSIGN assign_expression
 	  {
-	      node := NewNode(SetLocalTy)
-	      node.Constant = $1
-	      $$ = NewNode(AssignArrayTy, $6, node)
+	      $$ = NewNode(AssignArrayTy, $3, $6); $$.Constant = $1
 	  }
 	| new_var ASSIGN assign_expression
 	  {

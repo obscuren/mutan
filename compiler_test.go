@@ -22,6 +22,18 @@ func TestCompiler(t *testing.T) {
 	}
 }
 
+func TestArray(t *testing.T) {
+	_, err := Compile(strings.NewReader(`
+	int32[2] a
+	a[1] = 10
+	int32 b = a[1]
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 /*
 func TestCompiler(t *testing.T) {
 	_, err := Compile(strings.NewReader(`

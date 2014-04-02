@@ -149,6 +149,11 @@ func (instr *IntInstr) setNumbers(i int) {
 	}
 }
 
+// Creates an error and returns an ignore instruction
+func Errorf(format string, v ...interface{}) (*IntInstr, error) {
+	return NewIntInstr(intIgnore, ""), fmt.Errorf(format, v...)
+}
+
 // Generates asm for getting a memory address
 func (gen *CodeGen) getMemory(name string, offset int) (push *IntInstr, err error) {
 	var pos string
@@ -181,10 +186,6 @@ func (gen *CodeGen) setMemory(name string) (*IntInstr, error) {
 	local := gen.locals[name]
 	if local == nil {
 		return NewIntInstr(intIgnore, ""), fmt.Errorf("Undefined variable '%s'", name)
-
-		local = &Variable{typ: varNumTy, pos: gen.memPos}
-		gen.locals[name] = local
-		gen.memPos += 32
 	}
 	local.val = gen.lastPush.Constant
 
@@ -198,7 +199,19 @@ func (gen *CodeGen) setMemory(name string) (*IntInstr, error) {
 	return push, nil
 }
 
+// Type size table
+var typeToSize = map[string]int{
+	"int8":   8,
+	"int16":  16,
+	"int32":  32,
+	"int64":  64,
+	"int256": 256,
+	"byte":   8,
+	"big":    256,
+}
+
 func sizeOf(typ string) int {
+
 	if typ == "big" {
 		return 32
 	}
@@ -218,9 +231,9 @@ func (gen *CodeGen) initNewVar(tree *SyntaxTree) error {
 	}
 
 	var size int
-	switch tree.VarType {
-	case "int8", "int16", "int32", "int64", "int256", "big":
-		size = sizeOf(tree.VarType)
+	switch t := tree.VarType; {
+	case typeToSize[t] > 0:
+		size = sizeOf(t)
 	}
 
 	variable := &Variable{typ: varNumTy, pos: gen.memPos, size: size}
@@ -271,10 +284,40 @@ func (gen *CodeGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
 	local := gen.locals[name]
 	if local == nil {
-		return NewIntInstr(intIgnore, ""), fmt.Errorf("undefined: %v", name)
+		return Errorf("undefined: %v", name)
 	}
 
-	return nil, nil
+	if local.typ != varArrTy {
+		return Errorf("left hand not an array")
+	}
+
+	// The value which we want to assign
+	val := gen.MakeIntCode(tree.Children[1])
+
+	// Get the location of the variable in memory
+	loc := NewIntInstr(intPush, "")
+	locConst := NewIntInstr(intConst, strconv.Itoa(local.pos))
+	// Get the offset (= expression between brackets [expression])
+	offset := gen.MakeIntCode(tree.Children[0])
+	// Get the size of the variable in bytes
+	size := NewIntInstr(intPush, "")
+	sizeConst := NewIntInstr(intConst, strconv.Itoa(local.size))
+	// Multiply offset with size
+	mul := NewIntInstr(intMul, "")
+	// Add the result to the memory location
+	add := NewIntInstr(intAdd, "")
+	store := NewIntInstr(intMStore, "")
+
+	concat(val, loc)
+	concat(loc, locConst)
+	concat(locConst, offset)
+	concat(offset, size)
+	concat(size, sizeConst)
+	concat(sizeConst, mul)
+	concat(mul, add)
+	concat(add, store)
+
+	return val, nil
 }
 
 func (gen *CodeGen) initNewArray(tree *SyntaxTree) error {
@@ -424,21 +467,27 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return NewIntInstr(intCallDataSize, "")
 	case GasPriceTy:
 		return NewIntInstr(intGasPrice, "")
-	case NewArrayTy:
+	case NewArrayTy: // Create a new array
 		err := gen.initNewArray(tree)
 		if err != nil {
 			gen.addError(err)
 		}
 
 		return NewIntInstr(intIgnore, "")
-	case ArrayTy:
+	case ArrayTy: // Get a value of an array
 		c, err := gen.getArray(tree)
 		if err != nil {
 			gen.addError(err)
 		}
 
 		return c
+	case AssignArrayTy: // Assign a value to an element in the array
+		c, err := gen.setArray(tree)
+		if err != nil {
+			gen.addError(err)
+		}
 
+		return c
 	case NewVarTy:
 		err := gen.initNewVar(tree)
 		if err != nil {
