@@ -126,9 +126,6 @@ func Compile(source io.Reader, debug bool) (asm []interface{}, err error) {
 
 	comp := NewCompiler()
 	asm, err = comp.Compile(intCode)
-	if debug {
-		fmt.Println(asm)
-	}
 
 	return
 }

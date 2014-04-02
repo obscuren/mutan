@@ -29,6 +29,12 @@ if err != nil {
 }
 ```
 
+## Front end
+
+`go get github.com/obscuren/mutan/mutan`
+
+`mutan [filename]`
+
 Lexer is heavily inspired by Rob Pike's idea about lexers.
 
 Mutan is a compiler & language for the [ethereum](http://ethereum.org) project.
