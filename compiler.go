@@ -77,6 +77,8 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("CALLDATASIZE")
 		case intGasPrice:
 			c.add("GASPRICE")
+		case intCall:
+			c.add("CALL")
 		case intASM:
 			c.add(instr.Constant)
 		case intTarget:
