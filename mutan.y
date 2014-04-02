@@ -16,10 +16,10 @@ var Tree *SyntaxTree
 }
 
 %token ASSIGN EQUAL IF LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
-%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY
+%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA
 %token <str> ID NUMBER INLINE_ASM OP TYPE
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
-%type <tnode> if_statement op_expression buildins closure_funcs new_var new_array
+%type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep
 
 %%
 
@@ -41,7 +41,18 @@ statement
 
 buildins
 	: STOP LEFT_PAR RIGHT_PAR { $$ = NewNode(StopTy) }
+	| CALL LEFT_PAR arguments RIGHT_PAR { $$ = NewNode(CallTy, $3) }
 	| THIS DOT closure_funcs { $$ = $3 }
+	;
+
+arguments
+	: arguments get_variable sep { $$ = NewNode(ArgTy, $1, $2) }
+	| /* Empty */ { $$ = NewNode(EmptyTy) }
+	;
+
+sep
+	: COMMA { $$ = NewNode(EmptyTy) }
+	| /* Empty */ { $$ = NewNode(EmptyTy) }
 	;
 
 closure_funcs

@@ -60,6 +60,8 @@ const (
 	itemThis                  = THIS
 	itemArray                 = ARRAY
 	itemVarType               = TYPE
+	itemComma                 = COMMA
+	itemCall                  = CALL
 )
 
 type item struct {
@@ -97,6 +99,8 @@ func lexStatement(l *Lexer) stateFn {
 		return lexArray
 	case "int8", "int16", "int32", "int64", "int256", "big":
 		l.emit(itemVarType)
+	case "call":
+		l.emit(itemCall)
 	default:
 		l.emit(itemIdentifier)
 	}
@@ -105,6 +109,16 @@ func lexStatement(l *Lexer) stateFn {
 }
 
 const Numbers = "1234567890"
+
+func lexCall(l *Lexer) stateFn {
+	if !l.accept("(") {
+		l.err = fmt.Errorf("Expected '('")
+		return nil
+	}
+	l.emit(itemLeftPar)
+
+	return lexText
+}
 
 func lexArray(l *Lexer) stateFn {
 	if !l.accept("(") {
@@ -261,6 +275,8 @@ func lexText(l *Lexer) stateFn {
 			l.emit(itemRightPar)
 		case r == '.':
 			l.emit(itemDot)
+		case r == ',':
+			l.emit(itemComma)
 		case isOperator(r):
 			l.backup()
 

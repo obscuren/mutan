@@ -62,6 +62,7 @@ const (
 	// Asm is a special opcode. It's not malformed in anyway
 	intASM
 	intArray
+	intCall
 
 	intIgnore
 )
@@ -96,6 +97,7 @@ var instrAsString = []string{
 
 	"asm",
 	"array",
+	"call",
 
 	"ignore",
 }
@@ -496,6 +498,17 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		}
 
 		return NewIntInstr(intIgnore, "")
+	case ArgTy:
+		next := gen.MakeIntCode(tree.Children[0])
+		arg := gen.MakeIntCode(tree.Children[1])
+
+		return concat(arg, next)
+	case CallTy:
+		argument := gen.MakeIntCode(tree.Children[0])
+		call := NewIntInstr(intCall, "")
+		concat(argument, call)
+
+		return argument
 	case InlineAsmTy:
 		// Remove tabs
 		asm := strings.Replace(tree.Constant, "\t", "", -1)

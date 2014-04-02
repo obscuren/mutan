@@ -24,9 +24,9 @@ func TestCompiler(t *testing.T) {
 
 func TestArray(t *testing.T) {
 	_, err := Compile(strings.NewReader(`
-	int32[2] a
-	a[1] = 10
-	int32 b = a[1]
+	int32 a
+	int32 b
+	call(1234567890123, 10, 10, a, b)
 	`), true)
 
 	if err != nil {
