@@ -7,15 +7,13 @@ import (
 	"os"
 )
 
-var Debug = flag.Bool("debug", false, "enable debug output")
+var Debug = flag.Bool("d", false, "enable debug output")
+var Fn = flag.String("f", "", "file name")
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("usage: mutan [filename]")
-		os.Exit(1)
-	}
+	flag.Parse()
 
-	file, err := os.Open(os.Args[1])
+	file, err := os.Open(*Fn)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

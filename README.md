@@ -33,7 +33,7 @@ if err != nil {
 
 `go get github.com/obscuren/mutan/mutan`
 
-`mutan [filename]`
+`mutan <-d> -f [filename]`
 
 Lexer is heavily inspired by Rob Pike's idea about lexers.
 
