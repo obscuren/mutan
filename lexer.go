@@ -62,6 +62,7 @@ const (
 	itemVarType               = TYPE
 	itemComma                 = COMMA
 	itemCall                  = CALL
+	itemSizeof                = SIZEOF
 )
 
 type item struct {
@@ -101,6 +102,8 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemVarType)
 	case "call":
 		l.emit(itemCall)
+	case "sizeof":
+		l.emit(itemSizeof)
 	default:
 		l.emit(itemIdentifier)
 	}

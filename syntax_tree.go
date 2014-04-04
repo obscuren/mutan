@@ -38,6 +38,7 @@ const (
 	AssignArrayTy
 	CallTy
 	ArgTy
+	SizeofTy
 )
 
 var astAsString = []string{
@@ -72,6 +73,7 @@ var astAsString = []string{
 	"Set array",
 	"Call",
 	"Arg",
+	"Sizeof",
 }
 
 func (ast AstType) String() string {

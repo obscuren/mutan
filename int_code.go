@@ -63,6 +63,7 @@ const (
 	intASM
 	intArray
 	intCall
+	intSizeof
 
 	intIgnore
 )
@@ -98,6 +99,7 @@ var instrAsString = []string{
 	"asm",
 	"array",
 	"call",
+	"sizeof",
 
 	"ignore",
 }
@@ -246,6 +248,21 @@ func (gen *CodeGen) initNewVar(tree *SyntaxTree) error {
 	return nil
 }
 
+func (gen *CodeGen) sizeof(tree *SyntaxTree) (*IntInstr, error) {
+	name := tree.Constant
+	if gen.locals[name] == nil {
+		return Errorf("undefined variable: '%s'", name)
+	}
+
+	local := gen.locals[name]
+
+	push := NewIntInstr(intPush, "")
+	size := strconv.Itoa(local.size)
+	constant := NewIntInstr(intConst, size)
+
+	return concat(push, constant), nil
+}
+
 func (gen *CodeGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
 	local := gen.locals[name]
@@ -335,6 +352,7 @@ func (gen *CodeGen) initNewArray(tree *SyntaxTree) error {
 	}
 	length, _ := strconv.Atoi(tree.Size)
 	size *= length
+	fmt.Println("array l", size)
 
 	variable := &Variable{typ: varArrTy, pos: gen.memPos, size: size}
 	gen.locals[name] = variable
@@ -504,11 +522,53 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return concat(arg, next)
 	case CallTy:
-		argument := gen.MakeIntCode(tree.Children[0])
-		call := NewIntInstr(intCall, "")
-		concat(argument, call)
+		Push := func(t *SyntaxTree) (*IntInstr, error) {
+			l := gen.locals[t.Constant]
+			if l == nil {
+				return Errorf("undefined variable: '%s'")
+			}
 
-		return argument
+			pushOff := NewIntInstr(intPush, "")
+			offCons := NewIntInstr(intConst, strconv.Itoa(l.size+l.pos))
+			pushLoc := NewIntInstr(intPush, "")
+			locCons := NewIntInstr(intConst, strconv.Itoa(l.pos))
+
+			concat(pushOff, offCons)
+			concat(offCons, pushLoc)
+			concat(pushLoc, locCons)
+
+			return pushOff, nil
+		}
+
+		arg, err := Push(tree.Children[3])
+		if err != nil {
+			gen.addError(err)
+			return arg
+		}
+		ret, err := Push(tree.Children[4])
+		if err != nil {
+			gen.addError(err)
+			return ret
+		}
+		sender := gen.MakeIntCode(tree.Children[0])
+		value := gen.MakeIntCode(tree.Children[1])
+		gas := gen.MakeIntCode(tree.Children[2])
+		call := NewIntInstr(intCall, "")
+
+		concat(ret, arg)
+		concat(arg, gas)
+		concat(gas, value)
+		concat(value, sender)
+		concat(sender, call)
+
+		return ret
+	case SizeofTy:
+		c, err := gen.sizeof(tree)
+		if err != nil {
+			gen.addError(err)
+		}
+
+		return c
 	case InlineAsmTy:
 		// Remove tabs
 		asm := strings.Replace(tree.Constant, "\t", "", -1)
