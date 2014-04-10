@@ -16,10 +16,10 @@ var Tree *SyntaxTree
 }
 
 %token ASSIGN EQUAL IF LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
-%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA SIZEOF
-%token <str> ID NUMBER INLINE_ASM OP TYPE
+%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA SIZEOF QUOTE
+%token <str> ID NUMBER INLINE_ASM OP TYPE STR
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
-%type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id
+%type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
 
 %%
 
@@ -139,11 +139,16 @@ get_variable
 	| NUMBER { $$ = NewNode(ConstantTy); $$.Constant = $1 }
 	| ID LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(ArrayTy, $3); $$.Constant = $1 }
 	| STORE LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(StoreTy, $3) }
+	| string { $$ = $1 }
 	| buildins { $$ = $1 }
 	;
 
 get_id
 	: ID { $$ = NewNode(IdentifierTy); $$.Constant = $1 }
+	;
+
+string 
+	: QUOTE STR QUOTE { $$ = NewNode(StringTy); $$.Constant = $2 }
 	;
 
 %%

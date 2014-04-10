@@ -7,7 +7,7 @@ import (
 )
 
 func TestCompiler(t *testing.T) {
-	_, err := Compile(strings.NewReader(`
+	asm, err := Compile(strings.NewReader(`
 	int32 a
 	int32 b
 
@@ -20,6 +20,7 @@ func TestCompiler(t *testing.T) {
 	if err != nil {
 		fmt.Println(err)
 	}
+	fmt.Println(asm)
 }
 
 func TestArray(t *testing.T) {
@@ -27,6 +28,7 @@ func TestArray(t *testing.T) {
 	int8[10] a
 	int8[10] b
 	call(1234567890123, 15, 10, a, b)
+	// comment int8 b = 20
 	`), true)
 
 	if err != nil {

@@ -39,6 +39,7 @@ const (
 	CallTy
 	ArgTy
 	SizeofTy
+	StringTy
 )
 
 var astAsString = []string{
@@ -74,6 +75,7 @@ var astAsString = []string{
 	"Call",
 	"Arg",
 	"Sizeof",
+	"String",
 }
 
 func (ast AstType) String() string {

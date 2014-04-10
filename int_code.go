@@ -149,6 +149,9 @@ func (instr *IntInstr) setNumbers(i int) {
 			i++
 		}
 		num.n = i
+		if num.Code == intConst {
+			i += 31
+		}
 		num = num.Next
 	}
 }
@@ -362,11 +365,6 @@ func (gen *CodeGen) initNewArray(tree *SyntaxTree) error {
 	return nil
 }
 
-func (gen *CodeGen) setStorage(tree *SyntaxTree) *IntInstr {
-	fmt.Println(tree)
-	return nil
-}
-
 // Concatenate two block of code together
 func concat(blk1 *IntInstr, blk2 *IntInstr) *IntInstr {
 	if blk2.Code == intEmpty {
@@ -473,6 +471,8 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		}
 
 		return concat(blk1, NewIntInstr(op, ""))
+	case StringTy:
+		return NewIntInstr(intIgnore, "")
 	case StopTy:
 		return NewIntInstr(intStop, "")
 	case OriginTy:
@@ -529,7 +529,7 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			}
 
 			pushOff := NewIntInstr(intPush, "")
-			offCons := NewIntInstr(intConst, strconv.Itoa(l.size+l.pos))
+			offCons := NewIntInstr(intConst, strconv.Itoa(l.size))
 			pushLoc := NewIntInstr(intPush, "")
 			locCons := NewIntInstr(intConst, strconv.Itoa(l.pos))
 

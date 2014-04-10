@@ -63,6 +63,8 @@ const (
 	itemComma                 = COMMA
 	itemCall                  = CALL
 	itemSizeof                = SIZEOF
+	itemQuote                 = QUOTE
+	itemStr                   = STR
 )
 
 type item struct {
@@ -71,7 +73,7 @@ type item struct {
 }
 
 func lexStatement(l *Lexer) stateFn {
-	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
+	acceptance := Alpha
 	l.acceptRun(acceptance)
 
 	if l.accept("1234567890") {
@@ -98,7 +100,7 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemArray)
 
 		return lexArray
-	case "int8", "int16", "int32", "int64", "int256", "big":
+	case "int8", "int16", "int32", "int64", "int256", "big", "string":
 		l.emit(itemVarType)
 	case "call":
 		l.emit(itemCall)
@@ -112,6 +114,7 @@ func lexStatement(l *Lexer) stateFn {
 }
 
 const Numbers = "1234567890"
+const Alpha = "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
 
 func lexCall(l *Lexer) stateFn {
 	if !l.accept("(") {
@@ -248,6 +251,26 @@ func lexOperator(l *Lexer) stateFn {
 	return lexText
 }
 
+func lexInsideString(l *Lexer) stateFn {
+	l.acceptRunUntill('"')
+	l.emit(itemStr)
+
+	l.next()
+	l.emit(itemQuote)
+
+	return lexText
+}
+
+func lexComment(l *Lexer) stateFn {
+	if !l.accept("/") {
+		return nil
+	}
+
+	l.acceptRunUntill('\n')
+
+	return lexText
+}
+
 // Lex text attempts to identify the current state that *might*
 // be and calls the appropriate lexing method. The lexing method
 // should then take care of anything that is current (even validating)
@@ -280,6 +303,12 @@ func lexText(l *Lexer) stateFn {
 			l.emit(itemDot)
 		case r == ',':
 			l.emit(itemComma)
+		case r == '"':
+			l.emit(itemQuote)
+
+			return lexInsideString
+		case r == '/':
+			return lexComment
 		case isOperator(r):
 			l.backup()
 
