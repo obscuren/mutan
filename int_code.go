@@ -40,6 +40,7 @@ const (
 	intAdd
 	intDiv
 	intSub
+	intExp
 	intAssign
 	intConst
 	intEmpty
@@ -78,6 +79,7 @@ var instrAsString = []string{
 	"add",
 	"div",
 	"sub",
+	"exp",
 	"assign",
 	"const",
 	"empty",
@@ -468,12 +470,13 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		concat(blk1, blk2)
 
 		var op Instr
-
 		switch tree.Constant {
 		case "==":
 			op = intEqual
 		case ">":
 			op = intGt
+		case "^":
+			op = intExp
 		}
 
 		return concat(blk1, NewIntInstr(op, ""))

@@ -23,7 +23,7 @@ func isNumber(t rune) bool {
 }
 
 func isOperator(t rune) bool {
-	return strings.IndexRune("=+-/*><", t) >= 0
+	return strings.IndexRune("=+-/*><^", t) >= 0
 }
 
 const eof = -1
@@ -237,7 +237,7 @@ func lexOperator(l *Lexer) stateFn {
 
 	acceptance := "="
 	if !l.accept("=") {
-		acceptance += "-/*+><"
+		acceptance += "-/*+><^"
 	}
 	l.acceptRun(acceptance)
 

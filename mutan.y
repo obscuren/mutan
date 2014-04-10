@@ -81,10 +81,11 @@ expression
 
 op_expression
 	: expression OP expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
+	;
 
 
 assign_expression
-	: ID ASSIGN assign_expression
+	: ID ASSIGN expression
 	  {
 	      node := NewNode(SetLocalTy)
 	      node.Constant = $1
@@ -94,7 +95,7 @@ assign_expression
 	  {
 	      $$ = NewNode(AssignArrayTy, $3, $6); $$.Constant = $1
 	  }
-	| new_var ASSIGN assign_expression
+	| new_var ASSIGN expression
 	  {
 	      node := NewNode(SetLocalTy)
 	      node.Constant = $1.Constant

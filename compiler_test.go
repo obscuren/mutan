@@ -39,8 +39,8 @@ func TestArray(t *testing.T) {
 
 func TestString(t *testing.T) {
 	ast, err := Compile(strings.NewReader(`
-	      int8 a = 10
-	      addr address = "a46df28529eb8aa8b8c025b0b413c5f4b688352f"
+	      big t 
+	      t = 10 ^ 20
 	`), true)
 
 	if err != nil {
