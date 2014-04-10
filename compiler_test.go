@@ -27,13 +27,26 @@ func TestArray(t *testing.T) {
 	_, err := Compile(strings.NewReader(`
 	int8[10] a
 	int8[10] b
-	call(1234567890123, 15, 10, a, b)
+	addr address = "a46df28529eb8aa8b8c025b0b413c5f4b688352f"
+	call(address, 15, 10, a, b)
 	// comment int8 b = 20
 	`), true)
 
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func TestString(t *testing.T) {
+	ast, err := Compile(strings.NewReader(`
+	      int8 a = 10
+	      addr address = "a46df28529eb8aa8b8c025b0b413c5f4b688352f"
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(ast)
 }
 
 /*

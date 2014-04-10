@@ -28,6 +28,8 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 		switch instr.Code {
 		case intPush:
 			c.add("PUSH")
+		case intPush20:
+			c.add("PUSH20")
 		case intConst:
 			c.add(instr.Constant)
 		case intEqual:

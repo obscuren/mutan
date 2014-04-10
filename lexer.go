@@ -100,7 +100,7 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemArray)
 
 		return lexArray
-	case "int8", "int16", "int32", "int64", "int256", "big", "string":
+	case "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
 		l.emit(itemVarType)
 	case "call":
 		l.emit(itemCall)
@@ -271,12 +271,18 @@ func lexComment(l *Lexer) stateFn {
 	return lexText
 }
 
+var Lineno int
+
 // Lex text attempts to identify the current state that *might*
 // be and calls the appropriate lexing method. The lexing method
 // should then take care of anything that is current (even validating)
 func lexText(l *Lexer) stateFn {
 	for {
 		switch r := l.next(); {
+		case r == '\n':
+			l.ignore()
+
+			Lineno++
 		case isSpace(r): // Check whether this is a space (which we ignore)
 			l.ignore()
 		case isAlphaNumeric(r): // Check if it's alpha numeric (var, if, else etc)
@@ -322,14 +328,15 @@ func lexText(l *Lexer) stateFn {
 }
 
 type Lexer struct {
-	name  string
-	input string
-	start int
-	pos   int
-	width int
-	state stateFn
-	items chan item
-	err   error
+	name   string
+	input  string
+	start  int
+	pos    int
+	width  int
+	state  stateFn
+	items  chan item
+	err    error
+	lineno int
 }
 
 func lexer(name, input string) *Lexer {

@@ -9,6 +9,7 @@ compiler transforms int code to ASM (very static)
 */
 
 import (
+	"encoding/hex"
 	"fmt"
 	"strconv"
 	"strings"
@@ -45,6 +46,7 @@ const (
 	intJump
 	intTarget
 	intPush
+	intPush20
 	intMStore
 	intMLoad
 	intNot
@@ -82,6 +84,7 @@ var instrAsString = []string{
 	"jump",
 	"target",
 	"push",
+	"push20",
 	"mstore",
 	"mload",
 	"not",
@@ -215,12 +218,16 @@ var typeToSize = map[string]int{
 	"int256": 256,
 	"byte":   8,
 	"big":    256,
+	"string": 8,
+	"addr":   160,
 }
 
 func sizeOf(typ string) int {
 
 	if typ == "big" {
 		return 32
+	} else if typ == "addr" {
+		return 20
 	}
 
 	size, _ := strconv.Atoi(typ[3:])
@@ -355,7 +362,6 @@ func (gen *CodeGen) initNewArray(tree *SyntaxTree) error {
 	}
 	length, _ := strconv.Atoi(tree.Size)
 	size *= length
-	fmt.Println("array l", size)
 
 	variable := &Variable{typ: varArrTy, pos: gen.memPos, size: size}
 	gen.locals[name] = variable
@@ -472,7 +478,19 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return concat(blk1, NewIntInstr(op, ""))
 	case StringTy:
-		return NewIntInstr(intIgnore, "")
+		blk1 := NewIntInstr(intPush20, "")
+		byts, err := hex.DecodeString(tree.Constant)
+		if err != nil {
+			st, e := Errorf("%v: %s", err, tree.Constant)
+
+			gen.addError(e)
+
+			return st
+		}
+		blk2 := NewIntInstr(intConst, string(byts))
+		gen.lastPush = blk2
+
+		return concat(blk1, blk2)
 	case StopTy:
 		return NewIntInstr(intStop, "")
 	case OriginTy:

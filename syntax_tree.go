@@ -93,10 +93,12 @@ type SyntaxTree struct {
 	Constant string
 	VarType  string
 	Size     string
+	Lineno   int
 }
 
 func NewNode(typ AstType, v ...*SyntaxTree) *SyntaxTree {
-	node := &SyntaxTree{Type: typ}
+	// Lineno is a global variable for ease of use
+	node := &SyntaxTree{Type: typ, Lineno: Lineno}
 	node.Children = make([]*SyntaxTree, len(v))
 	for i, child := range v {
 		node.Children[i] = child
