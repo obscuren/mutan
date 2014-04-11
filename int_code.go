@@ -130,6 +130,10 @@ func NewGen() *CodeGen {
 	return &CodeGen{make(map[string]*Variable), 0, nil, nil}
 }
 
+func (gen *CodeGen) Errors() []error {
+	return gen.errors
+}
+
 func (gen *CodeGen) addError(e error) {
 	gen.errors = append(gen.errors, e)
 }

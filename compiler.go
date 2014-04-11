@@ -96,17 +96,19 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 	return c.asm, nil
 }
 
-func Compile(source io.Reader, debug bool) (asm []interface{}, err error) {
+func Compile(source io.Reader, debug bool) (asm []interface{}, errors []error) {
 	var buff []byte
 	// Read all at once
-	buff, err = ioutil.ReadAll(source)
+	buff, err := ioutil.ReadAll(source)
 	if err != nil {
+		errors = append(errors, err)
 		return
 	}
 
 	var ast *SyntaxTree
 	ast, err = MakeAst(string(buff))
 	if err != nil {
+		errors = append(errors, err)
 		return
 	}
 
@@ -120,7 +122,7 @@ func Compile(source io.Reader, debug bool) (asm []interface{}, err error) {
 		for _, genErr := range gen.errors {
 			fmt.Println(genErr)
 		}
-		return nil, fmt.Errorf("Exited with errors\n")
+		return nil, gen.Errors()
 	}
 	intCode.setNumbers(0)
 
