@@ -41,6 +41,7 @@ func TestString(t *testing.T) {
 	ast, err := Compile(strings.NewReader(`
 	      big t 
 	      t = 10 ^ 20
+	      store[100] = 10^20 - 10 * 20
 	`), true)
 
 	if err != nil {

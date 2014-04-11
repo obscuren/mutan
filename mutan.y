@@ -103,7 +103,7 @@ assign_expression
 	  }
 	| new_var { $$ = $1 }
 	| new_array { $$ = $1 }
-	| STORE LEFT_BRACKET expression RIGHT_BRACKET ASSIGN assign_expression
+	| STORE LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression
 	  {
 	      node := NewNode(SetStoreTy, $3)
 	      $$ = NewNode(AssignmentTy, $6, node)

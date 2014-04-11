@@ -475,8 +475,19 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			op = intEqual
 		case ">":
 			op = intGt
+		case "<":
+			op = intLt
 		case "^":
 			op = intExp
+		case "*":
+			op = intMul
+		case "/":
+			op = intDiv
+		case "+":
+			op = intAdd
+		case "-":
+			op = intSub
+
 		}
 
 		return concat(blk1, NewIntInstr(op, ""))
