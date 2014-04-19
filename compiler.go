@@ -50,19 +50,16 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("ADD")
 		case intAssign:
 		case intEmpty:
-		case intJump:
-			fmt.Println("Jump with target", instr.Target.n)
 		case intMStore:
 			c.add("MSTORE")
 		case intMLoad:
 			c.add("MLOAD")
-
 		case intNot:
 			c.add("NOT")
 		case intJumpi:
-			c.add("PUSH")
-			c.add(instr.Target.n + 1)
 			c.add("JUMPI")
+		case intJump:
+			c.add("JUMP")
 		case intSStore:
 			c.add("SSTORE")
 		case intSLoad:
@@ -81,6 +78,18 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("CALLDATASIZE")
 		case intGasPrice:
 			c.add("GASPRICE")
+		case intDiff:
+			c.add("DIFFICULTY")
+		case intPrevHash:
+			c.add("PREVHASH")
+		case intTimestamp:
+			c.add("TIMESTAMP")
+		case intCoinbase:
+			c.add("COINBASE")
+		case intGas:
+			c.add("GAS")
+		case intBlockNum:
+			c.add("NUMBER")
 		case intCall:
 			c.add("CALL")
 		case intASM:

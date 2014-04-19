@@ -34,15 +34,19 @@ type itemType int
 const (
 	itemEof          itemType = 0
 	itemIdentifier            = ID
+	itemEndStatement          = END_STMT
 	itemNumber                = NUMBER
 	itemAssign                = ASSIGN
 	itemOp                    = OP
+	itemDop                   = DOP /* Double op ++ -- */
 	itemLeftBracket           = LEFT_BRACKET
 	itemRightBracket          = RIGHT_BRACKET
 	itemLeftBrace             = LEFT_BRACES
 	itemRightBrace            = RIGHT_BRACES
 	itemEqual                 = EQUAL
 	itemIf                    = IF
+	itemElse                  = ELSE
+	itemFor                   = FOR
 	itemStore                 = STORE
 	itemAsm                   = ASM
 	itemInlineAsm             = INLINE_ASM
@@ -55,7 +59,13 @@ const (
 	itemCallVal               = CALLVAL
 	itemCallDataLoad          = CALLDATALOAD
 	itemCallDataSize          = CALLDATASIZE
+	itemDifficulty            = DIFFICULTY
+	itemPrevHash              = PREVHASH
+	itemTimeStamp             = TIMESTAMP
 	itemGasPrice              = GASPRICE
+	itemBlockNum              = BLOCKNUM
+	itemCoinbase              = COINBASE
+	itemGas                   = GAS
 	itemDot                   = DOT
 	itemThis                  = THIS
 	itemArray                 = ARRAY
@@ -84,13 +94,17 @@ func lexStatement(l *Lexer) stateFn {
 	switch l.blob() {
 	case "if":
 		l.emit(itemIf)
+	case "else":
+		l.emit(itemElse)
+	case "for":
+		l.emit(itemFor)
 	case "store":
 		l.emit(itemStore)
 	case "asm":
 		l.emit(itemAsm)
 
 		return lexInsideAsm
-	case "exit":
+	case "Exit":
 		l.emit(itemStop)
 	case "this":
 		l.emit(itemThis)
@@ -102,7 +116,7 @@ func lexStatement(l *Lexer) stateFn {
 		return lexArray
 	case "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
 		l.emit(itemVarType)
-	case "call":
+	case "Call":
 		l.emit(itemCall)
 	case "sizeof":
 		l.emit(itemSizeof)
@@ -165,18 +179,30 @@ func lexClosureScope(l *Lexer) stateFn {
 	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
 	l.acceptRun(acceptance)
 	switch l.blob() {
-	case "caller":
+	case "Caller":
 		l.emit(itemCaller)
-	case "origin":
+	case "Origin":
 		l.emit(itemOrigin)
-	case "value":
+	case "Value":
 		l.emit(itemCallVal)
-	case "dataLoad":
+	case "DataLoad":
 		l.emit(itemCallDataLoad)
-	case "dataSize":
+	case "DataSize":
 		l.emit(itemCallDataSize)
-	case "gasPrice":
+	case "GasPrice":
 		l.emit(itemGasPrice)
+	case "Diff":
+		l.emit(itemDifficulty)
+	case "PrevHash":
+		l.emit(itemPrevHash)
+	case "Time":
+		l.emit(itemTimeStamp)
+	case "Number":
+		l.emit(itemBlockNum)
+	case "Coinbase":
+		l.emit(itemCoinbase)
+	case "Gas":
+		l.emit(itemGas)
 	default:
 		l.err = fmt.Errorf("Undefined '%s'", l.blob())
 
@@ -187,7 +213,11 @@ func lexClosureScope(l *Lexer) stateFn {
 }
 
 func lexNumber(l *Lexer) stateFn {
-	digits := "1234567890"
+	digits := "0123456789"
+	if l.accept("0") && l.accept("xX") {
+		digits = "0123456789abcdefABCDEF"
+	}
+
 	l.acceptRun(digits)
 
 	l.emit(itemNumber)
@@ -244,6 +274,8 @@ func lexOperator(l *Lexer) stateFn {
 	switch l.blob() {
 	case "=":
 		l.emit(itemAssign)
+	case "++", "--":
+		l.emit(itemDop)
 	default:
 		l.emit(itemOp)
 	}
@@ -315,6 +347,8 @@ func lexText(l *Lexer) stateFn {
 			return lexInsideString
 		case r == '/':
 			return lexComment
+		case r == ';':
+			l.emit(itemEndStatement)
 		case isOperator(r):
 			l.backup()
 

@@ -16,6 +16,8 @@ const (
 	SetLocalTy
 	BlockTy
 	IfThenTy
+	IfThenElseTy
+	ForThenTy
 	EqualTy
 	GtTy
 	LtTy
@@ -31,6 +33,12 @@ const (
 	CallDataLoadTy
 	CallDataSizeTy
 	GasPriceTy
+	DiffTy
+	PrevHashTy
+	TimestampTy
+	CoinbaseTy
+	GasTy
+	BlockNumTy
 
 	NewArrayTy
 	NewVarTy
@@ -52,6 +60,8 @@ var astAsString = []string{
 	"Set local",
 	"Block",
 	"If then",
+	"If then else",
+	"For then",
 	"Equal",
 	"Gt",
 	"Lt",
@@ -67,6 +77,12 @@ var astAsString = []string{
 	"Data load",
 	"Data size",
 	"Gas price",
+	"Difficulty",
+	"Previous hash",
+	"Timestamp",
+	"Coinbase",
+	"Gas",
+	"Block number",
 
 	"Create array",
 	"New var",

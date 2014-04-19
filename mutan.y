@@ -15,11 +15,14 @@ var Tree *SyntaxTree
 	tnode *SyntaxTree
 }
 
-%token ASSIGN EQUAL IF LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
+%token ASSIGN EQUAL IF ELSE FOR LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
 %token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA SIZEOF QUOTE
-%token <str> ID NUMBER INLINE_ASM OP TYPE STR
+%token END_STMT
+%token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR
+%token <str> ID NUMBER INLINE_ASM OP DOP TYPE STR
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
+%type <tnode> for_statement optional_else_statement
 
 %%
 
@@ -29,12 +32,14 @@ program
 
 statement_list
 	: statement_list statement { $$ = NewNode(StatementListTy, $1, $2) }
+	| END_STMT { $$ = NewNode(EmptyTy) }
 	| /* Empty */ { $$ = NewNode(EmptyTy) }
 	;
 
 statement
 	: expression { $$ = $1 }
 	| if_statement { $$ = $1 }
+	| for_statement { $$ = $1 }
 	| ASM LEFT_PAR INLINE_ASM RIGHT_PAR { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
 	;
 
@@ -66,11 +71,48 @@ closure_funcs
 	| CALLVAL LEFT_PAR RIGHT_PAR { $$ = NewNode(CallValTy) }
 	| CALLDATALOAD LEFT_PAR RIGHT_PAR { $$ = NewNode(CallDataLoadTy) }
 	| CALLDATASIZE LEFT_PAR RIGHT_PAR { $$ = NewNode(CallDataSizeTy) }
+	| DIFFICULTY LEFT_PAR RIGHT_PAR { $$ = NewNode(DiffTy) }
+	| PREVHASH LEFT_PAR RIGHT_PAR { $$ = NewNode(PrevHashTy) }
+	| TIMESTAMP LEFT_PAR RIGHT_PAR { $$ = NewNode(TimestampTy) }
 	| GASPRICE LEFT_PAR RIGHT_PAR { $$ = NewNode(GasPriceTy) }
+	| BLOCKNUM LEFT_PAR RIGHT_PAR { $$ = NewNode(BlockNumTy) }
+	| COINBASE LEFT_PAR RIGHT_PAR { $$ = NewNode(CoinbaseTy) }
+	| GAS LEFT_PAR RIGHT_PAR { $$ = NewNode(GasTy) }
 	;
 
 if_statement
-	: IF expression LEFT_BRACES statement_list RIGHT_BRACES { $$ = NewNode(IfThenTy, $2, $4) }
+	: IF expression LEFT_BRACES statement_list RIGHT_BRACES optional_else_statement
+	  {
+	      if $6 == nil {
+		    $$ = NewNode(IfThenTy, $2, $4)
+	      } else {
+		    $$ = NewNode(IfThenElseTy, $2, $4, $6)
+	      }
+	  }
+	;
+optional_else_statement
+	: ELSE LEFT_BRACES statement_list RIGHT_BRACES
+	  {
+	      $$ = $3
+	  }
+	| /* Empty */ { $$ = nil }
+	;
+
+for_statement
+	: FOR expression END_STMT expression END_STMT expression LEFT_BRACES statement_list RIGHT_BRACES
+	  {
+		  $$ = NewNode(ForThenTy, $2, $4, $6, $8)
+	  }
+	/* TODO */
+	| FOR expression END_STMT expression LEFT_BRACES statement_list RIGHT_BRACES
+	  {
+		  $$ = NewNode(ForThenTy, $2, $4, $6)
+	  }
+	/* TODO */
+	| FOR expression LEFT_BRACES statement_list RIGHT_BRACES
+	  {
+		  $$ = NewNode(ForThenTy, $2, $4)
+	  }
 	;
 
 expression
@@ -80,7 +122,8 @@ expression
 	;
 
 op_expression
-	: expression OP expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
+	: expression DOP { $$ = NewNode(OpTy, $1); $$.Constant = $2 }
+	| expression OP expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
 	;
 
 

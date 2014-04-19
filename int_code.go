@@ -61,6 +61,12 @@ const (
 	intCallDataLoad
 	intCallDataSize
 	intGasPrice
+	intDiff
+	intPrevHash
+	intTimestamp
+	intCoinbase
+	intGas
+	intBlockNum
 
 	// Asm is a special opcode. It's not malformed in anyway
 	intASM
@@ -100,6 +106,12 @@ var instrAsString = []string{
 	"dataload",
 	"datasize",
 	"gasprice",
+	"diff",
+	"prevhash",
+	"timestamp",
+	"oinbase",
+	"gas",
+	"blocknum",
 
 	"asm",
 	"array",
@@ -139,12 +151,14 @@ func (gen *CodeGen) addError(e error) {
 }
 
 type IntInstr struct {
-	Code     Instr
-	Constant string
-	Number   int
-	Next     *IntInstr
-	Target   *IntInstr
-	n        int
+	Code      Instr
+	Constant  interface{}
+	Number    int
+	Next      *IntInstr
+	Target    *IntInstr
+	TargetNum *IntInstr
+	size      int
+	n         int
 }
 
 func NewIntInstr(code Instr, constant string) *IntInstr {
@@ -154,13 +168,27 @@ func NewIntInstr(code Instr, constant string) *IntInstr {
 func (instr *IntInstr) setNumbers(i int) {
 	num := instr
 	for num != nil {
+		num.n = i
+
 		if num.Code != intTarget && num.Code != intIgnore {
 			i++
+			if num.Code == intConst {
+				i += 31
+			}
 		}
-		num.n = i
-		if num.Code == intConst {
-			i += 31
+
+		num = num.Next
+	}
+
+	// XXX Do we need a 2 pass?
+	num = instr
+	for num != nil {
+		if num.Code == intJump || num.Code == intJumpi {
+			// Set the target constant which we couldn't seet before hand
+			// when the numbers weren't all set.
+			num.TargetNum.Constant = num.Target.n
 		}
+
 		num = num.Next
 	}
 }
@@ -203,7 +231,7 @@ func (gen *CodeGen) setMemory(name string) (*IntInstr, error) {
 	if local == nil {
 		return NewIntInstr(intIgnore, ""), fmt.Errorf("Undefined variable '%s'", name)
 	}
-	local.val = gen.lastPush.Constant
+	local.val = gen.lastPush.Constant.(string)
 
 	push := NewIntInstr(intPush, "")
 	cons := NewIntInstr(intConst, strconv.Itoa(local.pos))
@@ -397,6 +425,17 @@ func concat(blk1 *IntInstr, blk2 *IntInstr) *IntInstr {
 	return blk1
 }
 
+func NewJumpInstr(op Instr) (*IntInstr, *IntInstr) {
+	push := NewIntInstr(intPush, "")
+	cons := NewIntInstr(intConst, "")
+	jump := NewIntInstr(op, "")
+	jump.TargetNum = cons
+	concat(push, cons)
+	concat(cons, jump)
+
+	return push, jump
+}
+
 // Recursive intermediate code generator
 func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	switch tree.Type {
@@ -420,17 +459,75 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case IfThenTy:
 		cond := gen.MakeIntCode(tree.Children[0])
 		not := NewIntInstr(intNot, "")
-		jmpi := NewIntInstr(intJumpi, "")
+		//jmpi := NewIntInstr(intJumpi, "")
+		p, jmpi := NewJumpInstr(intJumpi)
 		then := gen.MakeIntCode(tree.Children[1])
 		target := NewIntInstr(intTarget, "")
 		jmpi.Target = target
 
 		concat(cond, not)
-		concat(not, jmpi)
+		concat(not, p)
 		concat(jmpi, then)
 		concat(then, target)
 
 		return cond
+	case IfThenElseTy:
+		cond := gen.MakeIntCode(tree.Children[0])
+		// TODO reverse "else/if" in order to get rid of the "NOT"
+		not := NewIntInstr(intNot, "")
+		//jump2else := NewIntInstr(intJumpi, "")
+		p, jump2else := NewJumpInstr(intJumpi)
+		then := gen.MakeIntCode(tree.Children[1])
+		//jump2end := NewIntInstr(intJump, "")
+		p2, jump2end := NewJumpInstr(intJump)
+		elsetarget := NewIntInstr(intTarget, "")
+		elsethen := gen.MakeIntCode(tree.Children[2])
+		end := NewIntInstr(intTarget, "")
+
+		jump2end.Target = end
+		jump2else.Target = elsetarget
+
+		concat(cond, not)
+		concat(not, p)
+		concat(jump2else, then)
+		concat(then, p2)
+		concat(jump2end, elsetarget)
+		concat(elsetarget, elsethen)
+		concat(elsethen, end)
+
+		return cond
+	case ForThenTy:
+		// Init part
+		init := gen.MakeIntCode(tree.Children[0])
+		// The condition for the loop
+		cond := gen.MakeIntCode(tree.Children[1])
+		// Cast to not
+		not := NewIntInstr(intNot, "")
+		// Jump to end if statement is false
+		//jmpi := NewIntInstr(intJumpi, "")
+		p, jmpi := NewJumpInstr(intJumpi)
+		// Body of the loop
+		then := gen.MakeIntCode(tree.Children[3])
+		// Iterator
+		aft := gen.MakeIntCode(tree.Children[2])
+		// Jump back to the start of the loop (targetBack)
+		//jmp := NewIntInstr(intJump, "")
+		p2, jmp := NewJumpInstr(intJump)
+		// Target for the conditional jump (jmpi)
+		target := NewIntInstr(intTarget, "")
+		// Set targets
+		jmpi.Target = target
+		jmp.Target = cond
+
+		concat(init, cond)
+		concat(cond, not)
+		concat(not, p)
+		concat(jmpi, then)
+		concat(then, aft)
+		concat(aft, p2)
+		concat(jmp, target)
+
+		return init
 	case EqualTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
 		blk2 := gen.MakeIntCode(tree.Children[1])
@@ -470,8 +567,6 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 	case OpTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
-		blk2 := gen.MakeIntCode(tree.Children[1])
-		concat(blk1, blk2)
 
 		var op Instr
 		switch tree.Constant {
@@ -491,8 +586,40 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			op = intAdd
 		case "-":
 			op = intSub
+		case "++", "--":
+			one := NewIntInstr(intPush, "")
+			cons := NewIntInstr(intConst, "1")
+			if tree.Constant == "++" {
+				op = intAdd
+			} else {
+				op = intSub
+			}
+			opInstr := NewIntInstr(op, "")
+			concat(blk1, one)
+			concat(one, cons)
+			concat(cons, opInstr)
+			// Get the child
+			child := tree.Children[0]
+			if child.Type == IdentifierTy {
+				c, err := gen.setMemory(child.Constant)
+				if err != nil {
+					gen.addError(err)
+					return c
+				}
 
+				concat(opInstr, c)
+			} else {
+				// TODO?
+				c, err := Errorf("++ only supported on identifiers")
+				gen.addError(err)
+				return c
+			}
+
+			return blk1
 		}
+
+		blk2 := gen.MakeIntCode(tree.Children[1])
+		concat(blk1, blk2)
 
 		return concat(blk1, NewIntInstr(op, ""))
 	case StringTy:
@@ -523,6 +650,18 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return NewIntInstr(intCallDataSize, "")
 	case GasPriceTy:
 		return NewIntInstr(intGasPrice, "")
+	case DiffTy:
+		return NewIntInstr(intDiff, "")
+	case PrevHashTy:
+		return NewIntInstr(intPrevHash, "")
+	case TimestampTy:
+		return NewIntInstr(intTimestamp, "")
+	case CoinbaseTy:
+		return NewIntInstr(intCoinbase, "")
+	case GasTy:
+		return NewIntInstr(intGas, "")
+	case BlockNumTy:
+		return NewIntInstr(intBlockNum, "")
 	case NewArrayTy: // Create a new array
 		err := gen.initNewArray(tree)
 		if err != nil {
