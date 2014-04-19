@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Mutan by obscuren</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Mutan</h1>
+        <h2>Compiler &amp; Language definition for the Ethereum project</h2>
+        <a href="https://github.com/obscuren/mutan" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="mutan" class="anchor" href="#mutan"><span class="octicon octicon-link"></span></a>Mutan</h1>
+
+<p>Mutan is a C-Like language for the Ethereum project. Mutan supports a full, statically typed higher level language that compiles to native Ethereum Assembler.</p>
+
+<h2>
+<a name="notation" class="anchor" href="#notation"><span class="octicon octicon-link"></span></a>Notation</h2>
+
+<p>The syntax is specified using Extended Backus-Naur Form (EBNF):</p>
+
+<pre><code>digit excluding zero = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+digit                = "0" | digit excluding zero ;
+</code></pre>
+
+<h3>
+<a name="keywords" class="anchor" href="#keywords"><span class="octicon octicon-link"></span></a>Keywords</h3>
+
+<p>The following keywords are reserved and may not be used at identifiers</p>
+
+<pre><code>this if else return exit for asm store
+</code></pre>
+
+<h3>
+<a name="operators-and-delimiters" class="anchor" href="#operators-and-delimiters"><span class="octicon octicon-link"></span></a>Operators and delimiters</h3>
+
+<p>Mutan contains the following operators and delimiters (some are wip)</p>
+
+<pre><code>+       =       |       (   )
+-       ==      &amp;       {   }
+*       &gt;=      ++      ;
+/       &lt;=      --
+</code></pre>
+
+<h3>
+<a name="numeric-types" class="anchor" href="#numeric-types"><span class="octicon octicon-link"></span></a>Numeric types</h3>
+
+<p>Numeric types in Mutan can only be represented by integer values and are architecture-independent. They are all represented in big endian byte order. Signed integers aren't supported (yet?)</p>
+
+<pre><code>int8        the set of all _unsigned_ integers (0 to 255)
+int16       the set of all _unsigned_ integers (0 to 65535)
+int32       the set of all _unsigned_ integers (0 to 4294967295)
+int64       the set of all _unsigned_ integers (0 to 18446744073709551615)
+int256      the set of all _unsigned_ integers (0 to 1.1579209e+77)
+big         same as int256
+</code></pre>
+
+<h3>
+<a name="arrays" class="anchor" href="#arrays"><span class="octicon octicon-link"></span></a>Arrays</h3>
+
+<p>Arrays are of theoretical unlimited length</p>
+
+<pre><code>ArrayType   = ElementType "[" Number "]" .
+ElementType = Type .
+</code></pre>
+
+<p>The following are all valid arrays:</p>
+
+<pre><code>int16[10] a
+int32[10] b
+big[10]   c
+</code></pre>
+
+<h2>
+<a name="declarations" class="anchor" href="#declarations"><span class="octicon octicon-link"></span></a>Declarations</h2>
+
+<p>A declaration binds a identifier to a type. Every identifier must be declared. No identifier may be declared twice. All declarations are global (for now, TODO/FIXME).</p>
+
+<pre><code>Declaration = TypeDecl .
+</code></pre>
+
+<p>Mutan, in it's current state, is globally scoped:
+    1. No identifier may be used twice
+    2. All identifiers must be declared using a Type</p>
+
+<pre><code>Types:
+    int int8 int16 int32 int64 int256 big
+    (todo)
+    bool string
+</code></pre>
+
+<h2>
+<a name="statements" class="anchor" href="#statements"><span class="octicon octicon-link"></span></a>Statements</h2>
+
+<pre><code>Statement = Declaration | Block | IfStmt | ForStmt
+</code></pre>
+
+<h2>
+<a name="blocks" class="anchor" href="#blocks"><span class="octicon octicon-link"></span></a>Blocks</h2>
+
+<p>Blocks contain, but not necessarily, contain lists of Statements within matching brackets.</p>
+
+<pre><code>Block = "{" StatementList "}" .
+StatementList = { Statement ";" } .
+</code></pre>
+
+<h2>
+<a name="if-statements" class="anchor" href="#if-statements"><span class="octicon octicon-link"></span></a>If statements</h2>
+
+<p>If statements specify the conditional execution of two branches according to the value of an expression. If the expression evaluated to true, the "if" branch is executed, else, if present, the else branch is executed.</p>
+
+<pre><code>IfStmt = "if" [ SimpleStmt ";" ] Expression Block [ "else" Block ] .
+</code></pre>
+
+<div class="highlight highlight-go"><pre><span class="k">if</span> <span class="nx">x</span> <span class="p">&lt;</span> <span class="mi">10</span> <span class="p">{</span>
+   <span class="nx">x</span> <span class="p">=</span> <span class="nx">maximum</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>The expression may be preceded by a simple statement which executes before the boolean expression</p>
+
+<div class="highlight highlight-go"><pre><span class="k">if</span> <span class="kt">int8</span> <span class="nx">x</span> <span class="p">=</span> <span class="nx">this</span><span class="p">.</span><span class="nx">Value</span><span class="p">();</span> <span class="nx">x</span> <span class="p">&lt;</span> <span class="mi">10</span> <span class="p">{</span>
+    <span class="nx">x</span> <span class="p">=</span> <span class="nx">maximum</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">y</span> <span class="p">=</span> <span class="mi">10</span>
+<span class="p">}</span>
+</pre></div>
+
+<h2>
+<a name="for-statement" class="anchor" href="#for-statement"><span class="octicon octicon-link"></span></a>For statement</h2>
+
+<p>A "for" statements specifies repeated execution of a block, the iteration is controlled by a conditional block.</p>
+
+<pre><code>ForStmt = "for" [ InitStmt ] ";" [ Condition ] ";" [ PostStmt ] .
+InitStmt = SimpleStmt .
+PostStmt = SimpleStmt .
+</code></pre>
+
+<p>A "for" in it's simplest form is a C-Like "while" statement (therefor Mutan doesn't have a "while")</p>
+
+<div class="highlight highlight-go"><pre><span class="k">for</span> <span class="nx">a</span> <span class="p">&lt;</span> <span class="nx">b</span> <span class="p">{</span>
+    <span class="nx">a</span> <span class="p">=</span> <span class="nx">a</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>A "for" statement in it's purest form is controlled my a initialiser, condition and a post statement which will be executed at the end of the Block</p>
+
+<div class="highlight highlight-go"><pre><span class="k">for</span> <span class="kt">int8</span> <span class="p">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">a</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">;</span> <span class="nx">a</span><span class="o">++</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="p">=</span> <span class="nx">b</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="p">}</span>
+</pre></div>
+
+<pre><code>for cond { T() }         is the same as    for ; cond ; { T() }
+for cond; post { T() }   is the same as    for ; cond; post { T() }
+</code></pre>
+
+<h2>
+<a name="build-in-functions" class="anchor" href="#build-in-functions"><span class="octicon octicon-link"></span></a>Build in functions</h2>
+
+<p>mutan comes with a couple build in functions</p>
+
+<div class="highlight highlight-go"><pre><span class="nx">Exit</span><span class="p">()</span>                                             <span class="nx">Stops</span> <span class="nx">the</span> <span class="nx">execution</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">current</span> <span class="nx">call</span>
+<span class="nx">Call</span><span class="p">(</span><span class="nx">address</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">gas</span><span class="p">,</span> <span class="nx">calldata</span><span class="p">,</span> <span class="nx">returndata</span><span class="p">)</span>    <span class="nx">Calls</span> <span class="nx">another</span> <span class="nx">contract</span> <span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">g</span><span class="p">.</span> <span class="nx">closure</span><span class="p">)</span> <span class="nx">and</span> <span class="nx">executes</span>
+</pre></div>
+
+<p>The following build in functions are related to the current executing context (i.e. the closure) and are called in combination with <code>this</code></p>
+
+<pre><code>Method     = "this" Dot MethodName Parentheses .
+Dot        = "." .
+MethodName = "DataLoad" | "DataSize" | "Origin" | "Caller" | "GasPrice" | "Value" |
+             "Diff" | "PrevHash" | "Time" | "GasPrice" | "Number" | "Coinbase" | "Gas" .
+</code></pre>
+
+<pre><code>DataLoad      Returns the data attached to this call
+DataSize      Returns the size of the data attached to this call
+Origin        Returns the origin address of this execution
+Caller        Returns the current caller of the closure
+GasPrice      Returns the gas price attached to this call
+Value         Returns the value attached to this call
+Diff          Returns the current difficulty
+PrevHash      Returns the previous block's hash
+Time          Returns the current block's timestamp
+GasPrice      Returns the attached call's gas price
+Number        Returns the current block's number
+Coinbase      Returns the current block's coinbase
+Gas           Returns the current call's attached amount of gas
+</code></pre>
+
+<h2>
+<a name="assembler" class="anchor" href="#assembler"><span class="octicon octicon-link"></span></a>Assembler</h2>
+
+<p>Inline assembler is allowed through the <code>asm</code> keyword</p>
+
+<pre><code>InlineAssembler = "asm" "(" Code ")" .
+Code            = "abcdefghijklmnopqrstuwvxyz" | "1234567890" .
+</code></pre>
+
+<h2>
+<a name="basic-syntax" class="anchor" href="#basic-syntax"><span class="octicon octicon-link"></span></a>Basic syntax</h2>
+
+<div class="highlight highlight-go"><pre><span class="kt">int32</span> <span class="nx">a</span> <span class="p">=</span> <span class="mi">20</span>
+<span class="kt">int32</span> <span class="nx">b</span> <span class="p">=</span> <span class="mi">10</span>
+<span class="k">if</span> <span class="nx">a</span> <span class="p">&lt;</span> <span class="nx">b</span> <span class="p">{</span>
+    <span class="nx">Exit</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="nx">store</span><span class="p">[</span><span class="nx">a</span><span class="p">]</span> <span class="p">=</span> <span class="mi">10000</span>
+<span class="nx">store</span><span class="p">[</span><span class="nx">b</span><span class="p">]</span> <span class="p">=</span> <span class="nx">this</span><span class="p">.</span><span class="nx">Origin</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="kt">int8</span> <span class="nx">i</span> <span class="p">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+    <span class="kt">int32</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="nx">out</span>
+    <span class="nx">Call</span><span class="p">(</span><span class="mi">1234567890</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">out</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">asm</span> <span class="p">(</span>
+    <span class="nx">PUSH</span> <span class="mi">10</span>
+    <span class="nx">PUSH</span> <span class="mi">0</span>
+    <span class="nx">MSTORE</span>
+<span class="p">)</span>
+
+</pre></div>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/obscuren/mutan/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/obscuren/mutan/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/obscuren/mutan"></a> is maintained by <a href="https://github.com/obscuren">obscuren</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
