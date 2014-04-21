@@ -1,10 +1,8 @@
-int32 a = 10
-int32 b = 10
-Call(0x1234, a, b, a, b)
+big to = this.Data(0)
+big from = this.Origin()
+big value = this.Data(1)
 
-int32 c
-for big i = 0; i < 1000000; i++ {
-	if c * i > 1000000000 {
-		big test = 1337
-	}
+if store[from] > value {
+	store[from] = store[from] - value
+	store[to] = store[to] + value
 }

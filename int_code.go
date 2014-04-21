@@ -646,8 +646,13 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return NewIntInstr(intCallVal, "")
 	case CallDataLoadTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
+		// XXX There's room for optimization here
+		cons := NewIntInstr(intConst, "32")
+		mul := NewIntInstr(intMul, "")
 		blk2 := NewIntInstr(intCallDataLoad, "")
-		concat(blk1, blk2)
+		concat(blk1, cons)
+		concat(cons, mul)
+		concat(mul, blk2)
 
 		return blk1
 	case CallDataSizeTy:

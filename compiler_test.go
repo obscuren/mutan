@@ -1,4 +1,4 @@
-package mutan
+ackage mutan
 
 import (
 	"fmt"
@@ -105,7 +105,12 @@ func TestHex(t *testing.T) {
 
 func TestData(t *testing.T) {
 	ast, err := Compile(strings.NewReader(`
-		big t = this.Data(0)
+		big t = this.Data(2)
+		// OR
+		asm (
+			PUSH 64
+			CALLDATALOAD
+		)
 	`), true)
 
 	if err != nil {
