@@ -1,3 +1,10 @@
 int32 a = 10
 int32 b = 10
-call(1234, a, b, a, b)
+Call(0x1234, a, b, a, b)
+
+int32 c
+for big i = 0; i < 1000000; i++ {
+	if c * i > 1000000000 {
+		big test = 1337
+	}
+}

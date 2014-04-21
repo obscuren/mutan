@@ -103,6 +103,18 @@ func TestHex(t *testing.T) {
 	fmt.Println(ast)
 }
 
+func TestData(t *testing.T) {
+	ast, err := Compile(strings.NewReader(`
+		big t = this.Data(0)
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
+
 /*
 func TestCompiler(t *testing.T) {
 	_, err := Compile(strings.NewReader(`

@@ -645,7 +645,11 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case CallValTy:
 		return NewIntInstr(intCallVal, "")
 	case CallDataLoadTy:
-		return NewIntInstr(intCallDataLoad, "")
+		blk1 := gen.MakeIntCode(tree.Children[0])
+		blk2 := NewIntInstr(intCallDataLoad, "")
+		concat(blk1, blk2)
+
+		return blk1
 	case CallDataSizeTy:
 		return NewIntInstr(intCallDataSize, "")
 	case GasPriceTy:

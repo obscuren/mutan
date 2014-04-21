@@ -69,7 +69,8 @@ closure_funcs
 	: ORIGIN LEFT_PAR RIGHT_PAR { $$ = NewNode(OriginTy) }
 	| CALLER LEFT_PAR RIGHT_PAR { $$ = NewNode(CallerTy) }
 	| CALLVAL LEFT_PAR RIGHT_PAR { $$ = NewNode(CallValTy) }
-	| CALLDATALOAD LEFT_PAR RIGHT_PAR { $$ = NewNode(CallDataLoadTy) }
+	/*| CALLDATALOAD LEFT_PAR RIGHT_PAR { $$ = NewNode(CallDataLoadTy) }*/
+	| CALLDATALOAD LEFT_PAR expression RIGHT_PAR { $$ = NewNode(CallDataLoadTy, $3) }
 	| CALLDATASIZE LEFT_PAR RIGHT_PAR { $$ = NewNode(CallDataSizeTy) }
 	| DIFFICULTY LEFT_PAR RIGHT_PAR { $$ = NewNode(DiffTy) }
 	| PREVHASH LEFT_PAR RIGHT_PAR { $$ = NewNode(PrevHashTy) }

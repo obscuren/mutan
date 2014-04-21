@@ -187,6 +187,8 @@ func lexClosureScope(l *Lexer) stateFn {
 		l.emit(itemCallVal)
 	case "DataLoad":
 		l.emit(itemCallDataLoad)
+	case "Data":
+		l.emit(itemCallDataLoad)
 	case "DataSize":
 		l.emit(itemCallDataSize)
 	case "GasPrice":
@@ -294,10 +296,6 @@ func lexInsideString(l *Lexer) stateFn {
 }
 
 func lexComment(l *Lexer) stateFn {
-	if !l.accept("/") {
-		return nil
-	}
-
 	l.acceptRunUntill('\n')
 
 	return lexText
@@ -345,7 +343,7 @@ func lexText(l *Lexer) stateFn {
 			l.emit(itemQuote)
 
 			return lexInsideString
-		case r == '/':
+		case r == '/', r == '#':
 			return lexComment
 		case r == ';':
 			l.emit(itemEndStatement)

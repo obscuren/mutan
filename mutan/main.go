@@ -19,9 +19,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	asm, err := mutan.Compile(file, *Debug)
-	if err != nil {
-		fmt.Println(err)
+	asm, e := mutan.Compile(file, *Debug)
+	if e != nil {
+		fmt.Println(e)
 		os.Exit(1)
 	}
 
