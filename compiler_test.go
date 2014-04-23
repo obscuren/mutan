@@ -1,4 +1,4 @@
-ackage mutan
+package mutan
 
 import (
 	"fmt"
