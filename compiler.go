@@ -144,3 +144,8 @@ func Compile(source io.Reader, debug bool) (asm []interface{}, errors []error) {
 
 	return
 }
+
+//export CompileC
+func CompileC(source string) (asm []interface{}, errors []error) {
+	return Compile(strings.NewReader(source), false)
+}

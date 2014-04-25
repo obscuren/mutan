@@ -647,10 +647,12 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case CallDataLoadTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
 		// XXX There's room for optimization here
+		push := NewIntInstr(intPush, "")
 		cons := NewIntInstr(intConst, "32")
 		mul := NewIntInstr(intMul, "")
 		blk2 := NewIntInstr(intCallDataLoad, "")
-		concat(blk1, cons)
+		concat(blk1, push)
+		concat(push, cons)
 		concat(cons, mul)
 		concat(mul, blk2)
 
