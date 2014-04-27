@@ -8,12 +8,15 @@ import (
 )
 
 var Debug = flag.Bool("d", false, "enable debug output")
-var Fn = flag.String("f", "", "file name")
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s [options] filename\n", os.Args[0])
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 
-	file, err := os.Open(*Fn)
+	file, err := os.Open(os.Args[len(os.Args)-1])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
