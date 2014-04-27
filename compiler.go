@@ -105,7 +105,7 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 	return c.asm, nil
 }
 
-func Compile(source io.Reader, debug bool) (asm []interface{}, errors []error) {
+func CompileStage(source io.Reader, debug bool) (asm []interface{}, errors []error) {
 	var buff []byte
 	// Read all at once
 	buff, err := ioutil.ReadAll(source)
@@ -143,4 +143,15 @@ func Compile(source io.Reader, debug bool) (asm []interface{}, errors []error) {
 	asm, err = comp.Compile(intCode)
 
 	return
+}
+
+func Compile(source io.Reader, debug bool) (byteCode []byte, errors []error) {
+	asm, err := CompileStage(source, debug)
+	if err != nil {
+		return nil, err
+	}
+
+	bytes := Assemble(asm...)
+
+	return bytes, nil
 }

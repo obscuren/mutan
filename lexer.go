@@ -48,6 +48,7 @@ const (
 	itemElse                  = ELSE
 	itemFor                   = FOR
 	itemStore                 = STORE
+	itemReturn                = RETURN
 	itemAsm                   = ASM
 	itemInlineAsm             = INLINE_ASM
 	itemLeftPar               = LEFT_PAR
@@ -118,6 +119,8 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemVarType)
 	case "Call":
 		l.emit(itemCall)
+	case "return":
+		l.emit(itemReturn)
 	case "sizeof":
 		l.emit(itemSizeof)
 	default:

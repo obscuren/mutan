@@ -7,7 +7,7 @@ import (
 )
 
 func TestCompiler(t *testing.T) {
-	asm, err := Compile(strings.NewReader(`
+	asm, err := CompileStage(strings.NewReader(`
 	int32 a
 	int32 b
 
@@ -24,7 +24,7 @@ func TestCompiler(t *testing.T) {
 }
 
 func TestArray(t *testing.T) {
-	_, err := Compile(strings.NewReader(`
+	_, err := CompileStage(strings.NewReader(`
 	int8[10] a
 	int8[10] b
 	addr address = "a46df28529eb8aa8b8c025b0b413c5f4b688352f"
@@ -38,7 +38,7 @@ func TestArray(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	ast, err := Compile(strings.NewReader(`
+	ast, err := CompileStage(strings.NewReader(`
 	      big t 
 	      t = 10 ^ 20
 	      store[100] = 10^20 - 10 * 20
@@ -51,7 +51,7 @@ func TestString(t *testing.T) {
 }
 
 func TestPlusPlus(t *testing.T) {
-	ast, err := Compile(strings.NewReader(`
+	ast, err := CompileStage(strings.NewReader(`
 	      big i = 0
 	      i++
 	`), true)
@@ -63,7 +63,7 @@ func TestPlusPlus(t *testing.T) {
 }
 
 func TestElse(t *testing.T) {
-	ast, err := Compile(strings.NewReader(`
+	ast, err := CompileStage(strings.NewReader(`
 	      if 20 < 10 {
 		      store[1001] = 10^20
 	      } else {
@@ -78,7 +78,7 @@ func TestElse(t *testing.T) {
 }
 
 func TestFor(t *testing.T) {
-	ast, err := Compile(strings.NewReader(`
+	ast, err := CompileStage(strings.NewReader(`
 	      int32 b = 10
 	      // regular for
 	      for int32 i = 0; i < 10; i++ {
@@ -93,7 +93,7 @@ func TestFor(t *testing.T) {
 }
 
 func TestHex(t *testing.T) {
-	ast, err := Compile(strings.NewReader(`
+	ast, err := CompileStage(strings.NewReader(`
 		addr address = 0xa46df28529eb8aa8b8c025b0b413c5f4b688352f
 	`), true)
 
@@ -104,13 +104,25 @@ func TestHex(t *testing.T) {
 }
 
 func TestData(t *testing.T) {
-	ast, err := Compile(strings.NewReader(`
+	ast, err := CompileStage(strings.NewReader(`
 		big t = this.Data(2)
 		// OR
 		asm (
 			PUSH 64
 			CALLDATALOAD
 		)
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
+
+func TestReturn(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		return 1000
 	`), true)
 
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 )
 
 var Debug = flag.Bool("d", false, "enable debug output")
+var DisableAssembler = flag.Bool("asm", false, "disable assembler stage")
 
 func main() {
 	flag.Usage = func() {
@@ -28,5 +29,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(asm)
+	if *DisableAssembler {
+		s := fmt.Sprintln(asm)
+		fmt.Println(s[1 : len(s)-2])
+	} else {
+		bytes := mutan.Assemble(asm...)
+
+		fmt.Printf("0x%x\n", bytes)
+	}
 }

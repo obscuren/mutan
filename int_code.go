@@ -67,6 +67,7 @@ const (
 	intCoinbase
 	intGas
 	intBlockNum
+	intReturn
 
 	// Asm is a special opcode. It's not malformed in anyway
 	intASM
@@ -112,6 +113,7 @@ var instrAsString = []string{
 	"oinbase",
 	"gas",
 	"blocknum",
+	"return",
 
 	"asm",
 	"array",
@@ -748,6 +750,8 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		concat(sender, call)
 
 		return ret
+	case ReturnTy:
+		return NewIntInstr(intEmpty, "")
 	case SizeofTy:
 		c, err := gen.sizeof(tree)
 		if err != nil {
