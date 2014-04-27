@@ -23,7 +23,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	asm, e := mutan.Compile(file, *Debug)
+	asm, e := mutan.CompileStage(file, *Debug)
 	if e != nil {
 		fmt.Println(e)
 		os.Exit(1)
