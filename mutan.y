@@ -69,8 +69,7 @@ closure_funcs
 	: ORIGIN LEFT_PAR RIGHT_PAR { $$ = NewNode(OriginTy) }
 	| CALLER LEFT_PAR RIGHT_PAR { $$ = NewNode(CallerTy) }
 	| CALLVAL LEFT_PAR RIGHT_PAR { $$ = NewNode(CallValTy) }
-	/*| CALLDATALOAD LEFT_PAR RIGHT_PAR { $$ = NewNode(CallDataLoadTy) }*/
-	| CALLDATALOAD LEFT_PAR expression RIGHT_PAR { $$ = NewNode(CallDataLoadTy, $3) }
+	| CALLDATALOAD LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(CallDataLoadTy, $3) }
 	| CALLDATASIZE LEFT_PAR RIGHT_PAR { $$ = NewNode(CallDataSizeTy) }
 	| DIFFICULTY LEFT_PAR RIGHT_PAR { $$ = NewNode(DiffTy) }
 	| PREVHASH LEFT_PAR RIGHT_PAR { $$ = NewNode(PrevHashTy) }
@@ -79,6 +78,12 @@ closure_funcs
 	| BLOCKNUM LEFT_PAR RIGHT_PAR { $$ = NewNode(BlockNumTy) }
 	| COINBASE LEFT_PAR RIGHT_PAR { $$ = NewNode(CoinbaseTy) }
 	| GAS LEFT_PAR RIGHT_PAR { $$ = NewNode(GasTy) }
+	| STORE LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(StoreTy, $3) }
+	| STORE LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression
+	  {
+	      node := NewNode(SetStoreTy, $3)
+	      $$ = NewNode(AssignmentTy, $6, node)
+	  }
 	;
 
 if_statement
@@ -148,11 +153,6 @@ assign_expression
 	  }
 	| new_var { $$ = $1 }
 	| new_array { $$ = $1 }
-	| STORE LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression
-	  {
-	      node := NewNode(SetStoreTy, $3)
-	      $$ = NewNode(AssignmentTy, $6, node)
-	  }
 	| simple_expression { $$ = $1 }
 	;
 
@@ -184,7 +184,6 @@ get_variable
 	: get_id { $$ = $1 }
 	| NUMBER { $$ = NewNode(ConstantTy); $$.Constant = $1 }
 	| ID LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(ArrayTy, $3); $$.Constant = $1 }
-	| STORE LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(StoreTy, $3) }
 	| string { $$ = $1 }
 	| buildins { $$ = $1 }
 	;

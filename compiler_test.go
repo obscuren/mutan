@@ -11,7 +11,7 @@ func TestCompiler(t *testing.T) {
 	int32 a
 	int32 b
 
-	if 200 < this.Value() {
+	if 200 < this.value() {
 		a = 20
 		b = 30
 	}
@@ -27,8 +27,8 @@ func TestArray(t *testing.T) {
 	_, err := CompileStage(strings.NewReader(`
 	int8[10] a
 	int8[10] b
-	addr address = "a46df28529eb8aa8b8c025b0b413c5f4b688352f"
-	Call(address, 15, 10, a, b)
+	addr address = 0xa46df28529eb8aa8b8c025b0b413c5f4b688352f
+	call(address, 0, 15, a, b)
 	// comment int8 b = 20
 	`), true)
 
@@ -41,7 +41,7 @@ func TestString(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	      big t 
 	      t = 10 ^ 20
-	      store[100] = 10^20 - 10 * 20
+	      this.store[100] = 10^20 - 10 * 20
 	`), true)
 
 	if err != nil {
@@ -65,9 +65,9 @@ func TestPlusPlus(t *testing.T) {
 func TestElse(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	      if 20 < 10 {
-		      store[1001] = 10^20
+		      this.store[1001] = 10^20
 	      } else {
-		      store[1001] = 10^50
+		      this.store[1001] = 10^50
 	      }
 	`), true)
 
@@ -105,7 +105,7 @@ func TestHex(t *testing.T) {
 
 func TestData(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		big t = this.Data(2)
+		big t = this.data[2]
 		// OR
 		asm (
 			PUSH 64

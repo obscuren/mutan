@@ -99,8 +99,6 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemElse)
 	case "for":
 		l.emit(itemFor)
-	case "store":
-		l.emit(itemStore)
 	case "asm":
 		l.emit(itemAsm)
 
@@ -117,7 +115,7 @@ func lexStatement(l *Lexer) stateFn {
 		return lexArray
 	case "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
 		l.emit(itemVarType)
-	case "Call":
+	case "call":
 		l.emit(itemCall)
 	case "return":
 		l.emit(itemReturn)
@@ -182,32 +180,34 @@ func lexClosureScope(l *Lexer) stateFn {
 	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
 	l.acceptRun(acceptance)
 	switch l.blob() {
-	case "Caller":
+	case "caller":
 		l.emit(itemCaller)
-	case "Origin":
+	case "origin":
 		l.emit(itemOrigin)
-	case "Value":
+	case "value":
 		l.emit(itemCallVal)
-	case "DataLoad":
+	case "dataLoad":
 		l.emit(itemCallDataLoad)
-	case "Data":
+	case "data":
 		l.emit(itemCallDataLoad)
-	case "DataSize":
+	case "dataSize":
 		l.emit(itemCallDataSize)
-	case "GasPrice":
+	case "gasPrice":
 		l.emit(itemGasPrice)
-	case "Diff":
+	case "diff":
 		l.emit(itemDifficulty)
-	case "PrevHash":
+	case "prevHash":
 		l.emit(itemPrevHash)
-	case "Time":
+	case "time":
 		l.emit(itemTimeStamp)
-	case "Number":
+	case "number":
 		l.emit(itemBlockNum)
-	case "Coinbase":
+	case "coinbase":
 		l.emit(itemCoinbase)
-	case "Gas":
+	case "gas":
 		l.emit(itemGas)
+	case "store":
+		l.emit(itemStore)
 	default:
 		l.err = fmt.Errorf("Undefined '%s'", l.blob())
 
