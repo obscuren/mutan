@@ -103,7 +103,7 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemAsm)
 
 		return lexInsideAsm
-	case "Exit":
+	case "exit":
 		l.emit(itemStop)
 	case "this":
 		l.emit(itemThis)
