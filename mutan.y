@@ -17,12 +17,12 @@ var Tree *SyntaxTree
 
 %token ASSIGN EQUAL IF ELSE FOR LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
 %token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA SIZEOF QUOTE
-%token END_STMT RETURN
+%token END_STMT RETURN CREATE TRANSACT NIL
 %token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR
 %token <str> ID NUMBER INLINE_ASM OP DOP TYPE STR
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
-%type <tnode> for_statement optional_else_statement
+%type <tnode> for_statement optional_else_statement ptr
 
 %%
 
@@ -47,10 +47,14 @@ statement
 buildins
 	: STOP LEFT_PAR RIGHT_PAR { $$ = NewNode(StopTy) }
 	/*| CALL LEFT_PAR arguments RIGHT_PAR { $$ = NewNode(CallTy, $3) }*/
-	| CALL LEFT_PAR get_variable COMMA get_variable COMMA get_variable COMMA get_id COMMA get_id RIGHT_PAR
+	| CALL LEFT_PAR get_variable COMMA get_variable COMMA get_variable COMMA ptr COMMA ptr RIGHT_PAR
 	  {
 		  $$ = NewNode(CallTy, $3, $5, $7, $9, $11)
 	  }
+	| TRANSACT LEFT_PAR get_variable COMMA get_variable COMMA ptr RIGHT_PAR
+	  {
+	  	  $$ = NewNode(TransactTy, $3, $5, $7)
+          }
 	| SIZEOF LEFT_PAR ID RIGHT_PAR { $$ = NewNode(SizeofTy); $$.Constant = $3 }
 	| THIS DOT closure_funcs { $$ = $3 }
 	;
@@ -181,11 +185,16 @@ simple_expression
 	;
 
 get_variable
-	: get_id { $$ = $1 }
+	: ptr { $$ = $1 }
 	| NUMBER { $$ = NewNode(ConstantTy); $$.Constant = $1 }
 	| ID LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(ArrayTy, $3); $$.Constant = $1 }
 	| string { $$ = $1 }
 	| buildins { $$ = $1 }
+	;
+
+ptr
+	: get_id { $$ = $1 }
+	| NIL { $$ = NewNode(NilTy) }
 	;
 
 get_id

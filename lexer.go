@@ -73,9 +73,12 @@ const (
 	itemVarType               = TYPE
 	itemComma                 = COMMA
 	itemCall                  = CALL
+	itemTransact              = TRANSACT
+	itemCreate                = CREATE
 	itemSizeof                = SIZEOF
 	itemQuote                 = QUOTE
 	itemStr                   = STR
+	itemNil                   = NIL
 )
 
 type item struct {
@@ -93,6 +96,8 @@ func lexStatement(l *Lexer) stateFn {
 	l.acceptRun(acceptance)
 
 	switch l.blob() {
+	case "nil":
+		l.emit(itemNil)
 	case "if":
 		l.emit(itemIf)
 	case "else":
@@ -117,6 +122,9 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemVarType)
 	case "call":
 		l.emit(itemCall)
+	case "create":
+	case "transact":
+		l.emit(itemTransact)
 	case "return":
 		l.emit(itemReturn)
 	case "sizeof":

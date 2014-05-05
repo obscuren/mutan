@@ -46,9 +46,13 @@ const (
 	ArrayTy
 	AssignArrayTy
 	CallTy
+	TransactTy
+	CreateTy
 	ArgTy
 	SizeofTy
 	StringTy
+
+	NilTy
 )
 
 var astAsString = []string{
@@ -91,9 +95,13 @@ var astAsString = []string{
 	"Array",
 	"Set array",
 	"Call",
+	"Transact",
+	"Create",
 	"Arg",
 	"Sizeof",
 	"String",
+
+	"Nil",
 }
 
 func (ast AstType) String() string {

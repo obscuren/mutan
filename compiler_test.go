@@ -131,3 +131,15 @@ func TestReturn(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestTransact(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		transact(0xaa1adef765cd, 100, nil)
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}

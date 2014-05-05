@@ -710,30 +710,12 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return concat(arg, next)
 	case CallTy:
-		Push := func(t *SyntaxTree) (*IntInstr, error) {
-			l := gen.locals[t.Constant]
-			if l == nil {
-				return Errorf("undefined variable: '%s'")
-			}
-
-			pushOff := NewIntInstr(intPush, "")
-			offCons := NewIntInstr(intConst, strconv.Itoa(l.size))
-			pushLoc := NewIntInstr(intPush, "")
-			locCons := NewIntInstr(intConst, strconv.Itoa(l.pos))
-
-			concat(pushOff, offCons)
-			concat(offCons, pushLoc)
-			concat(pushLoc, locCons)
-
-			return pushOff, nil
-		}
-
-		arg, err := Push(tree.Children[3])
+		arg, err := gen.makeArg(tree.Children[3])
 		if err != nil {
 			gen.addError(err)
 			return arg
 		}
-		ret, err := Push(tree.Children[4])
+		ret, err := gen.makeArg(tree.Children[4])
 		if err != nil {
 			gen.addError(err)
 			return ret
@@ -741,6 +723,25 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		sender := gen.MakeIntCode(tree.Children[0])
 		value := gen.MakeIntCode(tree.Children[1])
 		gas := gen.MakeIntCode(tree.Children[2])
+		call := NewIntInstr(intCall, "")
+
+		concat(ret, arg)
+		concat(arg, gas)
+		concat(gas, value)
+		concat(value, sender)
+		concat(sender, call)
+
+		return ret
+	case TransactTy:
+		ret := gen.pushNil()
+		arg, err := gen.makeArg(tree.Children[2])
+		if err != nil {
+			gen.addError(err)
+			return arg
+		}
+		sender := gen.MakeIntCode(tree.Children[0])
+		value := gen.MakeIntCode(tree.Children[1])
+		gas := gen.makePush("0")
 		call := NewIntInstr(intCall, "")
 
 		concat(ret, arg)
@@ -795,4 +796,41 @@ func (instr *IntInstr) String() string {
 	}
 
 	return str
+}
+
+// XXX This is actually a range function. FIXME
+func (gen *CodeGen) makeArg(t *SyntaxTree) (*IntInstr, error) {
+	if t.Type == NilTy {
+		return gen.pushNil(), nil
+	}
+
+	l := gen.locals[t.Constant]
+	if l == nil {
+		return Errorf("undefined variable: '%s'", t.Constant)
+	}
+
+	pushOff := NewIntInstr(intPush, "")
+	offCons := NewIntInstr(intConst, strconv.Itoa(l.size))
+	pushLoc := NewIntInstr(intPush, "")
+	locCons := NewIntInstr(intConst, strconv.Itoa(l.pos))
+
+	concat(pushOff, offCons)
+	concat(offCons, pushLoc)
+	concat(pushLoc, locCons)
+
+	return pushOff, nil
+}
+
+func (gen *CodeGen) makePush(num string) *IntInstr {
+	push := NewIntInstr(intPush, "")
+	cons := NewIntInstr(intConst, num)
+
+	return concat(push, cons)
+}
+
+func (gen *CodeGen) pushNil() *IntInstr {
+	p1 := concat(gen.makePush("0"), gen.makePush("0"))
+	p2 := concat(gen.makePush("0"), gen.makePush("0"))
+
+	return concat(p1, p2)
 }
