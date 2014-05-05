@@ -92,6 +92,8 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("NUMBER")
 		case intCall:
 			c.add("CALL")
+		case intCreate:
+			c.add("CREATE")
 		case intASM:
 			c.add(instr.Constant)
 		case intTarget:

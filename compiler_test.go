@@ -143,3 +143,16 @@ func TestTransact(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestCreate(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		big a = 0xdeadbeef
+		big res = create(10000, a)
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}

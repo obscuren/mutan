@@ -73,6 +73,7 @@ const (
 	intASM
 	intArray
 	intCall
+	intCreate
 	intSizeof
 
 	intIgnore
@@ -118,6 +119,7 @@ var instrAsString = []string{
 	"asm",
 	"array",
 	"call",
+	"create",
 	"sizeof",
 
 	"ignore",
@@ -751,6 +753,19 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		concat(sender, call)
 
 		return ret
+	case CreateTy:
+		script, err := gen.makeArg(tree.Children[1])
+		if err != nil {
+			gen.addError(err)
+			return script
+		}
+		val := gen.MakeIntCode(tree.Children[0])
+		create := NewIntInstr(intCreate, "")
+
+		concat(script, val)
+		concat(val, create)
+
+		return script
 	case ReturnTy:
 		return NewIntInstr(intEmpty, "")
 	case SizeofTy:

@@ -123,6 +123,7 @@ func lexStatement(l *Lexer) stateFn {
 	case "call":
 		l.emit(itemCall)
 	case "create":
+		l.emit(itemCreate)
 	case "transact":
 		l.emit(itemTransact)
 	case "return":

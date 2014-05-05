@@ -55,6 +55,7 @@ buildins
 	  {
 	  	  $$ = NewNode(TransactTy, $3, $5, $7)
           }
+	| CREATE LEFT_PAR get_variable COMMA ptr RIGHT_PAR { $$ = NewNode(CreateTy, $3, $5) }
 	| SIZEOF LEFT_PAR ID RIGHT_PAR { $$ = NewNode(SizeofTy); $$.Constant = $3 }
 	| THIS DOT closure_funcs { $$ = $3 }
 	;
