@@ -128,6 +128,8 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("STOP")
 		case intOrigin:
 			c.add("ORIGIN")
+		case intBalance:
+			c.add("BALANCE")
 		case intCaller:
 			c.add("CALLER")
 		case intCallVal:

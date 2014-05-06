@@ -169,3 +169,15 @@ func TestOpt(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestBalance(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		big a = this.balance()
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}

@@ -38,6 +38,7 @@ const (
 	PrevHashTy
 	TimestampTy
 	CoinbaseTy
+	BalanceTy
 	GasTy
 	BlockNumTy
 
@@ -87,6 +88,7 @@ var astAsString = []string{
 	"Previous hash",
 	"Timestamp",
 	"Coinbase",
+	"Balance",
 	"Gas",
 	"Block number",
 

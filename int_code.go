@@ -26,7 +26,6 @@ const (
 
 type Variable struct {
 	typ     varType
-	val     string
 	pos     int
 	size    int
 	varSize int
@@ -98,6 +97,7 @@ const (
 	intPrevHash
 	intTimestamp
 	intCoinbase
+	intBalance
 	intGas
 	intBlockNum
 	intReturn
@@ -174,7 +174,8 @@ var instrAsString = []string{
 	"diff",
 	"prevhash",
 	"timestamp",
-	"oinbase",
+	"coinbase",
+	"balance",
 	"gas",
 	"blocknum",
 	"return",
@@ -199,14 +200,14 @@ func (op Instr) String() string {
 type CodeGen struct {
 	locals map[string]*Variable
 
-	memPos   int
-	lastPush *IntInstr
+	memPos int
+	//lastPush *IntInstr
 
 	errors []error
 }
 
 func NewGen() *CodeGen {
-	return &CodeGen{make(map[string]*Variable), 0, nil, nil}
+	return &CodeGen{make(map[string]*Variable), 0, nil}
 }
 
 func (gen *CodeGen) Errors() []error {
@@ -306,7 +307,6 @@ func (gen *CodeGen) setMemory(name string) (*IntInstr, error) {
 	if local == nil {
 		return NewIntInstr(intIgnore, ""), fmt.Errorf("Undefined variable '%s'", name)
 	}
-	local.val = gen.lastPush.Constant.(string)
 
 	/*
 		push := NewIntInstr(intPush32, "")
@@ -638,7 +638,7 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		blk1, blk2 := pushConstant(tree.Constant)
 		concat(blk1, blk2)
-		gen.lastPush = blk2
+		//gen.lastPush = blk2
 
 		return blk1
 	case SetLocalTy:
@@ -730,7 +730,7 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			return st
 		}
 		blk2 := NewIntInstr(intConst, string(byts))
-		gen.lastPush = blk2
+		//gen.lastPush = blk2
 
 		return concat(blk1, blk2)
 	case StopTy:
@@ -769,6 +769,8 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return NewIntInstr(intTimestamp, "")
 	case CoinbaseTy:
 		return NewIntInstr(intCoinbase, "")
+	case BalanceTy:
+		return NewIntInstr(intBalance, "")
 	case GasTy:
 		return NewIntInstr(intGas, "")
 	case BlockNumTy:

@@ -66,6 +66,7 @@ const (
 	itemGasPrice              = GASPRICE
 	itemBlockNum              = BLOCKNUM
 	itemCoinbase              = COINBASE
+	itemBalance               = BALANCE
 	itemGas                   = GAS
 	itemDot                   = DOT
 	itemThis                  = THIS
@@ -217,6 +218,8 @@ func lexClosureScope(l *Lexer) stateFn {
 		l.emit(itemGas)
 	case "store":
 		l.emit(itemStore)
+	case "balance":
+		l.emit(itemBalance)
 	default:
 		l.err = fmt.Errorf("Undefined '%s'", l.blob())
 
