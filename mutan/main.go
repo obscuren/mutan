@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"github.com/obscuren/mutan"
 	"os"
+	"strings"
 )
 
 var Debug = flag.Bool("d", false, "enable debug output")
 var DisableAssembler = flag.Bool("asm", false, "disable assembler stage")
+var StrCode = flag.String("s", "", "code string")
 
 func main() {
 	flag.Usage = func() {
@@ -17,16 +19,26 @@ func main() {
 	}
 	flag.Parse()
 
-	file, err := os.Open(os.Args[len(os.Args)-1])
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	var asm []interface{}
+	var e []error
+	if len(*StrCode) > 0 {
+		asm, e = mutan.CompileStage(strings.NewReader(*StrCode), *Debug)
+		if e != nil {
+			fmt.Println(e)
+			os.Exit(1)
+		}
+	} else {
+		file, err := os.Open(os.Args[len(os.Args)-1])
+		if err != nil {
+			fmt.Println("error:", err)
+			os.Exit(1)
+		}
 
-	asm, e := mutan.CompileStage(file, *Debug)
-	if e != nil {
-		fmt.Println(e)
-		os.Exit(1)
+		asm, e = mutan.CompileStage(file, *Debug)
+		if e != nil {
+			fmt.Println(e)
+			os.Exit(1)
+		}
 	}
 
 	if *DisableAssembler {
