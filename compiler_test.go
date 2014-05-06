@@ -156,3 +156,16 @@ func TestCreate(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestOpt(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		int8[2] test
+		test[0] = 1000000000000000000000000000000000000000000
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}

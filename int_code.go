@@ -11,6 +11,7 @@ compiler transforms int code to ASM (very static)
 import (
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"strconv"
 	"strings"
 )
@@ -24,10 +25,11 @@ const (
 )
 
 type Variable struct {
-	typ  varType
-	val  string
-	pos  int
-	size int
+	typ     varType
+	val     string
+	pos     int
+	size    int
+	varSize int
 }
 
 type Instr byte
@@ -46,8 +48,39 @@ const (
 	intEmpty
 	intJump
 	intTarget
-	intPush
+	intPush1
+	intPush2
+	intPush3
+	intPush4
+	intPush5
+	intPush6
+	intPush7
+	intPush8
+	intPush9
+	intPush10
+	intPush11
+	intPush12
+	intPush13
+	intPush14
+	intPush15
+	intPush16
+	intPush17
+	intPush18
+	intPush19
 	intPush20
+	intPush21
+	intPush22
+	intPush23
+	intPush24
+	intPush25
+	intPush26
+	intPush27
+	intPush28
+	intPush29
+	intPush30
+	intPush31
+	intPush32
+
 	intMStore
 	intMLoad
 	intNot
@@ -93,8 +126,38 @@ var instrAsString = []string{
 	"empty",
 	"jump",
 	"target",
-	"push",
+	"push1",
+	"push2",
+	"push3",
+	"push4",
+	"push5",
+	"push6",
+	"push7",
+	"push8",
+	"push9",
+	"push10",
+	"push11",
+	"push12",
+	"push13",
+	"push14",
+	"push15",
+	"push16",
+	"push17",
+	"push18",
+	"push19",
 	"push20",
+	"push21",
+	"push22",
+	"push23",
+	"push24",
+	"push25",
+	"push26",
+	"push27",
+	"push28",
+	"push29",
+	"push30",
+	"push31",
+	"push32",
 	"mstore",
 	"mload",
 	"not",
@@ -163,6 +226,7 @@ type IntInstr struct {
 	TargetNum *IntInstr
 	size      int
 	n         int
+	variable  Variable
 }
 
 func NewIntInstr(code Instr, constant string) *IntInstr {
@@ -176,8 +240,10 @@ func (instr *IntInstr) setNumbers(i int) {
 
 		if num.Code != intTarget && num.Code != intIgnore {
 			i++
-			if num.Code == intConst {
-				i += 31
+
+			switch num.Code {
+			case intConst:
+				i += (num.size - 1)
 			}
 		}
 
@@ -191,6 +257,8 @@ func (instr *IntInstr) setNumbers(i int) {
 			// Set the target constant which we couldn't seet before hand
 			// when the numbers weren't all set.
 			num.TargetNum.Constant = num.Target.n
+			p, _ := constToPush(strconv.Itoa(num.Target.n))
+			num.TargetNum.Target.Code = p.Code
 		}
 
 		num = num.Next
@@ -218,8 +286,11 @@ func (gen *CodeGen) getMemory(name string, offset int) (push *IntInstr, err erro
 		pos = strconv.Itoa(p)
 	}
 
-	push = NewIntInstr(intPush, "")
-	cons := NewIntInstr(intConst, pos)
+	/*
+		push = NewIntInstr(intPush32, "")
+		cons := NewIntInstr(intConst, pos)
+	*/
+	push, cons := pushConstant(pos)
 	load := NewIntInstr(intMLoad, "")
 	concat(push, cons)
 	concat(cons, load)
@@ -237,8 +308,11 @@ func (gen *CodeGen) setMemory(name string) (*IntInstr, error) {
 	}
 	local.val = gen.lastPush.Constant.(string)
 
-	push := NewIntInstr(intPush, "")
-	cons := NewIntInstr(intConst, strconv.Itoa(local.pos))
+	/*
+		push := NewIntInstr(intPush32, "")
+		cons := NewIntInstr(intConst, strconv.Itoa(local.pos))
+	*/
+	push, cons := pushConstant(strconv.Itoa(local.pos))
 	store := NewIntInstr(intMStore, "")
 
 	concat(push, cons)
@@ -270,8 +344,7 @@ func sizeOf(typ string) int {
 
 	size, _ := strconv.Atoi(typ[3:])
 	// Everything is 256 bit for now untill poc 5 comes along
-	//size /= 8
-	size = 32
+	size /= 8
 
 	return size
 }
@@ -288,7 +361,7 @@ func (gen *CodeGen) initNewVar(tree *SyntaxTree) error {
 		size = sizeOf(t)
 	}
 
-	variable := &Variable{typ: varNumTy, pos: gen.memPos, size: size}
+	variable := &Variable{typ: varNumTy, pos: gen.memPos, size: size, varSize: size}
 	gen.locals[name] = variable
 
 	gen.memPos += size
@@ -304,9 +377,12 @@ func (gen *CodeGen) sizeof(tree *SyntaxTree) (*IntInstr, error) {
 
 	local := gen.locals[name]
 
-	push := NewIntInstr(intPush, "")
-	size := strconv.Itoa(local.size)
-	constant := NewIntInstr(intConst, size)
+	/*
+		push := NewIntInstr(intPush32, "")
+		size := strconv.Itoa(local.size)
+		constant := NewIntInstr(intConst, size)
+	*/
+	push, constant := pushConstant(strconv.Itoa(local.size))
 
 	return concat(push, constant), nil
 }
@@ -322,13 +398,19 @@ func (gen *CodeGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	// do an inline calculation instead.
 
 	// Get the location of the variable in memory
-	loc := NewIntInstr(intPush, "")
-	locConst := NewIntInstr(intConst, strconv.Itoa(local.pos))
+	/*
+		loc := NewIntInstr(intPush32, "")
+		locConst := NewIntInstr(intConst, strconv.Itoa(local.pos))
+	*/
+	loc, locConst := pushConstant(strconv.Itoa(local.pos))
 	// Get the offset (= expression between brackets [expression])
 	offset := gen.MakeIntCode(tree.Children[0])
 	// Get the size of the variable in bytes
-	size := NewIntInstr(intPush, "")
-	sizeConst := NewIntInstr(intConst, strconv.Itoa(local.size))
+	/*
+		size := NewIntInstr(intPush32, "")
+		sizeConst := NewIntInstr(intConst, strconv.Itoa(local.size))
+	*/
+	size, sizeConst := pushConstant(strconv.Itoa(local.size))
 	// Multiply offset with size
 	mul := NewIntInstr(intMul, "")
 	// Add the result to the memory location
@@ -362,13 +444,19 @@ func (gen *CodeGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 	val := gen.MakeIntCode(tree.Children[1])
 
 	// Get the location of the variable in memory
-	loc := NewIntInstr(intPush, "")
-	locConst := NewIntInstr(intConst, strconv.Itoa(local.pos))
+	/*
+		loc := NewIntInstr(intPush32, "")
+		locConst := NewIntInstr(intConst, strconv.Itoa(local.pos))
+	*/
+	loc, locConst := pushConstant(strconv.Itoa(local.pos))
 	// Get the offset (= expression between brackets [expression])
 	offset := gen.MakeIntCode(tree.Children[0])
 	// Get the size of the variable in bytes
-	size := NewIntInstr(intPush, "")
-	sizeConst := NewIntInstr(intConst, strconv.Itoa(local.size))
+	/*
+		size := NewIntInstr(intPush32, "")
+		sizeConst := NewIntInstr(intConst, strconv.Itoa(local.size))
+	*/
+	size, sizeConst := pushConstant(strconv.Itoa(local.size))
 	// Multiply offset with size
 	mul := NewIntInstr(intMul, "")
 	// Add the result to the memory location
@@ -401,7 +489,7 @@ func (gen *CodeGen) initNewArray(tree *SyntaxTree) error {
 	length, _ := strconv.Atoi(tree.Size)
 	size *= length
 
-	variable := &Variable{typ: varArrTy, pos: gen.memPos, size: size}
+	variable := &Variable{typ: varArrTy, pos: gen.memPos, size: size, varSize: size}
 	gen.locals[name] = variable
 
 	gen.memPos += size
@@ -430,8 +518,9 @@ func concat(blk1 *IntInstr, blk2 *IntInstr) *IntInstr {
 }
 
 func NewJumpInstr(op Instr) (*IntInstr, *IntInstr) {
-	push := NewIntInstr(intPush, "")
+	push := NewIntInstr(intPush32, "")
 	cons := NewIntInstr(intConst, "")
+	cons.Target = push
 	jump := NewIntInstr(op, "")
 	jump.TargetNum = cons
 	concat(push, cons)
@@ -546,11 +635,12 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return c
 	case ConstantTy:
-		blk1 := NewIntInstr(intPush, "")
-		blk2 := NewIntInstr(intConst, tree.Constant)
+
+		blk1, blk2 := pushConstant(tree.Constant)
+		concat(blk1, blk2)
 		gen.lastPush = blk2
 
-		return concat(blk1, blk2)
+		return blk1
 	case SetLocalTy:
 		c, err := gen.setMemory(tree.Constant)
 		if err != nil {
@@ -591,8 +681,11 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		case "-":
 			op = intSub
 		case "++", "--":
-			one := NewIntInstr(intPush, "")
-			cons := NewIntInstr(intConst, "1")
+			/*
+				one := NewIntInstr(intPush32, "")
+				cons := NewIntInstr(intConst, "1")
+			*/
+			one, cons := pushConstant("1")
 			if tree.Constant == "++" {
 				op = intAdd
 			} else {
@@ -650,9 +743,12 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return NewIntInstr(intCallVal, "")
 	case CallDataLoadTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
-		// XXX There's room for optimization here
-		push := NewIntInstr(intPush, "")
-		cons := NewIntInstr(intConst, "32")
+		/*
+			// XXX There's room for optimization here
+			push := NewIntInstr(intPush32, "")
+			cons := NewIntInstr(intConst, "32")
+		*/
+		push, cons := pushConstant("32")
 		mul := NewIntInstr(intMul, "")
 		blk2 := NewIntInstr(intCallDataLoad, "")
 		concat(blk1, push)
@@ -824,10 +920,16 @@ func (gen *CodeGen) makeArg(t *SyntaxTree) (*IntInstr, error) {
 		return Errorf("undefined variable: '%s'", t.Constant)
 	}
 
-	pushOff := NewIntInstr(intPush, "")
-	offCons := NewIntInstr(intConst, strconv.Itoa(l.size))
-	pushLoc := NewIntInstr(intPush, "")
-	locCons := NewIntInstr(intConst, strconv.Itoa(l.pos))
+	/*
+		pushOff := NewIntInstr(intPush32, "")
+		offCons := NewIntInstr(intConst, strconv.Itoa(l.size))
+	*/
+	pushOff, offCons := pushConstant(strconv.Itoa(l.size))
+	/*
+		pushLoc := NewIntInstr(intPush32, "")
+		locCons := NewIntInstr(intConst, strconv.Itoa(l.pos))
+	*/
+	pushLoc, locCons := pushConstant(strconv.Itoa(l.pos))
 
 	concat(pushOff, offCons)
 	concat(offCons, pushLoc)
@@ -837,10 +939,10 @@ func (gen *CodeGen) makeArg(t *SyntaxTree) (*IntInstr, error) {
 }
 
 func (gen *CodeGen) makePush(num string) *IntInstr {
-	push := NewIntInstr(intPush, "")
-	cons := NewIntInstr(intConst, num)
+	push, cons := pushConstant(num)
+	concat(push, cons)
 
-	return concat(push, cons)
+	return push
 }
 
 func (gen *CodeGen) pushNil() *IntInstr {
@@ -848,4 +950,21 @@ func (gen *CodeGen) pushNil() *IntInstr {
 	p2 := concat(gen.makePush("0"), gen.makePush("0"))
 
 	return concat(p1, p2)
+}
+
+func constToPush(constant string) (*IntInstr, int) {
+	num, _ := new(big.Int).SetString(constant, 0)
+	numBytes := len(num.Bytes())
+	if numBytes == 0 {
+		numBytes = 1
+	}
+	return NewIntInstr(Instr(int(intPush1)-1+numBytes), ""), numBytes
+}
+
+func pushConstant(constant string) (*IntInstr, *IntInstr) {
+	blk1, numBytes := constToPush(constant)
+	blk2 := NewIntInstr(intConst, constant)
+	blk2.size = numBytes
+
+	return blk1, blk2
 }

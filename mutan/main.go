@@ -46,6 +46,7 @@ func main() {
 		fmt.Println(s[1 : len(s)-2])
 	} else {
 		bytes := mutan.Assemble(asm...)
+		fmt.Println(bytes)
 
 		fmt.Printf("0x%x\n", bytes)
 	}

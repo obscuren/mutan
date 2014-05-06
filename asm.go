@@ -52,10 +52,6 @@ var OpCodes = map[string]byte{
 	"GASLIMIT":   0x45,
 
 	// 0x50 range - 'storage' and execution
-	"PUSH": 0x50,
-
-	"PUSH20": 0x80,
-
 	"POP":     0x51,
 	"DUP":     0x52,
 	"SWAP":    0x53,
@@ -69,10 +65,44 @@ var OpCodes = map[string]byte{
 	"PC":      0x5b,
 	"MSIZE":   0x5c,
 
-	// 0x60 range - closures
-	"CREATE": 0x60,
-	"CALL":   0x61,
-	"RETURN": 0x62,
+	// 0x60 range - 'push'
+	"PUSH1":  0x60,
+	"PUSH2":  0x61,
+	"PUSH3":  0x62,
+	"PUSH4":  0x63,
+	"PUSH5":  0x64,
+	"PUSH6":  0x65,
+	"PUSH7":  0x66,
+	"PUSH8":  0x67,
+	"PUSH9":  0x68,
+	"PUSH10": 0x69,
+	"PUSH11": 0x6a,
+	"PUSH12": 0x6b,
+	"PUSH13": 0x6c,
+	"PUSH14": 0x6d,
+	"PUSH15": 0x6e,
+	"PUSH16": 0x6f,
+	"PUSH17": 0x70,
+	"PUSH18": 0x71,
+	"PUSH19": 0x72,
+	"PUSH20": 0x73,
+	"PUSH21": 0x74,
+	"PUSH22": 0x75,
+	"PUSH23": 0x76,
+	"PUSH24": 0x77,
+	"PUSH25": 0x78,
+	"PUSH26": 0x79,
+	"PUSH27": 0x7a,
+	"PUSH28": 0x7b,
+	"PUSH29": 0x7c,
+	"PUSH30": 0x7d,
+	"PUSH31": 0x7e,
+	"PUSH32": 0x7f,
+
+	// 0xf0 range - closures
+	"CREATE": 0xf0,
+	"CALL":   0xf1,
+	"RETURN": 0xf2,
 
 	// 0x70 range - other
 	"LOG":     0x70,
@@ -121,16 +151,16 @@ func CompileInstr(s interface{}) ([]byte, error) {
 		// Assume regular bytes during compilation
 		if !success {
 			num.SetBytes([]byte(str))
-		} else {
+		} /*else {
 			// tmp fix for 32 bytes
 			n := bigToBytes(num, 256)
 			return n, nil
-		}
+		}*/
 
 		return num.Bytes(), nil
 	case int:
-		num := bigToBytes(big.NewInt(int64(s.(int))), 256)
-		return num, nil
+		//num := bigToBytes(big.NewInt(int64(s.(int))), 256)
+		return big.NewInt(int64(s.(int))).Bytes(), nil
 	case []byte:
 		return new(big.Int).SetBytes(s.([]byte)).Bytes(), nil
 	}
@@ -149,6 +179,10 @@ func Assemble(instructions ...interface{}) (script []byte) {
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
+		}
+
+		if len(instr) == 0 {
+			instr = []byte{0}
 		}
 
 		//script[i] = string(instr)
