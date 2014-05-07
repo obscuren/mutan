@@ -91,8 +91,8 @@ func lexStatement(l *Lexer) stateFn {
 	acceptance := Alpha
 	l.acceptRun(acceptance)
 
-	if l.accept("1234567890") {
-		acceptance += "1234567890"
+	if l.accept("_1234567890") {
+		acceptance += "_1234567890"
 	}
 	l.acceptRun(acceptance)
 

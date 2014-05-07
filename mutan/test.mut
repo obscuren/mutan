@@ -1,8 +1,18 @@
-big to = this.data[0]
-big from = this.origin()
-big value = this.data[1]
+this.store[1001] = 1337
+big given_value_ = this.value()
+this.store[1002] = given_value_
+this.store[1003] = this.origin()
 
-if this.store[from] > value {
-	this.store[from] = this.store[from] - value
-		this.store[to] = this.store[to] + value
-}
+//this.store[1001] = 1337
+//this.store[1002] = this.value()
+//this.store[1003] = this.origin()
+
+
+//big to = this.data[0]
+//big from = this.origin()
+//big value = this.data[1]
+
+//if this.store[from] > value {
+//	this.store[from] = this.store[from] - value
+//		this.store[to] = this.store[to] + value
+//}
