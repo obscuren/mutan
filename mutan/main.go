@@ -44,10 +44,12 @@ func main() {
 	if *DisableAssembler {
 		s := fmt.Sprintln(asm)
 		fmt.Println(s[1 : len(s)-2])
+		for i, val := range asm {
+			fmt.Println(i, ":", val)
+		}
 	} else {
 		bytes := mutan.Assemble(asm...)
-		fmt.Println(bytes)
 
-		fmt.Printf("0x%x\n", bytes)
+		fmt.Printf("bytes: %v\nhex: 0x%x\n", bytes, bytes)
 	}
 }

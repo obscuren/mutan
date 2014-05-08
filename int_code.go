@@ -9,6 +9,8 @@ compiler transforms int code to ASM (very static)
 */
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"math/big"
@@ -240,26 +242,28 @@ func (instr *IntInstr) setNumbers(i int) {
 		num.n = i
 
 		if num.Code != intTarget && num.Code != intIgnore {
-			i++
 
 			switch num.Code {
 			case intConst:
-				i += (num.size - 1)
+				if num.size == 0 {
+					fmt.Println("TIS", num.Constant)
+					panic("NULL")
+				}
+				i += num.size
+			default:
+				i++
 			}
 		}
 
 		num = num.Next
 	}
 
-	// XXX Do we need a 2 pass?
 	num = instr
 	for num != nil {
 		if num.Code == intJump || num.Code == intJumpi {
 			// Set the target constant which we couldn't seet before hand
 			// when the numbers weren't all set.
-			num.TargetNum.Constant = num.Target.n
-			p, _ := constToPush(strconv.Itoa(num.Target.n))
-			num.TargetNum.Target.Code = p.Code
+			num.TargetNum.Constant = string(numberToBytes(int32(num.Target.n), 32))
 		}
 
 		num = num.Next
@@ -518,9 +522,11 @@ func concat(blk1 *IntInstr, blk2 *IntInstr) *IntInstr {
 }
 
 func NewJumpInstr(op Instr) (*IntInstr, *IntInstr) {
-	push := NewIntInstr(intPush32, "")
+	push := NewIntInstr(intPush4, "")
 	cons := NewIntInstr(intConst, "")
+	cons.size = 4
 	cons.Target = push
+
 	jump := NewIntInstr(op, "")
 	jump.TargetNum = cons
 	concat(push, cons)
@@ -969,4 +975,14 @@ func pushConstant(constant string) (*IntInstr, *IntInstr) {
 	blk2.size = numBytes
 
 	return blk1, blk2
+}
+
+func numberToBytes(num interface{}, bits int) []byte {
+	buf := new(bytes.Buffer)
+	err := binary.Write(buf, binary.BigEndian, num)
+	if err != nil {
+		panic(err)
+	}
+
+	return buf.Bytes()[buf.Len()-(bits/8):]
 }

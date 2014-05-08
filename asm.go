@@ -146,16 +146,18 @@ func CompileInstr(s interface{}) ([]byte, error) {
 			return []byte{OpCodes[str]}, nil
 		}
 
+		// Check for pre formatted byte array
+		// Jumps are preformatted
+		if []byte(str)[0] == 0 {
+			return []byte(str), nil
+		}
+
 		num := new(big.Int)
 		_, success := num.SetString(str, 0)
 		// Assume regular bytes during compilation
 		if !success {
 			num.SetBytes([]byte(str))
-		} /*else {
-			// tmp fix for 32 bytes
-			n := bigToBytes(num, 256)
-			return n, nil
-		}*/
+		}
 
 		return num.Bytes(), nil
 	case int:

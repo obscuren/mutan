@@ -173,6 +173,25 @@ func TestOpt(t *testing.T) {
 func TestBalance(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		big a = this.balance()
+		if a > 10 {
+			big b = 10
+		}
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
+
+func TestFunction(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		// import register from stdlib
+		// // Future feature :-)
+		// func main() {
+		//     register("MyContractName")
+		// }
 	`), true)
 
 	if err != nil {
