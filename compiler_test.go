@@ -205,18 +205,8 @@ func TestOps(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		int8 test = 10 >= 20
 		int8 itst2 = 10 <= 20
-	`), true)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(ast)
-}
-
-func TestNot(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-		int8 test = 10 != 20
+		int8 test3 = 10 != 20
+		int8 test4 = 10 % 1 == 0
 	`), true)
 
 	if err != nil {

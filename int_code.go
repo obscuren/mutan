@@ -44,6 +44,7 @@ const (
 	intDiv
 	intSub
 	intExp
+	intMod
 	intAssign
 	intConst
 	intEmpty
@@ -123,6 +124,7 @@ var instrAsString = []string{
 	"div",
 	"sub",
 	"exp",
+	"mod",
 	"assign",
 	"const",
 	"empty",
@@ -687,6 +689,8 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			op = intAdd
 		case "-":
 			op = intSub
+		case "%":
+			op = intMod
 		case "++", "--":
 			one, cons := pushConstant("1")
 			if tree.Constant == "++" {

@@ -106,6 +106,8 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("DIV")
 		case intExp:
 			c.add("EXP")
+		case intMod:
+			c.add("MOD")
 		case intAdd:
 			c.add("ADD")
 		case intAssign:

@@ -22,7 +22,7 @@ var Tree *SyntaxTree
 %token <str> ID NUMBER INLINE_ASM OP DOP TYPE STR
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
-%type <tnode> for_statement optional_else_statement ptr
+%type <tnode> for_statement optional_else_statement ptr sub_expression
 
 %%
 
@@ -135,10 +135,16 @@ expression
 	;
 
 op_expression
-	: expression DOP { $$ = NewNode(OpTy, $1); $$.Constant = $2 }
-	| expression OP expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
+    /* ++, -- */
+	: expression DOP { $$ = NewNode(OpTy, $1); $$.Constant = $2 } 
+    /* Everything else */
+	| expression OP sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
 	;
 
+sub_expression
+    : simple_expression { $$ = $1; }
+    | op_expression { $$ = $1; }
+    ;
 
 assign_expression
 	: ID ASSIGN expression
