@@ -666,7 +666,8 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return concat(blk1, blk2)
 
 	case OpTy:
-		blk1 := gen.MakeIntCode(tree.Children[0])
+		var blk1, blk2, blk3 *IntInstr
+		blk1 = gen.MakeIntCode(tree.Children[0])
 
 		var op Instr
 		switch tree.Constant {
@@ -687,10 +688,6 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		case "-":
 			op = intSub
 		case "++", "--":
-			/*
-				one := NewIntInstr(intPush32, "")
-				cons := NewIntInstr(intConst, "1")
-			*/
 			one, cons := pushConstant("1")
 			if tree.Constant == "++" {
 				op = intAdd
@@ -719,10 +716,31 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			}
 
 			return blk1
+		case ">=":
+			op = intLt
+			blk3 = NewIntInstr(intNot, "")
+		case "<=":
+			op = intGt
+			blk3 = NewIntInstr(intNot, "")
+		case "!=":
+			op = intEqual
+			blk3 = NewIntInstr(intNot, "")
+		default:
+			c, err := Errorf("Expected operator, got '%v'", tree.Constant)
+			gen.addError(err)
+			return c
 		}
 
-		blk2 := gen.MakeIntCode(tree.Children[1])
+		blk2 = gen.MakeIntCode(tree.Children[1])
 		concat(blk1, blk2)
+
+		if blk3 != nil {
+			opinstr := NewIntInstr(op, "")
+			concat(blk2, opinstr)
+			concat(opinstr, blk3)
+
+			return blk1
+		}
 
 		return concat(blk1, NewIntInstr(op, ""))
 	case StringTy:
