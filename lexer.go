@@ -36,6 +36,7 @@ const (
 	itemIdentifier            = ID
 	itemEndStatement          = END_STMT
 	itemNumber                = NUMBER
+	itemBoolean               = BOOLEAN
 	itemAssign                = ASSIGN
 	itemOp                    = OP
 	itemDop                   = DOP /* Double op ++ -- */
@@ -119,8 +120,10 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemArray)
 
 		return lexArray
-	case "int", "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
+	case "bool", "int", "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
 		l.emit(itemVarType)
+	case "true", "false":
+		l.emit(itemBoolean)
 	case "call":
 		l.emit(itemCall)
 	case "create":

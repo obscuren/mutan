@@ -13,6 +13,7 @@ const (
 	AssignmentTy
 	IdentifierTy
 	ConstantTy
+	BoolTy
 	SetLocalTy
 	BlockTy
 	IfThenTy
@@ -63,6 +64,7 @@ var astAsString = []string{
 	"Assignment",
 	"Identifier",
 	"Constant",
+	"Boolean",
 	"Set local",
 	"Block",
 	"If then",

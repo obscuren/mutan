@@ -335,6 +335,7 @@ func (gen *CodeGen) setMemory(name string) (*IntInstr, error) {
 
 // Type size table
 var typeToSize = map[string]int{
+	"bool":   8,
 	"int":    32,
 	"int8":   8,
 	"int16":  16,
@@ -368,7 +369,6 @@ func (gen *CodeGen) initNewVar(tree *SyntaxTree) error {
 	default:
 		return fmt.Errorf("undefined type %s", tree.VarType)
 	}
-	fmt.Println(tree.VarType)
 
 	variable := &Variable{typ: varNumTy, pos: gen.memPos, size: size, varSize: size}
 	gen.locals[name] = variable
@@ -649,7 +649,17 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		blk1, blk2 := pushConstant(tree.Constant)
 		concat(blk1, blk2)
-		//gen.lastPush = blk2
+
+		return blk1
+	case BoolTy:
+		var value string
+		if tree.Constant == "true" {
+			value = "1"
+		} else {
+			value = "0"
+		}
+		blk1, blk2 := pushConstant(value)
+		concat(blk1, blk2)
 
 		return blk1
 	case SetLocalTy:

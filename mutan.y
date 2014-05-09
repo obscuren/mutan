@@ -19,7 +19,7 @@ var Tree *SyntaxTree
 %token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA SIZEOF QUOTE
 %token END_STMT RETURN CREATE TRANSACT NIL BALANCE VAR_ASSIGN
 %token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR
-%token <str> ID NUMBER INLINE_ASM OP DOP TYPE STR
+%token <str> ID NUMBER INLINE_ASM OP DOP TYPE STR BOOLEAN
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
 %type <tnode> for_statement optional_else_statement ptr sub_expression
@@ -197,6 +197,7 @@ get_variable
 	: ptr { $$ = $1 }
 	| NUMBER { $$ = NewNode(ConstantTy); $$.Constant = $1 }
 	| ID LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(ArrayTy, $3); $$.Constant = $1 }
+    | BOOLEAN { $$ = NewNode(BoolTy); $$.Constant = $1 }
 	| string { $$ = $1 }
 	| buildins { $$ = $1 }
 	;

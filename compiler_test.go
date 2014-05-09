@@ -220,3 +220,16 @@ func TestOps(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestBoolean(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		bool t = true
+		bool f = false
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
