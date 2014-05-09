@@ -646,6 +646,7 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return concat(blk1, blk2)
 
 	case OpTy:
+		// TODO clean this up
 		var blk1, blk2, blk3 *IntInstr
 		blk1 = gen.MakeIntCode(tree.Children[0])
 
@@ -713,6 +714,12 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		case "!=":
 			op = intEqual
 			blk3 = NewIntInstr(intNot, "")
+		case "!":
+			// Reconstruct this one (We ought to clean this code)
+			blk1 = gen.MakeIntCode(tree.Children[1])
+			opinstr := NewIntInstr(intNot, "")
+			return concat(blk1, opinstr)
+
 		default:
 			c, err := tree.Errorf("Expected operator, got '%v'", tree.Constant)
 			gen.addError(err)
@@ -927,7 +934,7 @@ func (gen *CodeGen) makeArg(t *SyntaxTree) (*IntInstr, error) {
 
 	l := gen.locals[t.Constant]
 	if l == nil {
-		return t.Errorf("undefined variable: '%s'", t.Constant)
+		return t.Errorf("undefine variable: '%s'", t.Constant)
 	}
 
 	pushOff, offCons := pushConstant(strconv.Itoa(l.size))

@@ -333,10 +333,9 @@ func lexText(l *Lexer) stateFn {
 	for {
 		switch r := l.next(); {
 		case r == '\n':
-			l.ignore()
-			//l.emit(itemEndStatement)
-
 			Lineno++
+
+			l.ignore()
 		case isSpace(r): // Check whether this is a space (which we ignore)
 			l.ignore()
 		case isAlphaNumeric(r): // Check if it's alpha numeric (var, if, else etc)
