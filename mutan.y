@@ -32,7 +32,6 @@ program
 
 statement_list
 	: statement_list statement { $$ = NewNode(StatementListTy, $1, $2) }
-	| END_STMT { $$ = NewNode(EmptyTy) }
 	| /* Empty */ { $$ = NewNode(EmptyTy) }
 	;
 
@@ -41,6 +40,7 @@ statement
 	| if_statement { $$ = $1 }
 	| for_statement { $$ = $1 }
 	| ASM LEFT_PAR INLINE_ASM RIGHT_PAR { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
+	| END_STMT { $$ = NewNode(EmptyTy); }
 	;
 
 

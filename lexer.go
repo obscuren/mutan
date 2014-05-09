@@ -334,6 +334,7 @@ func lexText(l *Lexer) stateFn {
 		switch r := l.next(); {
 		case r == '\n':
 			l.ignore()
+			//l.emit(itemEndStatement)
 
 			Lineno++
 		case isSpace(r): // Check whether this is a space (which we ignore)
@@ -401,6 +402,7 @@ func lexer(name, input string) *Lexer {
 		state: lexText,
 		items: make(chan item, 5),
 	}
+	Lineno = 0
 
 	return l
 }
@@ -517,5 +519,5 @@ func (l *Lexer) Lex(lval *yySymType) int {
 }
 
 func (l *Lexer) Error(s string) {
-	l.err = fmt.Errorf("%s", s)
+	l.err = fmt.Errorf("line %d: %s", Lineno, s)
 }

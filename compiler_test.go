@@ -233,3 +233,18 @@ func TestBoolean(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestEnd(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		big t = 100; int32 b = 200
+		a = 100
+		t = a
+		a[0] = 10
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}

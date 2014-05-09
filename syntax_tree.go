@@ -150,6 +150,11 @@ func (p *SyntaxTree) String() string {
 	return p.prettyPrint("")
 }
 
+// Creates an error and returns an ignore instruction
+func (p *SyntaxTree) Errorf(format string, v ...interface{}) (*IntInstr, error) {
+	return NewIntInstr(intIgnore, ""), fmt.Errorf("line %d: "+format, append([]interface{}{p.Lineno}, v...)...)
+}
+
 func MakeAst(source string) (*SyntaxTree, error) {
 	lex := lexer("mutan", source)
 	yyParse(lex)
