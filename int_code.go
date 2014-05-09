@@ -45,6 +45,9 @@ const (
 	intSub
 	intExp
 	intMod
+	intXor
+	intOr
+	intAnd
 	intAssign
 	intConst
 	intEmpty
@@ -125,6 +128,9 @@ var instrAsString = []string{
 	"sub",
 	"exp",
 	"mod",
+	"xor",
+	"or",
+	"and",
 	"assign",
 	"const",
 	"empty",
@@ -329,6 +335,7 @@ func (gen *CodeGen) setMemory(name string) (*IntInstr, error) {
 
 // Type size table
 var typeToSize = map[string]int{
+	"int":    32,
 	"int8":   8,
 	"int16":  16,
 	"int32":  32,
@@ -341,15 +348,8 @@ var typeToSize = map[string]int{
 }
 
 func sizeOf(typ string) int {
+	size := typeToSize[typ]
 
-	if typ == "big" {
-		return 32
-	} else if typ == "addr" {
-		return 20
-	}
-
-	size, _ := strconv.Atoi(typ[3:])
-	// Everything is 256 bit for now untill poc 5 comes along
 	size /= 8
 
 	return size
@@ -365,7 +365,10 @@ func (gen *CodeGen) initNewVar(tree *SyntaxTree) error {
 	switch t := tree.VarType; {
 	case typeToSize[t] > 0:
 		size = sizeOf(t)
+	default:
+		return fmt.Errorf("undefined type %s", tree.VarType)
 	}
+	fmt.Println(tree.VarType)
 
 	variable := &Variable{typ: varNumTy, pos: gen.memPos, size: size, varSize: size}
 	gen.locals[name] = variable
@@ -679,8 +682,6 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			op = intGt
 		case "<":
 			op = intLt
-		case "^":
-			op = intExp
 		case "*":
 			op = intMul
 		case "/":
@@ -691,6 +692,14 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			op = intSub
 		case "%":
 			op = intMod
+		case "&":
+			op = intAnd
+		case "|":
+			op = intOr
+		case "^":
+			op = intXor
+		case "**":
+			op = intExp
 		case "++", "--":
 			one, cons := pushConstant("1")
 			if tree.Constant == "++" {

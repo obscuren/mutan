@@ -206,7 +206,12 @@ func TestOps(t *testing.T) {
 		int8 test = 10 >= 20
 		int8 itst2 = 10 <= 20
 		int8 test3 = 10 != 20
-		int8 test4 = 10 % 1 == 0
+		int test4 = 10 % 1 == 0
+
+		test4 = test & test4
+		test4 = test4 | test3
+		test4 = test4 ^ test3
+		test4 = test4 ** 2
 	`), true)
 
 	if err != nil {

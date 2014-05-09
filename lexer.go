@@ -23,7 +23,7 @@ func isNumber(t rune) bool {
 }
 
 func isOperator(t rune) bool {
-	return strings.IndexRune("=+-/*><^!%", t) >= 0
+	return strings.IndexRune("=+-/*><^!%&|", t) >= 0
 }
 
 const eof = -1
@@ -119,7 +119,7 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemArray)
 
 		return lexArray
-	case "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
+	case "int", "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
 		l.emit(itemVarType)
 	case "call":
 		l.emit(itemCall)
@@ -287,7 +287,7 @@ func lexOperator(l *Lexer) stateFn {
 		if l.accept("!") {
 			acceptance += "!"
 		} else {
-			acceptance += "-/*+><^%"
+			acceptance += "-/*+><^%&|"
 		}
 	}
 

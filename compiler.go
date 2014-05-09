@@ -108,6 +108,12 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("EXP")
 		case intMod:
 			c.add("MOD")
+		case intXor:
+			c.add("XOR")
+		case intOr:
+			c.add("OR")
+		case intAnd:
+			c.add("AND")
 		case intAdd:
 			c.add("ADD")
 		case intAssign:
