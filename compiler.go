@@ -186,8 +186,10 @@ func CompileStage(source io.Reader, debug bool) (asm []interface{}, errors []err
 		return
 	}
 
+	s, _ := PreProcess(string(buff))
+
 	var ast *SyntaxTree
-	ast, err = MakeAst(string(buff))
+	ast, err = MakeAst(s)
 	if err != nil {
 		errors = append(errors, err)
 		return

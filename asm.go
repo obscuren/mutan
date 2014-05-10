@@ -194,11 +194,11 @@ func Assemble(instructions ...interface{}) (script []byte) {
 	return
 }
 
-// Pre process script
+// Pre parse script
 //
 // Take data apart and attempt to find the "init" section and
 // "main" section. `main { } init { }`
-func PreProcess(data string) (mainInput, initInput string) {
+func PreParse(data string) (mainInput, initInput string) {
 	mainInput = getCodeSectionFor("main", data)
 	if mainInput == "" {
 		mainInput = data
