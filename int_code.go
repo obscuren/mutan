@@ -676,6 +676,23 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			op = intXor
 		case "**":
 			op = intExp
+		case "<<", ">>":
+			push, cons := pushConstant("2")
+			blk2 := gen.MakeIntCode(tree.Children[1])
+			exp := NewIntInstr(intExp, "")
+			var o *IntInstr
+			if tree.Constant == "<<" {
+				o = NewIntInstr(intMul, "")
+			} else {
+				o = NewIntInstr(intDiv, "")
+			}
+			concat(push, cons)
+			concat(cons, blk2)
+			concat(blk2, exp)
+			concat(exp, blk1)
+			concat(blk1, o)
+
+			return push
 		case "++", "--":
 			one, cons := pushConstant("1")
 			if tree.Constant == "++" {

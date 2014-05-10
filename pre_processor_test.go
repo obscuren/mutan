@@ -1,14 +1,13 @@
 package mutan
 
 import (
-	"fmt"
+	_ "fmt"
 	"testing"
 )
 
 const src = `#define MY_MACRO 10
 	#define OTHER 20
-	#define ADD_IT 2 + 2
-	big test = ADD_IT`
+	big test = OTHER`
 
 func TestFindDefiness(t *testing.T) {
 	_, macros := findDefines(src)
@@ -22,6 +21,5 @@ func TestFindDefiness(t *testing.T) {
 }
 
 func TestPreProcess(t *testing.T) {
-	source, _ := PreProcess(src)
-	fmt.Println("new source", source)
+	PreProcess(src)
 }

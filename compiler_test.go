@@ -246,3 +246,16 @@ func TestNot(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestShift(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		int8 test = 8 << 2
+		test = 256 >> 3
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
