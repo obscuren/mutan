@@ -27,7 +27,7 @@ func PreProcess(s string) (source string, err error) {
 	var macros [][]string
 	source, macros = findDefines(s)
 	for _, macro := range macros {
-		source = strings.Replace(source, macro[0], macro[1], -1)
+		source = regexp.MustCompile("\\b"+macro[0]+"\\b").ReplaceAllString(source, macro[1])
 	}
 
 	return

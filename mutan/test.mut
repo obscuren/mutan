@@ -10,3 +10,5 @@ if this.store[from] >= value {
 }
 
 big t = HELLO_WORLD
+
+int8 shift = 8 << 3
