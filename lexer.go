@@ -83,6 +83,8 @@ const (
 	itemNil                   = NIL
 	itemLamda                 = LAMBDA
 	itemCode                  = CODE
+	itemVar                   = VAR
+	itemColon                 = COLON
 )
 
 type item struct {
@@ -156,8 +158,9 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemLamda)
 
 		return lexLambda
-	case "bool", "int", "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
-		l.emit(itemVarType)
+	case "var", "bool", "int", "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
+		//l.emit(itemVarType)
+		l.emit(itemVar)
 	case "true", "false":
 		l.emit(itemBoolean)
 	case "call":
@@ -408,6 +411,8 @@ func lexText(l *Lexer) stateFn {
 			return lexComment
 		case r == ';':
 			l.emit(itemEndStatement)
+		case r == ':':
+			l.emit(itemColon)
 		case isOperator(r):
 			l.backup()
 
