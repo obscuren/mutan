@@ -13,6 +13,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"math"
 	"math/big"
 	"strconv"
 	"strings"
@@ -897,7 +898,26 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return script
 	case ReturnTy:
-		return NewIntInstr(intEmpty, "")
+		switch tree.Children[0].Type {
+		case LambdaTy:
+			retVal, num := gen.inlineCompile(0, tree.Children[0])
+			if num != 0 {
+				size := gen.makePush("0")
+				offset := gen.makePush(strconv.Itoa(num))
+				concat(retVal, offset)
+				concat(offset, size)
+
+				return concat(retVal, NewIntInstr(intReturn, ""))
+			}
+
+		default:
+			c, err := tree.Errorf("return; only supports Lambda")
+			gen.addError(err)
+
+			return c
+		}
+
+		return NewIntInstr(intIgnore, "")
 	case SizeofTy:
 		c, err := gen.sizeof(tree)
 		if err != nil {
@@ -909,6 +929,7 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		// Remove tabs
 		asm := strings.Replace(tree.Constant, "\t", "", -1)
 		// Remove double spaces
+
 		asm = strings.Replace(asm, "  ", " ", -1)
 		asmSlice := strings.FieldsFunc(asm, func(r rune) bool {
 			switch r {
@@ -927,11 +948,43 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		}
 
 		return firstInstr
+	case LambdaTy:
+		panic("auto lambda triggered in int code gen. report this issue")
 	case EmptyTy:
 		return NewIntInstr(intEmpty, "")
 	}
 
 	return nil
+}
+
+func (gen *CodeGen) inlineCompile(memOffset int, tree *SyntaxTree) (*IntInstr, int) {
+	code, errors := Compile(strings.NewReader(tree.Constant), true)
+	if len(errors) != 0 {
+		gen.errors = append(gen.errors, errors...)
+		return nil, 0
+	}
+
+	ignore := NewIntInstr(intIgnore, "")
+	var lastPush *IntInstr
+	for i := 0; i < len(code); i += 32 {
+		offset := int(math.Min(float64(i+32), float64(len(code))))
+		hex := hex.EncodeToString(code[i:offset])
+		mem := gen.makePush(strconv.Itoa(i + memOffset))
+		push := gen.makePush("0x" + hex)
+		store := NewIntInstr(intMStore, "")
+		concat(push, mem)
+		concat(mem, store)
+
+		if lastPush != nil {
+			concat(lastPush, push)
+		} else {
+			concat(ignore, push)
+		}
+
+		lastPush = push
+	}
+
+	return ignore, len(code)
 }
 
 func (instr *IntInstr) String() string {

@@ -164,6 +164,8 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("CALL")
 		case intCreate:
 			c.add("CREATE")
+		case intReturn:
+			c.add("RETURN")
 		case intASM:
 			c.add(instr.Constant)
 		case intTarget:

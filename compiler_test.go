@@ -259,3 +259,26 @@ func TestShift(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestLambda(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	big t = 10
+
+	return lambda {
+		big to = this.data[0]
+		big from = this.origin()
+		big value = this.data[1]
+
+		if this.store[from] >= value {
+			this.store[from] = this.store[from] - value
+			this.store[to] = this.store[to] + value
+		}
+	}
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
