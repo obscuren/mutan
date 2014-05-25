@@ -54,6 +54,8 @@ const (
 	SizeofTy
 	StringTy
 
+	LambdaTy
+
 	NilTy
 )
 
@@ -104,6 +106,8 @@ var astAsString = []string{
 	"Arg",
 	"Sizeof",
 	"String",
+
+	"Lambda",
 
 	"Nil",
 }

@@ -81,11 +81,45 @@ const (
 	itemQuote                 = QUOTE
 	itemStr                   = STR
 	itemNil                   = NIL
+	itemLamda                 = LAMBDA
+	itemCode                  = CODE
+	itemVar                   = VAR
+	itemColon                 = COLON
 )
 
 type item struct {
 	typ itemType
 	val string
+}
+
+func lexLambda(l *Lexer) stateFn {
+	count := 0
+out:
+	for {
+		switch l.next() {
+		case '{':
+			if count == 0 {
+				l.emit(itemLeftBracket)
+
+				l.ignore()
+			}
+			count++
+		case '}':
+			count--
+			if count == 0 {
+				l.backup()
+
+				break out
+			}
+		}
+	}
+
+	l.emit(itemCode)
+
+	l.next()
+	l.emit(itemRightBracket)
+
+	return lexText(l)
 }
 
 func lexStatement(l *Lexer) stateFn {
@@ -120,8 +154,13 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemArray)
 
 		return lexArray
-	case "bool", "int", "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
-		l.emit(itemVarType)
+	case "lambda":
+		l.emit(itemLamda)
+
+		return lexLambda
+	case "var", "bool", "int", "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
+		//l.emit(itemVarType)
+		l.emit(itemVar)
 	case "true", "false":
 		l.emit(itemBoolean)
 	case "call":
@@ -336,6 +375,8 @@ func lexText(l *Lexer) stateFn {
 			Lineno++
 
 			l.ignore()
+		case r == '\t':
+			l.ignore()
 		case isSpace(r): // Check whether this is a space (which we ignore)
 			l.ignore()
 		case isAlphaNumeric(r): // Check if it's alpha numeric (var, if, else etc)
@@ -370,6 +411,8 @@ func lexText(l *Lexer) stateFn {
 			return lexComment
 		case r == ';':
 			l.emit(itemEndStatement)
+		case r == ':':
+			l.emit(itemColon)
 		case isOperator(r):
 			l.backup()
 

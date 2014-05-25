@@ -164,6 +164,8 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("CALL")
 		case intCreate:
 			c.add("CREATE")
+		case intReturn:
+			c.add("RETURN")
 		case intASM:
 			c.add(instr.Constant)
 		case intTarget:
@@ -207,7 +209,7 @@ func CompileStage(source io.Reader, debug bool) (asm []interface{}, errors []err
 		}
 		return nil, gen.Errors()
 	}
-	intCode.setNumbers(0)
+	intCode.setNumbers(0, gen)
 
 	if debug {
 		fmt.Println(intCode)

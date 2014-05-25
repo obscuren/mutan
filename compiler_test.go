@@ -37,19 +37,6 @@ func TestArray(t *testing.T) {
 	}
 }
 
-func TestString(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-	      big t 
-	      t = 10 ^ 20
-	      this.store[100] = 10^20 - 10 * 20
-	`), true)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(ast)
-}
-
 func TestPlusPlus(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	      big i = 0
@@ -251,6 +238,52 @@ func TestShift(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		int8 test = 8 << 2
 		test = 256 >> 3
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
+
+func TestLambda(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	a := "hello world"
+	a = "hello world hello world hello world hello world hello world hello world hello world hello world hello world" 
+	b := 20
+
+	var[2] c
+	c[0] = 10
+	c[2] = 100
+
+	d := "hello"
+
+	return lambda {
+		to := this.data[0]
+		from := this.origin()
+		value := this.data[1]
+
+		if this.store[from] >= value {
+			this.store[from] = this.store[from] - value
+			this.store[to] = this.store[to] + value
+		}
+	}
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
+
+func TestString(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	a := "hello world"
+	b := 10
+	this.store[1] = "hello"
+
 	`), true)
 
 	if err != nil {
