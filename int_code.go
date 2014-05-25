@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"math"
 	"math/big"
 	"strconv"
@@ -284,6 +285,27 @@ func NewJumpInstr(op Instr) (*IntInstr, *IntInstr) {
 	return push, jump
 }
 
+func (gen *CodeGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {
+	var instr *IntInstr
+
+	switch tree.Type {
+	case StringTy:
+		fmt.Println(gen.locals[identifier.Constant])
+		id := gen.locals[identifier.Constant]
+		if id == nil {
+			panic("err yeah no")
+		}
+
+		var length int
+		instr, length = gen.bytesToHexInstr(id.pos, []byte(tree.Constant))
+		id.size = int(math.Max(math.Max(float64(id.size), float64(length)), 32.0))
+	default:
+		instr = gen.MakeIntCode(tree)
+	}
+
+	return instr
+}
+
 // Recursive intermediate code generator
 func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	switch tree.Type {
@@ -293,17 +315,20 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return concat(blk1, blk2)
 	case AssignmentTy:
-		blk1 := gen.MakeIntCode(tree.Children[0])
-		blk2 := gen.MakeIntCode(tree.Children[1])
-		c := concat(blk1, blk2)
-		// Regular assignment a = 10
+		var blk1 *IntInstr
 		if len(tree.Children) == 2 {
-			return c
+			blk2 := gen.MakeIntCode(tree.Children[1])
+			blk1 = gen.setVariable(tree.Children[0], tree.Children[1])
+			concat(blk1, blk2)
+		} else {
+			blk2 := gen.MakeIntCode(tree.Children[1])
+			blk3 := gen.MakeIntCode(tree.Children[2])
+			blk1 = gen.setVariable(tree.Children[0], tree.Children[2])
+			concat(blk1, blk2)
+			concat(blk2, blk3)
 		}
 
-		// Init assignment int8 a = 20
-		blk3 := gen.MakeIntCode(tree.Children[2])
-		return concat(c, blk3)
+		return blk1
 	case IfThenTy:
 		cond := gen.MakeIntCode(tree.Children[0])
 		not := NewIntInstr(intNot, "")
@@ -534,20 +559,22 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		}
 
 		return concat(blk1, NewIntInstr(op, ""))
-	case StringTy:
-		blk1 := NewIntInstr(intPush20, "")
-		byts, err := hex.DecodeString(tree.Constant)
-		if err != nil {
-			st, e := tree.Errorf("%v: %s", err, tree.Constant)
+		/*
+			case StringTy:
+				blk1 := NewIntInstr(intPush20, "")
+				byts, err := hex.DecodeString(tree.Constant)
+				if err != nil {
+					st, e := tree.Errorf("%v: %s", err, tree.Constant)
 
-			gen.addError(e)
+					gen.addError(e)
 
-			return st
-		}
-		blk2 := NewIntInstr(intConst, string(byts))
-		//gen.lastPush = blk2
+					return st
+				}
+				blk2 := NewIntInstr(intConst, string(byts))
+				//gen.lastPush = blk2
 
-		return concat(blk1, blk2)
+				return concat(blk1, blk2)
+		*/
 	case StopTy:
 		return NewIntInstr(intStop, "")
 	case OriginTy:
@@ -746,11 +773,16 @@ func (gen *CodeGen) compileLambda(memOffset int, tree *SyntaxTree) (*IntInstr, i
 		return nil, 0
 	}
 
+	return gen.bytesToHexInstr(memOffset, code)
+
+}
+
+func (gen *CodeGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
 	ignore := NewIntInstr(intIgnore, "")
 	var lastPush *IntInstr
-	for i := 0; i < len(code); i += 32 {
-		offset := int(math.Min(float64(i+32), float64(len(code))))
-		hex := hex.EncodeToString(code[i:offset])
+	for i := 0; i < len(b); i += 32 {
+		offset := int(math.Min(float64(i+32), float64(len(b))))
+		hex := hex.EncodeToString(b[i:offset])
 		mem := gen.makePush(strconv.Itoa(i + memOffset))
 		push := gen.makePush("0x" + hex)
 		store := NewIntInstr(intMStore, "")
@@ -766,7 +798,7 @@ func (gen *CodeGen) compileLambda(memOffset int, tree *SyntaxTree) (*IntInstr, i
 		lastPush = push
 	}
 
-	return ignore, len(code)
+	return ignore, len(b)
 }
 
 // XXX This is actually a range function. FIXME

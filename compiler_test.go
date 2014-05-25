@@ -262,7 +262,7 @@ func TestShift(t *testing.T) {
 
 func TestLambda(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	t := 10
+	t := "hello world"
 
 	return lambda {
 		to := this.data[0]
