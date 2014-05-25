@@ -209,7 +209,7 @@ func CompileStage(source io.Reader, debug bool) (asm []interface{}, errors []err
 		}
 		return nil, gen.Errors()
 	}
-	intCode.setNumbers(0)
+	intCode.setNumbers(0, gen)
 
 	if debug {
 		fmt.Println(intCode)

@@ -186,10 +186,10 @@ new_var
 	;
 
 new_array
-	: TYPE LEFT_BRACKET NUMBER RIGHT_BRACKET ID
+	: VAR LEFT_BRACKET NUMBER RIGHT_BRACKET ID
 	  {
 	      $$ = NewNode(NewArrayTy)
-	      $$.VarType = $1
+	      //$$.VarType = $1
 	      $$.Size = $3
 	      $$.Constant = $5
 	      

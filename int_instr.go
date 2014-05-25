@@ -2,6 +2,7 @@ package mutan
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type IntInstr struct {
@@ -29,7 +30,28 @@ func NewIntInstr(code Instr, constant string) *IntInstr {
 	return &IntInstr{Code: code, Constant: constant}
 }
 
-func (instr *IntInstr) setNumbers(i int) {
+func (instr *IntInstr) setNumbers(i int, gen *CodeGen) {
+	var memLoc int
+	for _, variable := range gen.locals {
+		switch variable.typ {
+		case varArrTy:
+			for _, cons := range gen.arrayTable[variable.id] {
+				cons.Constant = strconv.Itoa(memLoc)
+			}
+		case varNumTy:
+			if variable.instr != nil {
+				variable.instr.Constant = strconv.Itoa(memLoc)
+			}
+		case varStrTy:
+			for _, instr := range gen.stringTable[variable.id] {
+				num, _ := strconv.Atoi(instr.Constant.(string))
+				instr.Constant = strconv.Itoa(num + memLoc)
+			}
+		}
+
+		memLoc += variable.size
+	}
+
 	num := instr
 	for num != nil {
 		num.n = i

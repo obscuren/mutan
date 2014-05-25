@@ -22,20 +22,26 @@ import (
 type varType byte
 
 const (
-	varNumTy varType = iota
+	varUndefinedTy varType = iota
+	varNumTy
 	varStrTy
 	varArrTy
 )
 
 type Variable struct {
+	id      string
 	typ     varType
 	pos     int
 	size    int
 	varSize int
+
+	instr *IntInstr
 }
 
 type CodeGen struct {
-	locals map[string]*Variable
+	locals      map[string]*Variable
+	arrayTable  map[string][]*IntInstr
+	stringTable map[string][]*IntInstr
 
 	memPos int
 	//lastPush *IntInstr
@@ -44,7 +50,7 @@ type CodeGen struct {
 }
 
 func NewGen() *CodeGen {
-	return &CodeGen{make(map[string]*Variable), 0, nil}
+	return &CodeGen{make(map[string]*Variable), make(map[string][]*IntInstr), make(map[string][]*IntInstr), 0, nil}
 }
 
 func (gen *CodeGen) Errors() []error {
@@ -137,10 +143,11 @@ func (gen *CodeGen) initNewVar(tree *SyntaxTree) (*IntInstr, error) {
 	*/
 	size := 32
 
-	variable := &Variable{typ: varNumTy, pos: gen.memPos, size: size, varSize: size}
+	//variable := &Variable{typ: varNumTy, pos: gen.memPos, size: size, varSize: size}
+	variable := &Variable{id: name, size: size, varSize: size}
 	gen.locals[name] = variable
 
-	gen.memPos += size
+	//gen.memPos += size
 
 	return nil, nil
 }
@@ -207,10 +214,12 @@ func (gen *CodeGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 
 	// Get the location of the variable in memory
 	loc, locConst := pushConstant(strconv.Itoa(local.pos))
+	gen.arrayTable[name] = append(gen.arrayTable[name], locConst)
+
 	// Get the offset (= expression between brackets [expression])
 	offset := gen.MakeIntCode(tree.Children[0])
 	// Get the size of the variable in bytes
-	size, sizeConst := pushConstant(strconv.Itoa(local.size))
+	size, sizeConst := pushConstant(strconv.Itoa(local.varSize))
 	// Multiply offset with size
 	mul := NewIntInstr(intMul, "")
 	// Add the result to the memory location
@@ -235,18 +244,18 @@ func (gen *CodeGen) initNewArray(tree *SyntaxTree) (*IntInstr, error) {
 		return tree.Errorf("Redeclaration of variable '%s'", name)
 	}
 
-	var size int
-	switch tree.VarType {
-	case "var", "bool", "int8", "int16", "int32", "int64", "int256", "big":
-		size = sizeOf(tree.VarType)
-	}
+	/*
+		var size int
+		switch tree.VarType {
+		case "var", "bool", "int8", "int16", "int32", "int64", "int256", "big":
+			size = sizeOf(tree.VarType)
+		}
+		size *= length
+	*/
 	length, _ := strconv.Atoi(tree.Size)
-	size *= length
 
-	variable := &Variable{typ: varArrTy, pos: gen.memPos, size: size, varSize: size}
+	variable := &Variable{id: name, typ: varArrTy, size: 32 * length, varSize: 32}
 	gen.locals[name] = variable
-
-	gen.memPos += size
 
 	return NewIntInstr(intIgnore, ""), nil
 }
@@ -285,20 +294,54 @@ func NewJumpInstr(op Instr) (*IntInstr, *IntInstr) {
 	return push, jump
 }
 
+func validLhSide(variable *Variable, typ varType) {
+	// ignore
+	if variable == nil {
+		return
+	}
+
+	if variable.typ != varUndefinedTy && variable.typ != typ {
+		panic(fmt.Sprintf("cannat assign %v to '%v' of type %v", typ, variable.id, variable.typ))
+	}
+}
+
 func (gen *CodeGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {
 	var instr *IntInstr
 
+	name := identifier.Constant
+	id := gen.locals[identifier.Constant]
+
+	//TODO Do left hand side type checking at this point
 	switch tree.Type {
 	case StringTy:
-		fmt.Println(gen.locals[identifier.Constant])
-		id := gen.locals[identifier.Constant]
-		if id == nil {
-			panic("err yeah no")
+		validLhSide(id, varStrTy)
+
+		var t Instr
+		if identifier.Type == SetStoreTy {
+			if len(tree.Constant) > 32 {
+				panic("attempting to store string greater than 32")
+			}
+
+			return gen.makePush("0x" + hex.EncodeToString([]byte(tree.Constant)))
+		} else {
+			t = intMStore
+			gen.locals[name].typ = varStrTy
 		}
 
 		var length int
-		instr, length = gen.bytesToHexInstr(id.pos, []byte(tree.Constant))
-		id.size = int(math.Max(math.Max(float64(id.size), float64(length)), 32.0))
+		//instr, length = gen.bytesToHexInstr(id.pos, []byte(tree.Constant))
+		instr, length = gen.stringToInstr(id, []byte(tree.Constant), t)
+
+		if identifier.Type != SetStoreTy {
+			id.size = int(math.Max(math.Max(float64(id.size), float64(length)), 32.0))
+		}
+
+		return instr
+	case ConstantTy:
+		validLhSide(id, varNumTy)
+
+		id.typ = varNumTy
+		instr = gen.MakeIntCode(tree)
 	default:
 		instr = gen.MakeIntCode(tree)
 	}
@@ -320,12 +363,23 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			blk2 := gen.MakeIntCode(tree.Children[1])
 			blk1 = gen.setVariable(tree.Children[0], tree.Children[1])
 			concat(blk1, blk2)
+			/*
+				if tree.Children[0].Type != StringTy {
+					concat(blk1, blk2)
+				}
+			*/
 		} else {
 			blk2 := gen.MakeIntCode(tree.Children[1])
 			blk3 := gen.MakeIntCode(tree.Children[2])
+			gen.locals[tree.Children[2].Constant].instr = blk3.Next
 			blk1 = gen.setVariable(tree.Children[0], tree.Children[2])
 			concat(blk1, blk2)
-			concat(blk2, blk3)
+			// In case the type is a string we do _not_ want to concat blk3
+			// because it handles all the MSTORE / etc itself
+			if tree.Children[0].Type != StringTy {
+				concat(blk2, blk3)
+			}
+
 		}
 
 		return blk1
@@ -415,7 +469,6 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return c
 	case ConstantTy:
-
 		blk1, blk2 := pushConstant(tree.Constant)
 		concat(blk1, blk2)
 
@@ -780,7 +833,8 @@ func (gen *CodeGen) compileLambda(memOffset int, tree *SyntaxTree) (*IntInstr, i
 func (gen *CodeGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
 	ignore := NewIntInstr(intIgnore, "")
 	var lastPush *IntInstr
-	for i := 0; i < len(b); i += 32 {
+	i := 0
+	for ; i < len(b); i += 32 {
 		offset := int(math.Min(float64(i+32), float64(len(b))))
 		hex := hex.EncodeToString(b[i:offset])
 		mem := gen.makePush(strconv.Itoa(i + memOffset))
@@ -798,7 +852,37 @@ func (gen *CodeGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
 		lastPush = push
 	}
 
-	return ignore, len(b)
+	return ignore, i
+}
+
+func (gen *CodeGen) stringToInstr(id *Variable, b []byte, t Instr) (*IntInstr, int) {
+	ignore := NewIntInstr(intIgnore, "")
+	var lastPush *IntInstr
+	i := 0
+	for ; i < len(b); i += 32 {
+		offset := int(math.Min(float64(i+32), float64(len(b))))
+		hex := hex.EncodeToString(b[i:offset])
+		mem := gen.makePush(strconv.Itoa(i))
+
+		if t != intSStore {
+			gen.stringTable[id.id] = append(gen.stringTable[id.id], mem.Next)
+		}
+
+		push := gen.makePush("0x" + hex)
+		store := NewIntInstr(t, "")
+		concat(push, mem)
+		concat(mem, store)
+
+		if lastPush != nil {
+			concat(lastPush, push)
+		} else {
+			concat(ignore, push)
+		}
+
+		lastPush = push
+	}
+
+	return ignore, i
 }
 
 // XXX This is actually a range function. FIXME
