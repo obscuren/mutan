@@ -340,7 +340,10 @@ func (gen *CodeGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIn
 	case ConstantTy:
 		validLhSide(id, varNumTy)
 
-		id.typ = varNumTy
+		if identifier.Type != SetStoreTy {
+			id.typ = varNumTy
+		}
+
 		instr = gen.MakeIntCode(tree)
 	default:
 		instr = gen.MakeIntCode(tree)

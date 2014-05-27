@@ -1,14 +1,1 @@
-#define HELLO_WORLD 10
-
-big to = this.data[0]
-big from = this.origin()
-big value = this.data[1]
-
-if this.store[from] >= value {
-	this.store[from] = this.store[from] - value
-		this.store[to] = this.store[to] + value
-}
-
-big t = HELLO_WORLD
-
-int8 shift = 8 << 3
+this.store[this.origin()] = 10
