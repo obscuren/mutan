@@ -61,12 +61,11 @@ func (gen *CodeGen) addError(e error) {
 	gen.errors = append(gen.errors, e)
 }
 
-// Generates asm for getting a memory address
-func (gen *CodeGen) getMemory(tree *SyntaxTree, offset int) (push *IntInstr, err error) {
+func (gen *CodeGen) findOffset(tree *SyntaxTree, offset int) (position string, err error) {
 	var pos string
 	local := gen.locals[tree.Constant]
 	if local == nil {
-		return tree.Errorf("Undefined variable: %v", tree.Constant)
+		return "", fmt.Errorf("Undefined variable: %v", tree.Constant)
 	} else {
 		var p int
 		if local.typ == varArrTy {
@@ -77,12 +76,33 @@ func (gen *CodeGen) getMemory(tree *SyntaxTree, offset int) (push *IntInstr, err
 		pos = strconv.Itoa(p)
 	}
 
+	return pos, nil
+}
+
+// Generates asm for getting a memory address
+func (gen *CodeGen) getMemory(tree *SyntaxTree, offset int) (push *IntInstr, err error) {
+	pos, err := gen.findOffset(tree, offset)
+	if err != nil {
+		push = NewIntInstr(intIgnore, "")
+		return
+	}
+
 	push, cons := pushConstant(pos)
 	load := NewIntInstr(intMLoad, "")
 	concat(push, cons)
 	concat(cons, load)
 
 	return
+}
+
+func makeStore(offset int) *IntInstr {
+	push, cons := pushConstant(strconv.Itoa(offset))
+	store := NewIntInstr(intMStore, "")
+
+	concat(push, cons)
+	concat(cons, store)
+
+	return push
 }
 
 // Generates asm for setting a memory address
@@ -94,13 +114,9 @@ func (gen *CodeGen) setMemory(tree *SyntaxTree) (*IntInstr, error) {
 		return tree.Errorf("Undefined variable '%s'", tree.Constant)
 	}
 
-	push, cons := pushConstant(strconv.Itoa(local.pos))
-	store := NewIntInstr(intMStore, "")
+	instr := makeStore(local.pos)
 
-	concat(push, cons)
-	concat(cons, store)
-
-	return push, nil
+	return instr, nil
 }
 
 // Type size table
@@ -596,6 +612,7 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			blk1 = gen.MakeIntCode(tree.Children[1])
 			opinstr := NewIntInstr(intNot, "")
 			return concat(blk1, opinstr)
+		case "&&":
 
 		default:
 			c, err := tree.Errorf("Expected operator, got '%v'", tree.Constant)
@@ -770,9 +787,45 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 				return concat(retVal, NewIntInstr(intReturn, ""))
 			}
+		case ConstantTy:
+			cons := gen.makePush(tree.Children[0].Constant)
+			store := makeStore(0)
+			size := gen.makePush("32")
+			offset := gen.makePush("0")
 
+			concat(cons, store)
+			concat(store, size)
+			concat(size, offset)
+			concat(offset, NewIntInstr(intReturn, ""))
+
+			return cons
+		case StoreTy:
+			blk1 := gen.MakeIntCode(tree.Children[0])
+			store := makeStore(0)
+			size := gen.makePush("32")
+			offset := gen.makePush("0")
+
+			concat(blk1, store)
+			concat(store, size)
+			concat(size, offset)
+			concat(offset, NewIntInstr(intReturn, ""))
+
+			return blk1
+		case IdentifierTy:
+			pos, err := gen.findOffset(tree.Children[0], 0)
+			if err != nil {
+				gen.addError(err)
+				return NewIntInstr(intIgnore, "")
+			}
+
+			size := gen.makePush("32")
+			offset := gen.makePush(pos)
+			concat(size, offset)
+			concat(offset, NewIntInstr(intReturn, ""))
+
+			return size
 		default:
-			c, err := tree.Errorf("return; only supports Lambda")
+			c, err := tree.Errorf("return; '%v' not (yet) supported", tree.Children[0].Type)
 			gen.addError(err)
 
 			return c

@@ -107,18 +107,6 @@ func TestData(t *testing.T) {
 	fmt.Println(ast)
 }
 
-func TestReturn(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-		return 1000
-	`), true)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(ast)
-}
-
 func TestTransact(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		transact(0xaa1adef765cd, 100, nil)
@@ -284,6 +272,22 @@ func TestString(t *testing.T) {
 	b := 10
 	this.store[1] = "hello"
 
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
+
+func TestReturn(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		return 1000
+		return this.store[this.data[0]]
+		var a = 10
+		var b = 20
+		return b
 	`), true)
 
 	if err != nil {
