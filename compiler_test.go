@@ -296,3 +296,17 @@ func TestReturn(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestSome(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var in = "jeff"
+	var out
+	var res = call(0xa4976648142a1e624c27dca4e9b1a6d8195f660c, 0, 0, in, out)
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}

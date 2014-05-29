@@ -8,6 +8,7 @@ import (
 type IntInstr struct {
 	Code      Instr
 	Constant  interface{}
+	ConstRef  string
 	Number    int
 	Next      *IntInstr
 	Target    *IntInstr
@@ -33,19 +34,22 @@ func NewIntInstr(code Instr, constant string) *IntInstr {
 func (instr *IntInstr) setNumbers(i int, gen *CodeGen) {
 	var memLoc int
 	for _, variable := range gen.locals {
+		variable.pos = memLoc
+
 		switch variable.typ {
 		case varArrTy:
 			for _, cons := range gen.arrayTable[variable.id] {
 				cons.Constant = strconv.Itoa(memLoc)
 			}
-		case varNumTy:
-			if variable.instr != nil {
-				variable.instr.Constant = strconv.Itoa(memLoc)
-			}
 		case varStrTy:
 			for _, instr := range gen.stringTable[variable.id] {
 				num, _ := strconv.Atoi(instr.Constant.(string))
 				instr.Constant = strconv.Itoa(num + memLoc)
+				variable.pos = num + memLoc
+			}
+		default:
+			if variable.instr != nil {
+				variable.instr.Constant = strconv.Itoa(memLoc)
 			}
 		}
 
@@ -56,12 +60,14 @@ func (instr *IntInstr) setNumbers(i int, gen *CodeGen) {
 	for num != nil {
 		num.n = i
 
-		if num.Code != intTarget && num.Code != intIgnore {
+		if len(num.ConstRef) > 0 {
+			num.Constant = strconv.Itoa(gen.locals[num.ConstRef].pos)
+		}
 
+		if num.Code != intTarget && num.Code != intIgnore {
 			switch num.Code {
 			case intConst:
 				if num.size == 0 {
-					fmt.Println("TIS", num.Constant)
 					panic("NULL")
 				}
 				i += num.size

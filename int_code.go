@@ -345,7 +345,6 @@ func (gen *CodeGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIn
 		}
 
 		var length int
-		//instr, length = gen.bytesToHexInstr(id.pos, []byte(tree.Constant))
 		instr, length = gen.stringToInstr(id, []byte(tree.Constant), t)
 
 		if identifier.Type != SetStoreTy {
@@ -890,12 +889,15 @@ func (gen *CodeGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
 	ignore := NewIntInstr(intIgnore, "")
 	var lastPush *IntInstr
 	i := 0
+	l := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
 	for ; i < len(b); i += 32 {
 		offset := int(math.Min(float64(i+32), float64(len(b))))
-		hex := hex.EncodeToString(b[i:offset])
+		hex := hex.EncodeToString(append(b[i:offset], l[0:32-len(b[i:offset])]...))
 		mem := gen.makePush(strconv.Itoa(i + memOffset))
 		push := gen.makePush("0x" + hex)
 		store := NewIntInstr(intMStore, "")
+		fmt.Println(hex)
 		concat(push, mem)
 		concat(mem, store)
 
@@ -954,6 +956,7 @@ func (gen *CodeGen) makeArg(t *SyntaxTree) (*IntInstr, error) {
 
 	pushOff, offCons := pushConstant(strconv.Itoa(l.size))
 	pushLoc, locCons := pushConstant(strconv.Itoa(l.pos))
+	locCons.ConstRef = t.Constant
 
 	concat(pushOff, offCons)
 	concat(offCons, pushLoc)
