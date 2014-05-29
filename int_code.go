@@ -651,6 +651,8 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return NewIntInstr(intStop, "")
 	case OriginTy:
 		return NewIntInstr(intOrigin, "")
+	case AddressTy:
+		return NewIntInstr(intAddress, "")
 	case CallerTy:
 		return NewIntInstr(intCaller, "")
 	case CallValTy:
@@ -897,7 +899,6 @@ func (gen *CodeGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
 		mem := gen.makePush(strconv.Itoa(i + memOffset))
 		push := gen.makePush("0x" + hex)
 		store := NewIntInstr(intMStore, "")
-		fmt.Println(hex)
 		concat(push, mem)
 		concat(mem, store)
 

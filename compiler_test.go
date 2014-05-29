@@ -299,6 +299,7 @@ func TestReturn(t *testing.T) {
 
 func TestSome(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
+	var a = this.address()
 	var in = "jeff"
 	var out
 	var res = call(0xa4976648142a1e624c27dca4e9b1a6d8195f660c, 0, 0, in, out)

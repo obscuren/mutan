@@ -61,6 +61,7 @@ const (
 	intSLoad
 	intStop
 	intOrigin
+	intAddress
 	intCaller
 	intCallVal
 	intCallDataLoad
@@ -143,6 +144,7 @@ var instrAsString = []string{
 	"sload",
 	"stop",
 	"origin",
+	"address",
 	"caller",
 	"value",
 	"dataload",

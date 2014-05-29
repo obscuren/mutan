@@ -85,6 +85,7 @@ const (
 	itemCode                  = CODE
 	itemVar                   = VAR
 	itemColon                 = COLON
+	itemAddress               = ADDRESS
 )
 
 type item struct {
@@ -236,6 +237,8 @@ func lexClosureScope(l *Lexer) stateFn {
 		l.emit(itemCaller)
 	case "origin":
 		l.emit(itemOrigin)
+	case "address":
+		l.emit(itemAddress)
 	case "value":
 		l.emit(itemCallVal)
 	case "dataLoad":

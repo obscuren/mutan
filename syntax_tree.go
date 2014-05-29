@@ -30,6 +30,7 @@ const (
 	ReturnTy
 
 	OriginTy
+	AddressTy
 	CallerTy
 	CallValTy
 	CallDataLoadTy
@@ -83,6 +84,7 @@ var astAsString = []string{
 	"Return",
 
 	"Origin",
+	"Address",
 	"Caller",
 	"Value",
 	"Data load",
