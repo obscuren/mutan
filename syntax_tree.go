@@ -57,6 +57,9 @@ const (
 
 	LambdaTy
 
+	FuncDefTy
+	FuncCallTy
+
 	NilTy
 )
 
@@ -110,6 +113,8 @@ var astAsString = []string{
 	"String",
 
 	"Lambda",
+	"Func def",
+	"Func call",
 
 	"Nil",
 }

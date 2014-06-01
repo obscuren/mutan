@@ -311,3 +311,17 @@ func TestSome(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestFuncDef(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	func hello() {
+		var a = 10;
+	}
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}

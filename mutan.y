@@ -18,7 +18,7 @@ var Tree *SyntaxTree
 %token ASSIGN EQUAL IF ELSE FOR LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
 %token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA SIZEOF QUOTE
 %token END_STMT RETURN CREATE TRANSACT NIL BALANCE VAR_ASSIGN LAMBDA COLON ADDRESS
-%token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR VAR
+%token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR VAR FUNC FUNC_CALL
 %token <str> ID NUMBER INLINE_ASM OP DOP TYPE STR BOOLEAN CODE
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
@@ -40,6 +40,7 @@ statement
 	| LAMBDA LEFT_BRACKET CODE RIGHT_BRACKET { $$ = NewNode(LambdaTy); $$.Constant = $3 }
 	| if_statement { $$ = $1 }
 	| for_statement { $$ = $1 }
+    | FUNC ID LEFT_PAR RIGHT_PAR LEFT_BRACES statement_list RIGHT_BRACES { $$ = NewNode(FuncDefTy, $6); $$.Constant = $2 }
 	| ASM LEFT_PAR INLINE_ASM RIGHT_PAR { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
 	| END_STMT { $$ = NewNode(EmptyTy); }
 	;

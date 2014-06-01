@@ -76,6 +76,9 @@ const (
 	intBlockNum
 	intReturn
 
+	intFuncDef
+	intFuncCall
+
 	// Asm is a special opcode. It's not malformed in anyway
 	intASM
 	intArray
@@ -158,6 +161,9 @@ var instrAsString = []string{
 	"gas",
 	"blocknum",
 	"return",
+
+	"func def",
+	"func call",
 
 	"asm",
 	"array",

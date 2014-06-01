@@ -86,6 +86,8 @@ const (
 	itemVar                   = VAR
 	itemColon                 = COLON
 	itemAddress               = ADDRESS
+	itemFuncDef               = FUNC
+	itemFuncCall              = FUNC_CALL
 )
 
 type item struct {
@@ -174,6 +176,8 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemReturn)
 	case "sizeof":
 		l.emit(itemSizeof)
+	case "func":
+		l.emit(itemFuncDef)
 	default:
 		l.emit(itemIdentifier)
 	}
