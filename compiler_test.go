@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+/*
 func TestCompiler(t *testing.T) {
 	asm, err := CompileStage(strings.NewReader(`
 	int32 a
@@ -238,7 +239,7 @@ func TestShift(t *testing.T) {
 func TestLambda(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	a := "hello world"
-	a = "hello world hello world hello world hello world hello world hello world hello world hello world hello world" 
+	a = "hello world hello world hello world hello world hello world hello world hello world hello world hello world"
 	b := 20
 
 	var[2] c
@@ -311,12 +312,23 @@ func TestSome(t *testing.T) {
 
 	fmt.Println(ast)
 }
+*/
 
 func TestFuncDef(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	func hello() {
-		var a = 10;
+	func other( ){
+		var d = 20;
 	}
+
+	func main() {
+		var a = 10;
+
+		other()
+	}
+
+	main()
+
+	return 10
 	`), true)
 
 	if err != nil {

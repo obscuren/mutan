@@ -10,6 +10,7 @@ compiler transforms int code to ASM (very static)
 
 import (
 	"bytes"
+	"container/list"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
@@ -28,6 +29,96 @@ const (
 	varArrTy
 )
 
+type Scope interface {
+	NewVariable(id string) (*Variable, error)
+	SetVariable(*Variable)
+	GetVariable(string) *Variable
+	StackSize() int
+}
+
+type Function struct {
+	CallTarget    *IntInstr
+	Id            string
+	ArgCount      int
+	Ret           bool
+	VarTable      map[string]*Variable
+	frame, offset int
+}
+
+func NewFunction(id string, target *IntInstr, ac int, ret bool) *Function {
+	return &Function{target, id, ac, ret, make(map[string]*Variable), 0, 0}
+}
+
+func (self *Function) StackSize() (size int) {
+	for _, variable := range self.VarTable {
+		size += variable.size
+	}
+
+	// Add 32 for the return location
+	// Add 32 for the stack size
+	size += 64
+
+	return
+}
+
+func (self *Function) GenOffset() int {
+	return self.StackSize()
+}
+
+func (self *Function) NewVariable(id string) (*Variable, error) {
+	if self.VarTable[id] != nil {
+		return nil, fmt.Errorf("redeclaration of '%v'", id)
+	}
+
+	variable := &Variable{id: id, pos: self.GenOffset()}
+	self.VarTable[id] = variable
+
+	return variable, nil
+}
+
+func (self *Function) SetVariable(v *Variable) {
+	self.VarTable[v.id] = v
+}
+
+func (self *Function) GetVariable(id string) *Variable {
+	return self.VarTable[id]
+}
+
+func (self *Function) Call(gen *CodeGen, scope Scope) *IntInstr {
+	self.frame = self.StackSize() + scope.StackSize()
+
+	fmt.Println("scope size", scope.StackSize())
+	setPtr := gen.addStackPtr(scope.StackSize())
+	size := gen.makePush(strconv.Itoa(self.StackSize()))
+	ptr1 := gen.loadStackPtr()
+	offset := gen.makePush("32")
+	add1 := NewIntInstr(intAdd, "")
+	sizeStore := NewIntInstr(intMStore, "")
+
+	pc := NewIntInstr(intPc, "")
+	push := gen.makePush("14")
+	add := NewIntInstr(intAdd, "")
+	ret := gen.loadStackPtr()
+	retStore := NewIntInstr(intMStore, "")
+
+	p, jmp := NewJumpInstr(intJump)
+	jmp.Target = self.CallTarget
+
+	concat(setPtr, size)
+	concat(size, ptr1)
+	concat(ptr1, offset)
+	concat(offset, add1)
+	concat(add1, sizeStore)
+	concat(sizeStore, pc)
+	concat(pc, push)
+	concat(push, add)
+	concat(add, ret)
+	concat(ret, retStore)
+	concat(retStore, p)
+
+	return setPtr
+}
+
 type Variable struct {
 	id      string
 	typ     varType
@@ -39,18 +130,85 @@ type Variable struct {
 }
 
 type CodeGen struct {
-	locals      map[string]*Variable
-	arrayTable  map[string][]*IntInstr
-	stringTable map[string][]*IntInstr
-
-	memPos int
-	//lastPush *IntInstr
+	locals        map[string]*Variable
+	functionTable map[string]*Function
+	arrayTable    map[string][]*IntInstr
+	stringTable   map[string][]*IntInstr
 
 	errors []error
+
+	scopes *list.List
+
+	currentStackSize int
 }
 
 func NewGen() *CodeGen {
-	return &CodeGen{make(map[string]*Variable), make(map[string][]*IntInstr), make(map[string][]*IntInstr), 0, nil}
+	return &CodeGen{
+		locals:        make(map[string]*Variable),
+		functionTable: make(map[string]*Function),
+		arrayTable:    make(map[string][]*IntInstr),
+		stringTable:   make(map[string][]*IntInstr),
+		scopes:        list.New(),
+	}
+}
+
+func (self *CodeGen) SetVariable(v *Variable) {
+	self.locals[v.id] = v
+}
+
+func (self *CodeGen) GetVariable(id string) *Variable {
+	variable := self.CurrentScope().GetVariable(id)
+	if variable != nil {
+		return variable
+	}
+
+	return self.locals[id]
+}
+
+func (self *CodeGen) NewVariable(id string) (*Variable, error) {
+	if self.locals[id] != nil {
+		return nil, fmt.Errorf("redeclaration of '%v'", id)
+	}
+
+	variable := &Variable{id: id}
+	self.locals[id] = variable
+
+	return variable, nil
+}
+
+func (self *CodeGen) StackSize() (size int) {
+	for _, variable := range self.locals {
+		size += variable.size
+	}
+
+	// Stack ptr
+	size += 32
+
+	return
+}
+
+func (self *CodeGen) CurrentScope() Scope {
+	scope := self.scopes.Back()
+	if scope != nil {
+		return scope.Value.(Scope)
+	}
+
+	return self
+}
+
+func (self *CodeGen) PopScope() Scope {
+	scope := self.scopes.Back()
+	if scope != nil {
+		self.scopes.Remove(scope)
+
+		return scope.Value.(Scope)
+	}
+
+	return nil
+}
+
+func (gen *CodeGen) PushScope(scope Scope) {
+	gen.scopes.PushBack(scope)
 }
 
 func (gen *CodeGen) Errors() []error {
@@ -63,15 +221,16 @@ func (gen *CodeGen) addError(e error) {
 
 func (gen *CodeGen) findOffset(tree *SyntaxTree, offset int) (position string, err error) {
 	var pos string
-	local := gen.locals[tree.Constant]
-	if local == nil {
+	variable := gen.GetVariable(tree.Constant)
+
+	if variable == nil {
 		return "", fmt.Errorf("Undefined variable: %v", tree.Constant)
 	} else {
 		var p int
-		if local.typ == varArrTy {
-			p = local.pos + (offset * local.size)
+		if variable.typ == varArrTy {
+			p = variable.pos + (offset * variable.size)
 		} else {
-			p = local.pos
+			p = variable.pos
 		}
 		pos = strconv.Itoa(p)
 	}
@@ -105,16 +264,28 @@ func makeStore(offset int) *IntInstr {
 	return push
 }
 
+func (gen *CodeGen) assignMemory(offset int) *IntInstr {
+	ptr := gen.loadStackPtr()
+	push, cons := pushConstant(strconv.Itoa(offset))
+	add := NewIntInstr(intAdd, "")
+	store := NewIntInstr(intMStore, "")
+
+	concat(ptr, push)
+	concat(push, cons)
+	concat(cons, add)
+	concat(add, store)
+
+	return ptr
+}
+
 // Generates asm for setting a memory address
 func (gen *CodeGen) setMemory(tree *SyntaxTree) (*IntInstr, error) {
-	// TODO Only accept numbers. Lnegth checking will have to
-	// occur when I implement strings
-	local := gen.locals[tree.Constant]
-	if local == nil {
+	variable := gen.GetVariable(tree.Constant)
+	if variable == nil {
 		return tree.Errorf("Undefined variable '%s'", tree.Constant)
 	}
 
-	instr := makeStore(local.pos)
+	instr := gen.assignMemory(variable.pos)
 
 	return instr, nil
 }
@@ -144,26 +315,15 @@ func sizeOf(typ string) int {
 
 func (gen *CodeGen) initNewVar(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
-	if gen.locals[name] != nil {
-		return tree.Errorf("Redeclaration of variable '%s'", name)
+
+	scope := gen.CurrentScope()
+	v, err := scope.NewVariable(name)
+	if err != nil {
+		return NewIntInstr(intIgnore, ""), err
 	}
 
-	/*
-		var size int
-		switch t := tree.VarType; {
-		case typeToSize[t] > 0:
-			size = sizeOf(t)
-		default:
-			return tree.Errorf("undefined type %s", tree.VarType)
-		}
-	*/
-	size := 32
-
-	//variable := &Variable{typ: varNumTy, pos: gen.memPos, size: size, varSize: size}
-	variable := &Variable{id: name, size: size, varSize: size}
-	gen.locals[name] = variable
-
-	//gen.memPos += size
+	v.size = 32
+	v.varSize = v.size
 
 	return nil, nil
 }
@@ -324,8 +484,12 @@ func validLhSide(variable *Variable, typ varType) {
 func (gen *CodeGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {
 	var instr *IntInstr
 
-	name := identifier.Constant
-	id := gen.locals[identifier.Constant]
+	/*
+		name := identifier.Constant
+		id := gen.locals[identifier.Constant]
+	*/
+
+	id := gen.GetVariable(identifier.Constant)
 
 	//TODO Do left hand side type checking at this point
 	switch tree.Type {
@@ -341,7 +505,7 @@ func (gen *CodeGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIn
 			return gen.makePush("0x" + hex.EncodeToString([]byte(tree.Constant)))
 		} else {
 			t = intMStore
-			gen.locals[name].typ = varStrTy
+			id.typ = varStrTy
 		}
 
 		var length int
@@ -389,7 +553,8 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		} else {
 			blk2 := gen.MakeIntCode(tree.Children[1])
 			blk3 := gen.MakeIntCode(tree.Children[2])
-			gen.locals[tree.Children[2].Constant].instr = blk3.Next
+			gen.CurrentScope().GetVariable(tree.Children[2].Constant).instr = blk3.Next
+			//gen.locals[tree.Children[2].Constant].instr = blk3.Next
 			blk1 = gen.setVariable(tree.Children[0], tree.Children[2])
 			concat(blk1, blk2)
 			// In case the type is a string we do _not_ want to concat blk3
@@ -863,6 +1028,76 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		}
 
 		return firstInstr
+	case FuncCallTy:
+		// Look up function
+		fn := gen.functionTable[tree.Constant]
+		if fn == nil {
+			c, err := tree.Errorf("undefine: '%s'", tree.Constant)
+			gen.addError(err)
+			return c
+		}
+
+		return fn.Call(gen, gen.CurrentScope())
+	case FuncDefTy:
+		callTarget := NewIntInstr(intTarget, "")
+		fn := NewFunction(tree.Constant, callTarget, 0, tree.HasRet)
+		fn.NewVariable("___return")
+		gen.PushScope(fn)
+
+		p, jmp := NewJumpInstr(intJump)
+		target := NewIntInstr(intTarget, "")
+		jmp.Target = target
+
+		body := gen.MakeIntCode(tree.Children[0])
+
+		concat(jmp, callTarget)
+		concat(callTarget, body)
+
+		// stack -> | PC = ret | frameSize | framePtr
+		fn.NewVariable("___frameSize")
+		fn.NewVariable("___retPtr")
+
+		// Pop frame mechanism
+		ptr := gen.loadStackPtr()
+		dup := NewIntInstr(intDup, "")
+		// Load stack pointer as offset
+		dup2 := NewIntInstr(intDup, "")
+		// Increment by 1 word
+		offset := gen.makePush("32")
+		add := NewIntInstr(intAdd, "")
+		sizeLoad := NewIntInstr(intMLoad, "")
+		// Now pop the frame off the stack
+		sub := NewIntInstr(intSub, "")
+		stackPtrOffset := gen.makePush("0")
+		stackPtrStore := NewIntInstr(intMStore, "")
+		retLoad := NewIntInstr(intMLoad, "")
+		jumpBack := NewIntInstr(intJump, "")
+
+		concat(body, ptr)
+		concat(ptr, dup)
+		concat(dup, dup2)
+		concat(dup2, offset)
+		concat(offset, add)
+		concat(add, sizeLoad)
+		concat(sizeLoad, sub)
+		concat(sub, stackPtrOffset)
+		concat(stackPtrOffset, stackPtrStore)
+		concat(stackPtrStore, retLoad)
+		concat(retLoad, jumpBack)
+		concat(jumpBack, target)
+
+		gen.PopScope()
+
+		/*
+			concat(body, ret)
+			concat(ret, jumpBack)
+			concat(jumpBack, target)
+		*/
+
+		// TODO do checking if function exists
+		gen.functionTable[tree.Constant] = fn
+
+		return p
 	case LambdaTy:
 		panic("auto lambda triggered in int code gen. report this issue")
 	case EmptyTy:
@@ -870,6 +1105,41 @@ func (gen *CodeGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	}
 
 	return nil
+}
+
+func (self *CodeGen) loadStackPtr() *IntInstr {
+	push := self.makePush("0")
+	mload := NewIntInstr(intMLoad, "")
+	concat(push, mload)
+
+	return push
+}
+
+func (self *CodeGen) setStackPtr(ptr int) *IntInstr {
+	self.currentStackSize = ptr
+
+	push := self.makePush(strconv.Itoa(ptr))
+	push2 := self.makePush("0")
+	mstore := NewIntInstr(intMStore, "")
+	concat(push, push2)
+	concat(push2, mstore)
+
+	return push
+}
+
+func (self *CodeGen) addStackPtr(size int) *IntInstr {
+	push := self.makePush(strconv.Itoa(size))
+	load := self.loadStackPtr()
+	add := NewIntInstr(intAdd, "")
+	loc := self.makePush("0")
+	store := NewIntInstr(intMStore, "")
+
+	concat(push, load)
+	concat(load, add)
+	concat(add, loc)
+	concat(loc, store)
+
+	return push
 }
 
 // Compiles the given code and stores it at memory position given by the mem offset

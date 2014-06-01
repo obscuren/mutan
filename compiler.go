@@ -26,6 +26,12 @@ func (c *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
 	// The following code is very explicit. I could have used string.Upcase
 	for instr != nil {
 		switch instr.Code {
+		case intDup:
+			c.add("DUP")
+		case intPc:
+			c.add("PC")
+		case intSwp:
+			c.add("SWAP")
 		case intPush1:
 			c.add("PUSH1")
 		case intPush2:
@@ -204,7 +210,10 @@ func CompileStage(source io.Reader, debug bool) (asm []interface{}, errors []err
 	}
 
 	gen := NewGen()
-	intCode := gen.MakeIntCode(ast)
+	gen.NewVariable("___stackPtr")
+	ptr := gen.setStackPtr(0)
+
+	intCode := concat(ptr, gen.MakeIntCode(ast))
 	if len(gen.errors) > 0 {
 		for _, genErr := range gen.errors {
 			fmt.Println(genErr)

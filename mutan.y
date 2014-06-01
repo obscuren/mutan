@@ -13,6 +13,7 @@ var Tree *SyntaxTree
 	num int
 	str string
 	tnode *SyntaxTree
+    check bool
 }
 
 %token ASSIGN EQUAL IF ELSE FOR LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
@@ -23,6 +24,7 @@ var Tree *SyntaxTree
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
 %type <tnode> for_statement optional_else_statement ptr sub_expression
+%type <check> optional_type
 
 %%
 
@@ -41,10 +43,20 @@ statement
 	| if_statement { $$ = $1 }
 	| for_statement { $$ = $1 }
     | FUNC ID LEFT_PAR RIGHT_PAR LEFT_BRACES statement_list RIGHT_BRACES { $$ = NewNode(FuncDefTy, $6); $$.Constant = $2 }
+    | FUNC ID LEFT_PAR RIGHT_PAR optional_type LEFT_BRACES statement_list RIGHT_BRACES {
+        $$ = NewNode(FuncDefTy, $7);
+        $$.Constant = $2
+        $$.HasRet = $5
+      }
 	| ASM LEFT_PAR INLINE_ASM RIGHT_PAR { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
+    | ID LEFT_PAR RIGHT_PAR { $$ = NewNode(FuncCallTy); $$.Constant = $1 }
 	| END_STMT { $$ = NewNode(EmptyTy); }
 	;
 
+optional_type
+    :  TYPE { $$ = true }
+    | /* Empty */ { $$ = false }
+    ;
 
 buildins
 	: STOP LEFT_PAR RIGHT_PAR { $$ = NewNode(StopTy) }

@@ -135,6 +135,7 @@ type SyntaxTree struct {
 	VarType  string
 	Size     string
 	Lineno   int
+	HasRet   bool
 }
 
 func NewNode(typ AstType, v ...*SyntaxTree) *SyntaxTree {

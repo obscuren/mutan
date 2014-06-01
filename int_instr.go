@@ -82,9 +82,11 @@ func (instr *IntInstr) setNumbers(i int, gen *CodeGen) {
 	num = instr
 	for num != nil {
 		if num.Code == intJump || num.Code == intJumpi {
-			// Set the target constant which we couldn't seet before hand
+			// Set the target constant which we couldn't set before hand
 			// when the numbers weren't all set.
-			num.TargetNum.Constant = string(numberToBytes(int32(num.Target.n), 32))
+			if num.TargetNum != nil {
+				num.TargetNum.Constant = string(numberToBytes(int32(num.Target.n), 32))
+			}
 		}
 
 		num = num.Next
