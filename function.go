@@ -60,16 +60,16 @@ func (self *Function) Call(gen *IntGen, scope Scope) *IntInstr {
 	size := gen.makePush(strconv.Itoa(self.StackSize()))
 	ptr1 := gen.loadStackPtr()
 	offset := gen.makePush("32")
-	add1 := NewIntInstr(intAdd, "")
-	sizeStore := NewIntInstr(intMStore, "")
+	add1 := newIntInstr(intAdd, "")
+	sizeStore := newIntInstr(intMStore, "")
 
-	pc := NewIntInstr(intPc, "")
+	pc := newIntInstr(intPc, "")
 	push := gen.makePush("14")
-	add := NewIntInstr(intAdd, "")
+	add := newIntInstr(intAdd, "")
 	ret := gen.loadStackPtr()
-	retStore := NewIntInstr(intMStore, "")
+	retStore := newIntInstr(intMStore, "")
 
-	p, jmp := NewJumpInstr(intJump)
+	p, jmp := newJumpInstr(intJump)
 	jmp.Target = self.CallTarget
 
 	concat(setPtr, size)

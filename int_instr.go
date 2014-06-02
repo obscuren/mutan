@@ -27,7 +27,7 @@ func (instr *IntInstr) String() string {
 	return str
 }
 
-func NewIntInstr(code Instr, constant string) *IntInstr {
+func newIntInstr(code Instr, constant string) *IntInstr {
 	return &IntInstr{Code: code, Constant: constant}
 }
 

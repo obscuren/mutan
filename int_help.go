@@ -16,7 +16,7 @@ import (
 
 func (self *IntGen) loadStackPtr() *IntInstr {
 	push := self.makePush("0")
-	mload := NewIntInstr(intMLoad, "")
+	mload := newIntInstr(intMLoad, "")
 	concat(push, mload)
 
 	return push
@@ -27,7 +27,7 @@ func (self *IntGen) setStackPtr(ptr int) *IntInstr {
 
 	push := self.makePush(strconv.Itoa(ptr))
 	push2 := self.makePush("0")
-	mstore := NewIntInstr(intMStore, "")
+	mstore := newIntInstr(intMStore, "")
 	concat(push, push2)
 	concat(push2, mstore)
 
@@ -37,9 +37,9 @@ func (self *IntGen) setStackPtr(ptr int) *IntInstr {
 func (self *IntGen) addStackPtr(size int) *IntInstr {
 	push := self.makePush(strconv.Itoa(size))
 	load := self.loadStackPtr()
-	add := NewIntInstr(intAdd, "")
+	add := newIntInstr(intAdd, "")
 	loc := self.makePush("0")
-	store := NewIntInstr(intMStore, "")
+	store := newIntInstr(intMStore, "")
 
 	concat(push, load)
 	concat(load, add)
@@ -79,8 +79,8 @@ func (gen *IntGen) makePush(num string, v ...int) *IntInstr {
 	var push, cons *IntInstr
 	if len(v) > 0 {
 		n, _ := strconv.Atoi(num)
-		push = NewIntInstr(intPush4, "")
-		cons = NewIntInstr(intConst, "0x"+hex.EncodeToString(numberToBytes(int32(n), v[0])))
+		push = newIntInstr(intPush4, "")
+		cons = newIntInstr(intConst, "0x"+hex.EncodeToString(numberToBytes(int32(n), v[0])))
 		cons.size = v[0]
 	} else {
 		push, cons = pushConstant(num)
@@ -104,12 +104,12 @@ func constToPush(constant string) (*IntInstr, int) {
 	if numBytes == 0 {
 		numBytes = 1
 	}
-	return NewIntInstr(Instr(int(intPush1)-1+numBytes), ""), numBytes
+	return newIntInstr(Instr(int(intPush1)-1+numBytes), ""), numBytes
 }
 
 func pushConstant(constant string) (*IntInstr, *IntInstr) {
 	blk1, numBytes := constToPush(constant)
-	blk2 := NewIntInstr(intConst, constant)
+	blk2 := newIntInstr(intConst, constant)
 	blk2.size = numBytes
 
 	return blk1, blk2
@@ -141,7 +141,7 @@ func (gen *IntGen) compileLambda(memOffset int, tree *SyntaxTree) (*IntInstr, in
 }
 
 func (gen *IntGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
-	ignore := NewIntInstr(intIgnore, "")
+	ignore := newIntInstr(intIgnore, "")
 	var lastPush *IntInstr
 	i := 0
 	l := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -151,7 +151,7 @@ func (gen *IntGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
 		hex := hex.EncodeToString(append(b[i:offset], l[0:32-len(b[i:offset])]...))
 		mem := gen.makePush(strconv.Itoa(i + memOffset))
 		push := gen.makePush("0x" + hex)
-		store := NewIntInstr(intMStore, "")
+		store := newIntInstr(intMStore, "")
 		concat(push, mem)
 		concat(mem, store)
 
@@ -168,7 +168,7 @@ func (gen *IntGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
 }
 
 func (gen *IntGen) stringToInstr(id *Variable, b []byte, t Instr) (*IntInstr, int) {
-	ignore := NewIntInstr(intIgnore, "")
+	ignore := newIntInstr(intIgnore, "")
 	var lastPush *IntInstr
 	i := 0
 	for ; i < len(b); i += 32 {
@@ -181,7 +181,7 @@ func (gen *IntGen) stringToInstr(id *Variable, b []byte, t Instr) (*IntInstr, in
 		}
 
 		push := gen.makePush("0x" + hex)
-		store := NewIntInstr(t, "")
+		store := newIntInstr(t, "")
 		concat(push, mem)
 		concat(mem, store)
 

@@ -130,12 +130,12 @@ func (gen *IntGen) findOffset(tree *SyntaxTree, offset int) (position string, er
 func (gen *IntGen) getMemory(tree *SyntaxTree, offset int) (push *IntInstr, err error) {
 	pos, err := gen.findOffset(tree, offset)
 	if err != nil {
-		push = NewIntInstr(intIgnore, "")
+		push = newIntInstr(intIgnore, "")
 		return
 	}
 
 	push, cons := pushConstant(pos)
-	load := NewIntInstr(intMLoad, "")
+	load := newIntInstr(intMLoad, "")
 	concat(push, cons)
 	concat(cons, load)
 
@@ -144,7 +144,7 @@ func (gen *IntGen) getMemory(tree *SyntaxTree, offset int) (push *IntInstr, err 
 
 func makeStore(offset int) *IntInstr {
 	push, cons := pushConstant(strconv.Itoa(offset))
-	store := NewIntInstr(intMStore, "")
+	store := newIntInstr(intMStore, "")
 
 	concat(push, cons)
 	concat(cons, store)
@@ -155,8 +155,8 @@ func makeStore(offset int) *IntInstr {
 func (gen *IntGen) assignMemory(offset int) *IntInstr {
 	ptr := gen.loadStackPtr()
 	push, cons := pushConstant(strconv.Itoa(offset))
-	add := NewIntInstr(intAdd, "")
-	store := NewIntInstr(intMStore, "")
+	add := newIntInstr(intAdd, "")
+	store := newIntInstr(intMStore, "")
 
 	concat(ptr, push)
 	concat(push, cons)
@@ -207,7 +207,7 @@ func (gen *IntGen) initNewNumber(tree *SyntaxTree) (*IntInstr, error) {
 	scope := gen.CurrentScope()
 	v, err := scope.NewVariable(name, varNumTy)
 	if err != nil {
-		return NewIntInstr(intIgnore, ""), err
+		return newIntInstr(intIgnore, ""), err
 	}
 
 	v.size = 32
@@ -245,11 +245,11 @@ func (gen *IntGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	// Get the size of the variable in bytes
 	size, sizeConst := pushConstant(strconv.Itoa(local.size))
 	// Multiply offset with size
-	mul := NewIntInstr(intMul, "")
+	mul := newIntInstr(intMul, "")
 	// Add the result to the memory location
-	add := NewIntInstr(intAdd, "")
+	add := newIntInstr(intAdd, "")
 	// b = a[0] // loc(a) + sizeOf(type(a)) * len(a)
-	load := NewIntInstr(intMLoad, "")
+	load := newIntInstr(intMLoad, "")
 
 	concat(loc, locConst)
 	concat(locConst, offset)
@@ -285,10 +285,10 @@ func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 	// Get the size of the variable in bytes
 	size, sizeConst := pushConstant(strconv.Itoa(local.varSize))
 	// Multiply offset with size
-	mul := NewIntInstr(intMul, "")
+	mul := newIntInstr(intMul, "")
 	// Add the result to the memory location
-	add := NewIntInstr(intAdd, "")
-	store := NewIntInstr(intMStore, "")
+	add := newIntInstr(intAdd, "")
+	store := newIntInstr(intMStore, "")
 
 	concat(val, loc)
 	concat(loc, locConst)
@@ -321,7 +321,7 @@ func (gen *IntGen) initNewArray(tree *SyntaxTree) (*IntInstr, error) {
 	variable := &Variable{id: name, typ: varArrTy, size: 32 * length, varSize: 32}
 	gen.locals[name] = variable
 
-	return NewIntInstr(intIgnore, ""), nil
+	return newIntInstr(intIgnore, ""), nil
 }
 
 func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {

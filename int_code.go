@@ -34,13 +34,13 @@ func concat(blk1 *IntInstr, blk2 *IntInstr) *IntInstr {
 	return blk1
 }
 
-func NewJumpInstr(op Instr) (*IntInstr, *IntInstr) {
-	push := NewIntInstr(intPush4, "")
-	cons := NewIntInstr(intConst, "")
+func newJumpInstr(op Instr) (*IntInstr, *IntInstr) {
+	push := newIntInstr(intPush4, "")
+	cons := newIntInstr(intConst, "")
 	cons.size = 4
 	cons.Target = push
 
-	jump := NewIntInstr(op, "")
+	jump := newIntInstr(op, "")
 	jump.TargetNum = cons
 	concat(push, cons)
 	concat(cons, jump)
@@ -96,11 +96,11 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return blk1
 	case IfThenTy:
 		cond := gen.MakeIntCode(tree.Children[0])
-		not := NewIntInstr(intNot, "")
-		//jmpi := NewIntInstr(intJumpi, "")
-		p, jmpi := NewJumpInstr(intJumpi)
+		not := newIntInstr(intNot, "")
+		//jmpi := newIntInstr(intJumpi, "")
+		p, jmpi := newJumpInstr(intJumpi)
 		then := gen.MakeIntCode(tree.Children[1])
-		target := NewIntInstr(intTarget, "")
+		target := newIntInstr(intTarget, "")
 		jmpi.Target = target
 
 		concat(cond, not)
@@ -112,15 +112,15 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case IfThenElseTy:
 		cond := gen.MakeIntCode(tree.Children[0])
 		// TODO reverse "else/if" in order to get rid of the "NOT"
-		not := NewIntInstr(intNot, "")
-		//jump2else := NewIntInstr(intJumpi, "")
-		p, jump2else := NewJumpInstr(intJumpi)
+		not := newIntInstr(intNot, "")
+		//jump2else := newIntInstr(intJumpi, "")
+		p, jump2else := newJumpInstr(intJumpi)
 		then := gen.MakeIntCode(tree.Children[1])
-		//jump2end := NewIntInstr(intJump, "")
-		p2, jump2end := NewJumpInstr(intJump)
-		elsetarget := NewIntInstr(intTarget, "")
+		//jump2end := newIntInstr(intJump, "")
+		p2, jump2end := newJumpInstr(intJump)
+		elsetarget := newIntInstr(intTarget, "")
 		elsethen := gen.MakeIntCode(tree.Children[2])
-		end := NewIntInstr(intTarget, "")
+		end := newIntInstr(intTarget, "")
 
 		jump2end.Target = end
 		jump2else.Target = elsetarget
@@ -140,19 +140,19 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		// The condition for the loop
 		cond := gen.MakeIntCode(tree.Children[1])
 		// Cast to not
-		not := NewIntInstr(intNot, "")
+		not := newIntInstr(intNot, "")
 		// Jump to end if statement is false
-		//jmpi := NewIntInstr(intJumpi, "")
-		p, jmpi := NewJumpInstr(intJumpi)
+		//jmpi := newIntInstr(intJumpi, "")
+		p, jmpi := newJumpInstr(intJumpi)
 		// Body of the loop
 		then := gen.MakeIntCode(tree.Children[3])
 		// Iterator
 		aft := gen.MakeIntCode(tree.Children[2])
 		// Jump back to the start of the loop (targetBack)
-		//jmp := NewIntInstr(intJump, "")
-		p2, jmp := NewJumpInstr(intJump)
+		//jmp := newIntInstr(intJump, "")
+		p2, jmp := newJumpInstr(intJump)
 		// Target for the conditional jump (jmpi)
-		target := NewIntInstr(intTarget, "")
+		target := newIntInstr(intTarget, "")
 		// Set targets
 		jmpi.Target = target
 		jmp.Target = cond
@@ -171,7 +171,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		blk2 := gen.MakeIntCode(tree.Children[1])
 		concat(blk1, blk2)
 
-		return concat(blk1, NewIntInstr(intEqual, ""))
+		return concat(blk1, newIntInstr(intEqual, ""))
 	case IdentifierTy:
 		c, err := gen.getMemory(tree, 0)
 		if err != nil {
@@ -204,12 +204,12 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return c
 	case SetStoreTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
-		blk2 := NewIntInstr(intSStore, "")
+		blk2 := newIntInstr(intSStore, "")
 
 		return concat(blk1, blk2)
 	case StoreTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
-		blk2 := NewIntInstr(intSLoad, "")
+		blk2 := newIntInstr(intSLoad, "")
 
 		return concat(blk1, blk2)
 
@@ -247,12 +247,12 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		case "<<", ">>":
 			push, cons := pushConstant("2")
 			blk2 := gen.MakeIntCode(tree.Children[1])
-			exp := NewIntInstr(intExp, "")
+			exp := newIntInstr(intExp, "")
 			var o *IntInstr
 			if tree.Constant == "<<" {
-				o = NewIntInstr(intMul, "")
+				o = newIntInstr(intMul, "")
 			} else {
-				o = NewIntInstr(intDiv, "")
+				o = newIntInstr(intDiv, "")
 			}
 			concat(push, cons)
 			concat(cons, blk2)
@@ -268,7 +268,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			} else {
 				op = intSub
 			}
-			opInstr := NewIntInstr(op, "")
+			opInstr := newIntInstr(op, "")
 			concat(blk1, one)
 			concat(one, cons)
 			concat(cons, opInstr)
@@ -292,17 +292,17 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			return blk1
 		case ">=":
 			op = intLt
-			blk3 = NewIntInstr(intNot, "")
+			blk3 = newIntInstr(intNot, "")
 		case "<=":
 			op = intGt
-			blk3 = NewIntInstr(intNot, "")
+			blk3 = newIntInstr(intNot, "")
 		case "!=":
 			op = intEqual
-			blk3 = NewIntInstr(intNot, "")
+			blk3 = newIntInstr(intNot, "")
 		case "!":
 			// Reconstruct this one (We ought to clean this code)
 			blk1 = gen.MakeIntCode(tree.Children[1])
-			opinstr := NewIntInstr(intNot, "")
+			opinstr := newIntInstr(intNot, "")
 			return concat(blk1, opinstr)
 		case "&&":
 
@@ -316,17 +316,17 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		concat(blk1, blk2)
 
 		if blk3 != nil {
-			opinstr := NewIntInstr(op, "")
+			opinstr := newIntInstr(op, "")
 			concat(blk2, opinstr)
 			concat(opinstr, blk3)
 
 			return blk1
 		}
 
-		return concat(blk1, NewIntInstr(op, ""))
+		return concat(blk1, newIntInstr(op, ""))
 		/*
 			case StringTy:
-				blk1 := NewIntInstr(intPush20, "")
+				blk1 := newIntInstr(intPush20, "")
 				byts, err := hex.DecodeString(tree.Constant)
 				if err != nil {
 					st, e := tree.Errorf("%v: %s", err, tree.Constant)
@@ -335,26 +335,26 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 					return st
 				}
-				blk2 := NewIntInstr(intConst, string(byts))
+				blk2 := newIntInstr(intConst, string(byts))
 				//gen.lastPush = blk2
 
 				return concat(blk1, blk2)
 		*/
 	case StopTy:
-		return NewIntInstr(intStop, "")
+		return newIntInstr(intStop, "")
 	case OriginTy:
-		return NewIntInstr(intOrigin, "")
+		return newIntInstr(intOrigin, "")
 	case AddressTy:
-		return NewIntInstr(intAddress, "")
+		return newIntInstr(intAddress, "")
 	case CallerTy:
-		return NewIntInstr(intCaller, "")
+		return newIntInstr(intCaller, "")
 	case CallValTy:
-		return NewIntInstr(intCallVal, "")
+		return newIntInstr(intCallVal, "")
 	case CallDataLoadTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
 		push, cons := pushConstant("32")
-		mul := NewIntInstr(intMul, "")
-		blk2 := NewIntInstr(intCallDataLoad, "")
+		mul := newIntInstr(intMul, "")
+		blk2 := newIntInstr(intCallDataLoad, "")
 		concat(blk1, push)
 		concat(push, cons)
 		concat(cons, mul)
@@ -362,23 +362,23 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return blk1
 	case CallDataSizeTy:
-		return NewIntInstr(intCallDataSize, "")
+		return newIntInstr(intCallDataSize, "")
 	case GasPriceTy:
-		return NewIntInstr(intGasPrice, "")
+		return newIntInstr(intGasPrice, "")
 	case DiffTy:
-		return NewIntInstr(intDiff, "")
+		return newIntInstr(intDiff, "")
 	case PrevHashTy:
-		return NewIntInstr(intPrevHash, "")
+		return newIntInstr(intPrevHash, "")
 	case TimestampTy:
-		return NewIntInstr(intTimestamp, "")
+		return newIntInstr(intTimestamp, "")
 	case CoinbaseTy:
-		return NewIntInstr(intCoinbase, "")
+		return newIntInstr(intCoinbase, "")
 	case BalanceTy:
-		return NewIntInstr(intBalance, "")
+		return newIntInstr(intBalance, "")
 	case GasTy:
-		return NewIntInstr(intGas, "")
+		return newIntInstr(intGas, "")
 	case BlockNumTy:
-		return NewIntInstr(intBlockNum, "")
+		return newIntInstr(intBlockNum, "")
 	case NewArrayTy: // Create a new array
 		c, err := gen.initNewArray(tree)
 		if err != nil {
@@ -408,7 +408,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			return c
 		}
 
-		return NewIntInstr(intIgnore, "")
+		return newIntInstr(intIgnore, "")
 	case ArgTy:
 		next := gen.MakeIntCode(tree.Children[0])
 		arg := gen.MakeIntCode(tree.Children[1])
@@ -428,7 +428,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		sender := gen.MakeIntCode(tree.Children[0])
 		value := gen.MakeIntCode(tree.Children[1])
 		gas := gen.MakeIntCode(tree.Children[2])
-		call := NewIntInstr(intCall, "")
+		call := newIntInstr(intCall, "")
 
 		concat(ret, arg)
 		concat(arg, gas)
@@ -447,7 +447,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		sender := gen.MakeIntCode(tree.Children[0])
 		value := gen.MakeIntCode(tree.Children[1])
 		gas := gen.makePush("0")
-		call := NewIntInstr(intCall, "")
+		call := newIntInstr(intCall, "")
 
 		concat(ret, arg)
 		concat(arg, gas)
@@ -463,7 +463,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			return script
 		}
 		val := gen.MakeIntCode(tree.Children[0])
-		create := NewIntInstr(intCreate, "")
+		create := newIntInstr(intCreate, "")
 
 		concat(script, val)
 		concat(val, create)
@@ -479,7 +479,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 				concat(retVal, offset)
 				concat(offset, size)
 
-				return concat(retVal, NewIntInstr(intReturn, ""))
+				return concat(retVal, newIntInstr(intReturn, ""))
 			}
 		case ConstantTy:
 			cons := gen.makePush(tree.Children[0].Constant)
@@ -490,7 +490,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			concat(cons, store)
 			concat(store, size)
 			concat(size, offset)
-			concat(offset, NewIntInstr(intReturn, ""))
+			concat(offset, newIntInstr(intReturn, ""))
 
 			return cons
 		case StoreTy:
@@ -502,20 +502,20 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			concat(blk1, store)
 			concat(store, size)
 			concat(size, offset)
-			concat(offset, NewIntInstr(intReturn, ""))
+			concat(offset, newIntInstr(intReturn, ""))
 
 			return blk1
 		case IdentifierTy:
 			pos, err := gen.findOffset(tree.Children[0], 0)
 			if err != nil {
 				gen.addError(err)
-				return NewIntInstr(intIgnore, "")
+				return newIntInstr(intIgnore, "")
 			}
 
 			size := gen.makePush("32")
 			offset := gen.makePush(pos)
 			concat(size, offset)
-			concat(offset, NewIntInstr(intReturn, ""))
+			concat(offset, newIntInstr(intReturn, ""))
 
 			return size
 		default:
@@ -525,7 +525,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			return c
 		}
 
-		return NewIntInstr(intIgnore, "")
+		return newIntInstr(intIgnore, "")
 	case SizeofTy:
 		c, err := gen.sizeof(tree)
 		if err != nil {
@@ -548,10 +548,10 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			return false
 		})
 
-		firstInstr := NewIntInstr(intASM, asmSlice[0])
+		firstInstr := newIntInstr(intASM, asmSlice[0])
 		if len(asmSlice) > 1 {
 			for _, instr := range asmSlice[1:] {
-				concat(firstInstr, NewIntInstr(intASM, instr))
+				concat(firstInstr, newIntInstr(intASM, instr))
 			}
 		}
 
@@ -567,13 +567,13 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return fn.Call(gen, gen.CurrentScope())
 	case FuncDefTy:
-		callTarget := NewIntInstr(intTarget, "")
+		callTarget := newIntInstr(intTarget, "")
 		fn := NewFunction(tree.Constant, callTarget, 0, tree.HasRet)
 		//fn.NewVariable("___return", varNumTy)
 		gen.PushScope(fn)
 
-		p, jmp := NewJumpInstr(intJump)
-		target := NewIntInstr(intTarget, "")
+		p, jmp := newJumpInstr(intJump)
+		target := newIntInstr(intTarget, "")
 		jmp.Target = target
 
 		body := gen.MakeIntCode(tree.Children[0])
@@ -587,19 +587,19 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		// Pop frame mechanism
 		ptr := gen.loadStackPtr()
-		dup := NewIntInstr(intDup, "")
+		dup := newIntInstr(intDup, "")
 		// Load stack pointer as offset
-		dup2 := NewIntInstr(intDup, "")
+		dup2 := newIntInstr(intDup, "")
 		// Increment by 1 word
 		offset := gen.makePush("32")
-		add := NewIntInstr(intAdd, "")
-		sizeLoad := NewIntInstr(intMLoad, "")
+		add := newIntInstr(intAdd, "")
+		sizeLoad := newIntInstr(intMLoad, "")
 		// Now pop the frame off the stack
-		sub := NewIntInstr(intSub, "")
+		sub := newIntInstr(intSub, "")
 		stackPtrOffset := gen.makePush("0")
-		stackPtrStore := NewIntInstr(intMStore, "")
-		retLoad := NewIntInstr(intMLoad, "")
-		jumpBack := NewIntInstr(intJump, "")
+		stackPtrStore := newIntInstr(intMStore, "")
+		retLoad := newIntInstr(intMLoad, "")
+		jumpBack := newIntInstr(intJump, "")
 
 		concat(body, ptr)
 		concat(ptr, dup)
@@ -629,7 +629,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case LambdaTy:
 		panic("auto lambda triggered in int code gen. report this issue")
 	case EmptyTy:
-		return NewIntInstr(intEmpty, "")
+		return newIntInstr(intEmpty, "")
 	}
 
 	return nil
