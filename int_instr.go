@@ -31,7 +31,7 @@ func NewIntInstr(code Instr, constant string) *IntInstr {
 	return &IntInstr{Code: code, Constant: constant}
 }
 
-func (instr *IntInstr) setNumbers(i int, gen *CodeGen) {
+func (instr *IntInstr) setNumbers(i int, gen *IntGen) {
 	var memLoc int
 	for _, variable := range gen.locals {
 		variable.pos = memLoc

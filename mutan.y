@@ -54,7 +54,7 @@ statement
 	;
 
 optional_type
-    :  TYPE { $$ = true }
+    :  VAR { $$ = true }
     | /* Empty */ { $$ = false }
     ;
 

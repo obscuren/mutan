@@ -316,7 +316,7 @@ func TestSome(t *testing.T) {
 
 func TestFuncDef(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	func other( ){
+	func other() var {
 		var d = 20;
 	}
 
