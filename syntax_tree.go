@@ -27,6 +27,7 @@ const (
 	SetStoreTy
 	InlineAsmTy
 	StopTy
+	ExitTy
 	ReturnTy
 
 	OriginTy
@@ -84,6 +85,7 @@ var astAsString = []string{
 	"Set store",
 	"Inline asm",
 	"Stop",
+	"Exit",
 	"Return",
 
 	"Origin",

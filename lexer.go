@@ -49,7 +49,7 @@ const (
 	itemElse                  = ELSE
 	itemFor                   = FOR
 	itemStore                 = STORE
-	itemReturn                = RETURN
+	itemExit                  = EXIT
 	itemAsm                   = ASM
 	itemInlineAsm             = INLINE_ASM
 	itemLeftPar               = LEFT_PAR
@@ -88,6 +88,7 @@ const (
 	itemAddress               = ADDRESS
 	itemFuncDef               = FUNC
 	itemFuncCall              = FUNC_CALL
+	itemReturn                = RETURN
 )
 
 type item struct {
@@ -147,7 +148,7 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemAsm)
 
 		return lexInsideAsm
-	case "exit":
+	case "stop":
 		l.emit(itemStop)
 	case "this":
 		l.emit(itemThis)
@@ -172,12 +173,14 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemCreate)
 	case "transact":
 		l.emit(itemTransact)
-	case "return":
-		l.emit(itemReturn)
+	case "exit":
+		l.emit(itemExit)
 	case "sizeof":
 		l.emit(itemSizeof)
 	case "func":
 		l.emit(itemFuncDef)
+	case "return":
+		l.emit(itemReturn)
 	default:
 		l.emit(itemIdentifier)
 	}
@@ -386,7 +389,7 @@ func lexText(l *Lexer) stateFn {
 			l.ignore()
 		case isSpace(r): // Check whether this is a space (which we ignore)
 			l.ignore()
-		case isAlphaNumeric(r): // Check if it's alpha numeric (var, if, else etc)
+		case isAlphaNumeric(r) || r == '_': // Check if it's alpha numeric (var, if, else etc)
 			l.backup()
 
 			return lexStatement

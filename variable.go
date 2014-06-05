@@ -7,7 +7,18 @@ const (
 	varNumTy
 	varStrTy
 	varArrTy
+	varPtrTy
+	varFuncTy
 )
+
+type Var interface {
+	Id() string
+	Type() varType
+	Size() int
+	Offset() int
+	Instr() *IntInstr
+	SetInstr(*IntInstr)
+}
 
 type Variable struct {
 	id      string

@@ -316,19 +316,12 @@ func TestSome(t *testing.T) {
 
 func TestFuncDef(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	func other() var {
-		var d = 20;
+	func t() {
+		return 10
 	}
+	var a = 10
+	a = t()
 
-	func main() {
-		var a = 10;
-
-		other()
-	}
-
-	main()
-
-	return 10
 	`), true)
 
 	if err != nil {

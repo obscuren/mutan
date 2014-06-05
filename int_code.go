@@ -470,6 +470,8 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return script
 	case ReturnTy:
+		return gen.CurrentScope().MakeReturn(tree.Children[0], gen)
+	case ExitTy:
 		switch tree.Children[0].Type {
 		case LambdaTy:
 			retVal, num := gen.compileLambda(0, tree.Children[0])
@@ -569,7 +571,16 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case FuncDefTy:
 		callTarget := newIntInstr(intTarget, "")
 		fn := NewFunction(tree.Constant, callTarget, 0, tree.HasRet)
-		//fn.NewVariable("___return", varNumTy)
+		// stack -> | PC = ret | frameSize | framePtr
+		/****
+		 * Stack frame
+		 *
+		 * | ret pos | frame size | return val |
+		 */
+		fn.NewVariable("___retPtr", varNumTy)
+		fn.NewVariable("___frameSize", varNumTy)
+		//fn.NewVariable("___returnVal", varNumTy) // TODO do type checking here
+
 		gen.PushScope(fn)
 
 		p, jmp := newJumpInstr(intJump)
@@ -581,10 +592,6 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		concat(jmp, callTarget)
 		concat(callTarget, body)
 
-		// stack -> | PC = ret | frameSize | framePtr
-		fn.NewVariable("___frameSize", varNumTy)
-		fn.NewVariable("___retPtr", varNumTy)
-
 		// Pop frame mechanism
 		ptr := gen.loadStackPtr()
 		dup := newIntInstr(intDup, "")
@@ -595,7 +602,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		add := newIntInstr(intAdd, "")
 		sizeLoad := newIntInstr(intMLoad, "")
 		// Now pop the frame off the stack
-		sub := newIntInstr(intSub, "")
+		//sub := newIntInstr(intSub, "")
 		stackPtrOffset := gen.makePush("0")
 		stackPtrStore := newIntInstr(intMStore, "")
 		retLoad := newIntInstr(intMLoad, "")
@@ -607,8 +614,9 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		concat(dup2, offset)
 		concat(offset, add)
 		concat(add, sizeLoad)
-		concat(sizeLoad, sub)
-		concat(sub, stackPtrOffset)
+		concat(sizeLoad, stackPtrOffset)
+		//concat(sizeLoad, sub)
+		//concat(sub, stackPtrOffset)
 		concat(stackPtrOffset, stackPtrStore)
 		concat(stackPtrStore, retLoad)
 		concat(retLoad, jumpBack)

@@ -1,5 +1,7 @@
 #### Compiler & Language definition for the Ethereum project
 
+This is the Mutan 2.0 branch.
+
 Mutan is a C-Like language for the Ethereum project. Mutan supports a
 full, statically typed higher level language that compiles to native
 Ethereum Assembler. The language definition and documentation
@@ -11,6 +13,15 @@ A simple online editor and compiler can be found [here](http://mutan.jeffew.com)
 ### Syntax
 
 ```go
+func helloWorld() var[10] {
+	var[10] a;
+	a[9] = 20
+
+	return a
+}
+
+helloWorld()
+
 int32 a = 20
 int32 b = 10
 if a < b {

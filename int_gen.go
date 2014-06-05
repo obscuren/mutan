@@ -10,12 +10,21 @@ import (
 
 type Scope interface {
 	NewVariable(id string, typ varType) (*Variable, error)
+
+	NewVar(id string, typ varType)
+	SetVar(Var)
+	GetVar(string) Var
+	Size() int
+
 	SetVariable(*Variable)
 	GetVariable(string) *Variable
 	StackSize() int
+	MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr
 }
 
 type IntGen struct {
+	VarTable map[string]Var
+
 	locals        map[string]*Variable
 	functionTable map[string]*Function
 	arrayTable    map[string][]*IntInstr
@@ -30,12 +39,50 @@ type IntGen struct {
 
 func NewGen() *IntGen {
 	return &IntGen{
+		VarTable:      make(map[string]Var),
 		locals:        make(map[string]*Variable),
 		functionTable: make(map[string]*Function),
 		arrayTable:    make(map[string][]*IntInstr),
 		stringTable:   make(map[string][]*IntInstr),
 		scopes:        list.New(),
 	}
+}
+
+func (self *IntGen) NewVar(id string, typ varType) (*Variable, error) {
+	if self.VarTable[id] != nil {
+		return nil, fmt.Errorf("redeclaration of '%v'", id)
+	}
+
+	var v Var
+	switch typ {
+	case varNumTy:
+		v = NewNumeric(id, self.StackSize())
+	}
+
+	return v, nil
+}
+
+func (self *IntGen) SetVar(v Var) {
+	self.VarTable[v.Id()] = v
+}
+
+func (self *IntGen) GetVar(id string) Var {
+	if self.CurrentScope() != self {
+		variable := self.CurrentScope().GetVar(id)
+		if variable != nil {
+			return variable
+		}
+	}
+
+	return self.VarTable[id]
+}
+
+func (self *IntGen) Size() (size int) {
+	for _, variable := range self.VarTable {
+		size += variable.Size()
+	}
+
+	return
 }
 
 func (self *IntGen) SetVariable(v *Variable) {
@@ -58,7 +105,7 @@ func (self *IntGen) NewVariable(id string, typ varType) (*Variable, error) {
 		return nil, fmt.Errorf("redeclaration of '%v'", id)
 	}
 
-	variable := &Variable{id: id}
+	variable := &Variable{id: id, pos: self.StackSize(), size: 32}
 	self.locals[id] = variable
 
 	return variable, nil
@@ -70,7 +117,7 @@ func (self *IntGen) StackSize() (size int) {
 	}
 
 	// Stack ptr
-	size += 32
+	//size += 32
 
 	return
 }
@@ -82,6 +129,13 @@ func (self *IntGen) CurrentScope() Scope {
 	}
 
 	return self
+}
+
+func (self *IntGen) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
+	c, err := expr.Errorf("return now allowed in global scope")
+	gen.addError(err)
+
+	return c
 }
 
 func (self *IntGen) PopScope() Scope {
