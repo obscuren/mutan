@@ -9,10 +9,43 @@ compiler transforms int code to ASM (very static)
 */
 
 import (
-	"fmt"
+	_ "fmt"
 	"strconv"
 	"strings"
 )
+
+func cc(v ...*IntInstr) *IntInstr {
+	if len(v) > 0 {
+		var begin, last *IntInstr
+		for i := 0; i < len(v); i++ {
+			if v[i].Code != intEmpty {
+				if begin == nil {
+					begin = v[i]
+					last = begin
+					continue
+				}
+
+				cca(last, v[i])
+				last = v[i]
+			}
+		}
+
+		return begin
+	}
+
+	return nil
+}
+
+func cca(a, b *IntInstr) *IntInstr {
+	search := a
+	for search.Next != nil {
+		search = search.Next
+	}
+
+	search.Next = b
+
+	return a
+}
 
 // Concatenate two block of code together
 func concat(blk1 *IntInstr, blk2 *IntInstr) *IntInstr {
@@ -48,17 +81,6 @@ func newJumpInstr(op Instr) (*IntInstr, *IntInstr) {
 	return push, jump
 }
 
-func validLhSide(variable *Variable, typ varType) {
-	// ignore
-	if variable == nil {
-		return
-	}
-
-	if variable.typ != varUndefinedTy && variable.typ != typ {
-		panic(fmt.Sprintf("cannat assign %v to '%v' of type %v", typ, variable.id, variable.typ))
-	}
-}
-
 // Recursive intermediate code generator
 func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	switch tree.Type {
@@ -81,7 +103,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		} else {
 			blk2 := gen.MakeIntCode(tree.Children[1])
 			blk3 := gen.MakeIntCode(tree.Children[2])
-			gen.CurrentScope().GetVariable(tree.Children[2].Constant).instr = blk3.Next
+			gen.CurrentScope().GetVar(tree.Children[2].Constant).SetInstr(blk3.Next)
 			//gen.locals[tree.Children[2].Constant].instr = blk3.Next
 			blk1 = gen.setVariable(tree.Children[0], tree.Children[2])
 			concat(blk1, blk2)
@@ -577,9 +599,9 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		 *
 		 * | ret pos | frame size | return val |
 		 */
-		fn.NewVariable("___retPtr", varNumTy)
-		fn.NewVariable("___frameSize", varNumTy)
-		//fn.NewVariable("___returnVal", varNumTy) // TODO do type checking here
+		fn.NewVar("___retPtr", varNumTy)
+		fn.NewVar("___frameSize", varNumTy)
+		//fn.NewVar("___returnVal", varNumTy) // TODO do type checking here
 
 		gen.PushScope(fn)
 

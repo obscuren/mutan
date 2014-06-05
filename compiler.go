@@ -210,7 +210,7 @@ func CompileStage(source io.Reader, debug bool) (asm []interface{}, errors []err
 	}
 
 	gen := NewGen()
-	gen.NewVariable("___stackPtr", varNumTy)
+	gen.NewVar("___stackPtr", varNumTy)
 	ptr := gen.setStackPtr(0)
 
 	intCode := concat(ptr, gen.MakeIntCode(ast))

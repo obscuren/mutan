@@ -9,23 +9,22 @@ import (
 )
 
 type Scope interface {
-	NewVariable(id string, typ varType) (*Variable, error)
-
-	NewVar(id string, typ varType)
+	NewVar(id string, typ varType) (Var, error)
 	SetVar(Var)
 	GetVar(string) Var
 	Size() int
 
-	SetVariable(*Variable)
-	GetVariable(string) *Variable
-	StackSize() int
+	//NewVariable(id string, typ varType) (*Variable, error)
+	//SetVariable(*Variable)
+	//GetVariable(string) *Variable
+	//StackSize() int
 	MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr
 }
 
 type IntGen struct {
 	VarTable map[string]Var
 
-	locals        map[string]*Variable
+	//locals        map[string]*Variable
 	functionTable map[string]*Function
 	arrayTable    map[string][]*IntInstr
 	stringTable   map[string][]*IntInstr
@@ -39,8 +38,8 @@ type IntGen struct {
 
 func NewGen() *IntGen {
 	return &IntGen{
-		VarTable:      make(map[string]Var),
-		locals:        make(map[string]*Variable),
+		VarTable: make(map[string]Var),
+		//locals:        make(map[string]*Variable),
 		functionTable: make(map[string]*Function),
 		arrayTable:    make(map[string][]*IntInstr),
 		stringTable:   make(map[string][]*IntInstr),
@@ -48,16 +47,21 @@ func NewGen() *IntGen {
 	}
 }
 
-func (self *IntGen) NewVar(id string, typ varType) (*Variable, error) {
+func (self *IntGen) NewVar(id string, typ varType) (Var, error) {
 	if self.VarTable[id] != nil {
 		return nil, fmt.Errorf("redeclaration of '%v'", id)
 	}
 
-	var v Var
+	var v *Variable
 	switch typ {
 	case varNumTy:
-		v = NewNumeric(id, self.StackSize())
+		v = NewNumeric(id, self.Size())
+	default:
+		v = NewNumeric(id, self.Size())
 	}
+
+	v.offset = self.Size()
+	self.VarTable[id] = v
 
 	return v, nil
 }
@@ -85,6 +89,7 @@ func (self *IntGen) Size() (size int) {
 	return
 }
 
+/*
 func (self *IntGen) SetVariable(v *Variable) {
 	self.locals[v.id] = v
 }
@@ -121,6 +126,7 @@ func (self *IntGen) StackSize() (size int) {
 
 	return
 }
+*/
 
 func (self *IntGen) CurrentScope() Scope {
 	scope := self.scopes.Back()
@@ -163,17 +169,24 @@ func (gen *IntGen) addError(e error) {
 
 func (gen *IntGen) findOffset(tree *SyntaxTree, offset int) (position string, err error) {
 	var pos string
-	variable := gen.GetVariable(tree.Constant)
+	variable := gen.GetVar(tree.Constant)
 
 	if variable == nil {
 		return "", fmt.Errorf("Undefined variable: %v", tree.Constant)
 	} else {
 		var p int
-		if variable.typ == varArrTy {
-			p = variable.pos + (offset * variable.size)
-		} else {
-			p = variable.pos
+		switch variable.Type() {
+		case varNumTy:
+			p = variable.Offset()
 		}
+
+		/*
+			if variable.typ == varArrTy {
+				p = variable.pos + (offset * variable.size)
+			} else {
+				p = variable.pos
+			}
+		*/
 		pos = strconv.Itoa(p)
 	}
 
@@ -222,12 +235,12 @@ func (gen *IntGen) assignMemory(offset int) *IntInstr {
 
 // Generates asm for setting a memory address
 func (gen *IntGen) setMemory(tree *SyntaxTree) (*IntInstr, error) {
-	variable := gen.GetVariable(tree.Constant)
+	variable := gen.GetVar(tree.Constant)
 	if variable == nil {
 		return tree.Errorf("Undefined variable '%s'", tree.Constant)
 	}
 
-	instr := gen.assignMemory(variable.pos)
+	instr := gen.assignMemory(variable.Offset())
 
 	return instr, nil
 }
@@ -259,33 +272,32 @@ func (gen *IntGen) initNewNumber(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
 
 	scope := gen.CurrentScope()
-	v, err := scope.NewVariable(name, varNumTy)
+	_, err := scope.NewVar(name, varNumTy)
 	if err != nil {
 		return newIntInstr(intIgnore, ""), err
 	}
-
-	v.size = 32
-	v.varSize = v.size
 
 	return nil, nil
 }
 
 func (gen *IntGen) sizeof(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
-	if gen.locals[name] == nil {
+	variable := gen.CurrentScope().GetVar(name)
+
+	if variable == nil {
 		return tree.Errorf("undefined variable: '%s'", name)
 	}
 
-	local := gen.locals[name]
-	push, constant := pushConstant(strconv.Itoa(local.size))
+	push, constant := pushConstant(strconv.Itoa(variable.Size()))
 
 	return concat(push, constant), nil
 }
 
 func (gen *IntGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
-	local := gen.locals[name]
-	if local == nil {
+	variable := gen.CurrentScope().GetVar(name)
+
+	if variable == nil {
 		tree.Errorf("undefined array: %v", name)
 	}
 
@@ -293,11 +305,11 @@ func (gen *IntGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	// do an inline calculation instead.
 
 	// Get the location of the variable in memory
-	loc, locConst := pushConstant(strconv.Itoa(local.pos))
+	loc, locConst := pushConstant(strconv.Itoa(variable.Offset()))
 	// Get the offset (= expression between brackets [expression])
 	offset := gen.MakeIntCode(tree.Children[0])
 	// Get the size of the variable in bytes
-	size, sizeConst := pushConstant(strconv.Itoa(local.size))
+	size, sizeConst := pushConstant(strconv.Itoa(variable.Size()))
 	// Multiply offset with size
 	mul := newIntInstr(intMul, "")
 	// Add the result to the memory location
@@ -318,26 +330,23 @@ func (gen *IntGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 
 func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
-	local := gen.locals[name]
-	if local == nil {
+	variable := gen.CurrentScope().GetVar(name)
+	if variable == nil {
 		return tree.Errorf("undefined array: %v", name)
-	}
-
-	if local.typ != varArrTy {
-		return tree.Errorf("LHS is not of type array")
 	}
 
 	// The value which we want to assign
 	val := gen.MakeIntCode(tree.Children[1])
 
 	// Get the location of the variable in memory
-	loc, locConst := pushConstant(strconv.Itoa(local.pos))
+	loc, locConst := pushConstant(strconv.Itoa(variable.Offset()))
 	gen.arrayTable[name] = append(gen.arrayTable[name], locConst)
 
 	// Get the offset (= expression between brackets [expression])
 	offset := gen.MakeIntCode(tree.Children[0])
 	// Get the size of the variable in bytes
-	size, sizeConst := pushConstant(strconv.Itoa(local.varSize))
+	//size, sizeConst := pushConstant(strconv.Itoa(local.varSize))
+	size, sizeConst := pushConstant("32")
 	// Multiply offset with size
 	mul := newIntInstr(intMul, "")
 	// Add the result to the memory location
@@ -358,7 +367,9 @@ func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 
 func (gen *IntGen) initNewArray(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
-	if gen.locals[name] != nil {
+	variable := gen.CurrentScope().GetVar(name)
+	variable, err := gen.CurrentScope().NewVar(name, varArrTy)
+	if err != nil {
 		return tree.Errorf("Redeclaration of variable '%s'", name)
 	}
 
@@ -370,12 +381,17 @@ func (gen *IntGen) initNewArray(tree *SyntaxTree) (*IntInstr, error) {
 		}
 		size *= length
 	*/
-	length, _ := strconv.Atoi(tree.Size)
 
-	variable := &Variable{id: name, typ: varArrTy, size: 32 * length, varSize: 32}
-	gen.locals[name] = variable
+	length, _ := strconv.Atoi(tree.Size)
+	variable.SetSize(32 * length)
 
 	return newIntInstr(intIgnore, ""), nil
+}
+
+func validLhSide(variable Var, typ varType) {
+	if variable != nil && variable.Type() != varUndefinedTy && variable.Type() != typ {
+		panic(fmt.Sprintf("cannat assign %v to '%v' of type %v", typ, variable.Id(), variable.Type()))
+	}
 }
 
 func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {
@@ -386,12 +402,12 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 		id := gen.locals[identifier.Constant]
 	*/
 
-	id := gen.GetVariable(identifier.Constant)
+	variable := gen.GetVar(identifier.Constant)
 
 	//TODO Do left hand side type checking at this point
 	switch tree.Type {
 	case StringTy:
-		validLhSide(id, varStrTy)
+		validLhSide(variable, varStrTy)
 
 		var t Instr
 		if identifier.Type == SetStoreTy {
@@ -402,22 +418,22 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 			return gen.makePush("0x" + hex.EncodeToString([]byte(tree.Constant)))
 		} else {
 			t = intMStore
-			id.typ = varStrTy
+			variable.SetType(varStrTy)
 		}
 
 		var length int
-		instr, length = gen.stringToInstr(id, []byte(tree.Constant), t)
+		instr, length = gen.stringToInstr(variable, []byte(tree.Constant), t)
 
 		if identifier.Type != SetStoreTy {
-			id.size = int(math.Max(math.Max(float64(id.size), float64(length)), 32.0))
+			variable.SetSize(int(math.Max(math.Max(float64(variable.Size()), float64(length)), 32.0)))
 		}
 
 		return instr
 	case ConstantTy:
-		validLhSide(id, varNumTy)
+		validLhSide(variable, varNumTy)
 
 		if identifier.Type != SetStoreTy {
-			id.typ = varNumTy
+			variable.SetType(varNumTy)
 		}
 
 		instr = gen.MakeIntCode(tree)

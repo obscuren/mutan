@@ -2,7 +2,7 @@ package mutan
 
 import (
 	"fmt"
-	"strconv"
+	_ "strconv"
 )
 
 type IntInstr struct {
@@ -63,7 +63,7 @@ func (instr *IntInstr) setNumbers(i int, gen *IntGen) {
 		num.n = i
 
 		if len(num.ConstRef) > 0 {
-			num.Constant = strconv.Itoa(gen.locals[num.ConstRef].pos)
+			//num.Constant = strconv.Itoa(gen.locals[num.ConstRef].pos)
 		}
 
 		if num.Code != intTarget && num.Code != intIgnore {

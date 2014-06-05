@@ -18,9 +18,3 @@ func (self *Pointer) Offset() int              { return self.offset }
 func (self *Pointer) Size() int                { return 32 }
 func (self *Pointer) Instr() *IntInstr         { return self.instr }
 func (self *Pointer) SetInstr(instr *IntInstr) { self.instr = instr }
-
-func IsPtr(v Var) bool {
-	_, ok := v.(*Pointer)
-
-	return ok
-}

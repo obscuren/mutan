@@ -59,13 +59,14 @@ func (gen *IntGen) makeArg(t *SyntaxTree) (*IntInstr, error) {
 		return gen.pushNil(), nil
 	}
 
-	l := gen.locals[t.Constant]
-	if l == nil {
+	name := t.Constant
+	variable := gen.CurrentScope().GetVar(name)
+	if variable == nil {
 		return t.Errorf("undefine variable: '%s'", t.Constant)
 	}
 
-	pushOff, offCons := pushConstant(strconv.Itoa(l.size))
-	pushLoc, locCons := pushConstant(strconv.Itoa(l.pos))
+	pushOff, offCons := pushConstant(strconv.Itoa(variable.Size()))
+	pushLoc, locCons := pushConstant(strconv.Itoa(variable.Offset()))
 	locCons.ConstRef = t.Constant
 
 	concat(pushOff, offCons)
@@ -167,7 +168,7 @@ func (gen *IntGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
 	return ignore, i
 }
 
-func (gen *IntGen) stringToInstr(id *Variable, b []byte, t Instr) (*IntInstr, int) {
+func (gen *IntGen) stringToInstr(variable Var, b []byte, t Instr) (*IntInstr, int) {
 	ignore := newIntInstr(intIgnore, "")
 	var lastPush *IntInstr
 	i := 0
@@ -177,7 +178,7 @@ func (gen *IntGen) stringToInstr(id *Variable, b []byte, t Instr) (*IntInstr, in
 		mem := gen.makePush(strconv.Itoa(i))
 
 		if t != intSStore {
-			gen.stringTable[id.id] = append(gen.stringTable[id.id], mem.Next)
+			gen.stringTable[variable.Id()] = append(gen.stringTable[variable.Id()], mem.Next)
 		}
 
 		push := gen.makePush("0x" + hex)

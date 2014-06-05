@@ -13,13 +13,19 @@ const (
 
 type Var interface {
 	Id() string
+
 	Type() varType
+	SetType(t varType)
+
 	Size() int
+	SetSize(int)
+
 	Offset() int
 	Instr() *IntInstr
 	SetInstr(*IntInstr)
 }
 
+/*
 type Variable struct {
 	id      string
 	typ     varType
@@ -29,3 +35,4 @@ type Variable struct {
 
 	instr *IntInstr
 }
+*/

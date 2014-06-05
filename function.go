@@ -6,34 +6,24 @@ import (
 )
 
 type Function struct {
-	CallTarget    *IntInstr
-	Id            string
-	ArgCount      int
-	Ret           bool
-	VarTable      map[string]*Variable
+	CallTarget *IntInstr
+	Id         string
+	ArgCount   int
+	Ret        bool
+	//VarTable      map[string]*Variable
+	VarTable      map[string]Var
 	frame, offset int
 }
 
 func NewFunction(id string, target *IntInstr, ac int, ret bool) *Function {
-	return &Function{target, id, ac, ret, make(map[string]*Variable), 0, 0}
-}
-
-func (self *Function) StackSize() (size int) {
-	for _, variable := range self.VarTable {
-		size += variable.size
-	}
-
-	// Add 32 for the return location
-	// Add 32 for the stack size
-	//size += (2 * 32)
-
-	return
+	return &Function{target, id, ac, ret, make(map[string]Var), 0, 0}
 }
 
 func (self *Function) GenOffset() int {
-	return self.StackSize()
+	return self.Size()
 }
 
+/*
 func (self *Function) NewVariable(id string, typ varType) (*Variable, error) {
 	if self.VarTable[id] != nil {
 		return nil, fmt.Errorf("redeclaration of '%v'", id)
@@ -53,17 +43,35 @@ func (self *Function) GetVariable(id string) *Variable {
 	return self.VarTable[id]
 }
 
-func (self *Function) NewVar(id string, typ varType) (*Variable, error) {
+func (self *Function) StackSize() (size int) {
+	for _, variable := range self.VarTable {
+		size += variable.size
+	}
+
+	// Add 32 for the return location
+	// Add 32 for the stack size
+	//size += (2 * 32)
+
+	return
+}
+*/
+
+func (self *Function) NewVar(id string, typ varType) (Var, error) {
 	if self.VarTable[id] != nil {
 		return nil, fmt.Errorf("redeclaration of '%v'", id)
 	}
 
-	var v Var
+	var v *Variable
 	switch typ {
 	case varNumTy:
-		v = NewNumeric(id, self.StackSize())
+		v = NewNumeric(id, self.Size())
 		// TODO other types
+	default:
+		v = NewNumeric(id, self.Size())
 	}
+
+	v.offset = self.Size()
+	self.VarTable[id] = v
 
 	return v, nil
 }
@@ -73,13 +81,6 @@ func (self *Function) SetVar(v Var) {
 }
 
 func (self *Function) GetVar(id string) Var {
-	if self.CurrentScope() != self {
-		variable := self.CurrentScope().GetVar(id)
-		if variable != nil {
-			return variable
-		}
-	}
-
 	return self.VarTable[id]
 }
 
@@ -92,10 +93,10 @@ func (self *Function) Size() (size int) {
 }
 
 func (self *Function) Call(gen *IntGen, scope Scope) *IntInstr {
-	self.frame = self.StackSize() + scope.StackSize()
+	self.frame = self.Size() + scope.Size()
 
 	stackPtr := gen.loadStackPtr()
-	setPtr := gen.addStackPtr(scope.StackSize())
+	setPtr := gen.addStackPtr(scope.Size())
 	/*
 		size := gen.makePush(strconv.Itoa(self.StackSize()))
 		ptr1 := gen.loadStackPtr()

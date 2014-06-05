@@ -1,26 +1,42 @@
 package mutan
 
-type Numeric struct {
+type Variable struct {
 	id     string
-	offset int
 	size   int
+	typ    varType
+	offset int
 
 	instr *IntInstr
+
+	// Amount of elements an array has
+	elements int
 }
 
-func NewNumeric(id string, offset int) *Numeric {
-	return &Numeric{id: id, offset: offset}
+func NewNumeric(id string, offset int) *Variable {
+	return &Variable{id: id, typ: varNumTy, offset: offset, size: 32}
 }
 
-func (self *Numeric) Id() string               { return self.id }
-func (self *Numeric) Type() varType            { return varNumTy }
-func (self *Numeric) Offset() int              { return self.offset }
-func (self *Numeric) Size() int                { return 32 }
-func (self *Numeric) Instr() *IntInstr         { return self.instr }
-func (self *Numeric) SetInstr(instr *IntInstr) { self.instr = instr }
+func NewArray(id string, offset, count int) *Variable {
+	return &Variable{id: id, typ: varArrTy, offset: offset, size: 32 * count, elements: count}
+}
+
+func (self *Variable) Id() string               { return self.id }
+func (self *Variable) Type() varType            { return varNumTy }
+func (self *Variable) SetType(t varType)        { self.typ = t }
+func (self *Variable) Offset() int              { return self.offset }
+func (self *Variable) Size() int                { return self.size }
+func (self *Variable) SetSize(s int)            { self.size = s }
+func (self *Variable) Instr() *IntInstr         { return self.instr }
+func (self *Variable) SetInstr(instr *IntInstr) { self.instr = instr }
 
 func IsNum(v Var) bool {
-	_, ok := v.(*Numeric)
+	return v.Type() == varNumTy
+}
 
-	return ok
+func IsArray(v Var) bool {
+	return v.Type() == varArrTy
+}
+
+func VarLength(v Var) int {
+	return v.Size() / 32
 }
