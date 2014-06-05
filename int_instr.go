@@ -80,17 +80,19 @@ func (instr *IntInstr) setNumbers(i int, gen *IntGen) {
 
 		num = num.Next
 	}
+}
 
-	num = instr
-	for num != nil {
-		if num.Code == intJump || num.Code == intJumpi {
+func (self *IntInstr) linkTargets() {
+	instr := self
+	for instr != nil {
+		if instr.Code == intJump || instr.Code == intJumpi {
 			// Set the target constant which we couldn't set before hand
-			// when the numbers weren't all set.
-			if num.TargetNum != nil {
-				num.TargetNum.Constant = string(numberToBytes(int32(num.Target.n), 32))
+			// when the instrbers weren't all set.
+			if instr.TargetNum != nil {
+				instr.TargetNum.Constant = string(numberToBytes(int32(instr.Target.n), 32))
 			}
 		}
 
-		num = num.Next
+		instr = instr.Next
 	}
 }

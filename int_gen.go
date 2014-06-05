@@ -194,19 +194,23 @@ func (gen *IntGen) findOffset(tree *SyntaxTree, offset int) (position string, er
 }
 
 // Generates asm for getting a memory address
-func (gen *IntGen) getMemory(tree *SyntaxTree, offset int) (push *IntInstr, err error) {
+func (gen *IntGen) getMemory(tree *SyntaxTree, offset int) (*IntInstr, error) {
 	pos, err := gen.findOffset(tree, offset)
 	if err != nil {
-		push = newIntInstr(intIgnore, "")
-		return
+		return newIntInstr(intIgnore, ""), err
 	}
 
+	rPos := gen.loadStackPtr()
 	push, cons := pushConstant(pos)
+	add := newIntInstr(intAdd, "")
 	load := newIntInstr(intMLoad, "")
-	concat(push, cons)
-	concat(cons, load)
 
-	return
+	concat(rPos, push)
+	concat(push, cons)
+	concat(cons, add)
+	concat(add, load)
+
+	return rPos, nil
 }
 
 func makeStore(offset int) *IntInstr {

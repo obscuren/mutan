@@ -593,7 +593,6 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case FuncDefTy:
 		callTarget := newIntInstr(intTarget, "")
 		fn := NewFunction(tree.Constant, callTarget, 0, tree.HasRet)
-		// stack -> | PC = ret | frameSize | framePtr
 		/****
 		 * Stack frame
 		 *
@@ -601,7 +600,6 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		 */
 		fn.NewVar("___retPtr", varNumTy)
 		fn.NewVar("___frameSize", varNumTy)
-		//fn.NewVar("___returnVal", varNumTy) // TODO do type checking here
 
 		gen.PushScope(fn)
 
@@ -610,9 +608,6 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		jmp.Target = target
 
 		body := gen.MakeIntCode(tree.Children[0])
-
-		concat(jmp, callTarget)
-		concat(callTarget, body)
 
 		// Pop frame mechanism
 		ptr := gen.loadStackPtr()
@@ -624,12 +619,13 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		add := newIntInstr(intAdd, "")
 		sizeLoad := newIntInstr(intMLoad, "")
 		// Now pop the frame off the stack
-		//sub := newIntInstr(intSub, "")
 		stackPtrOffset := gen.makePush("0")
 		stackPtrStore := newIntInstr(intMStore, "")
 		retLoad := newIntInstr(intMLoad, "")
 		jumpBack := newIntInstr(intJump, "")
 
+		concat(jmp, callTarget)
+		concat(callTarget, body)
 		concat(body, ptr)
 		concat(ptr, dup)
 		concat(dup, dup2)
@@ -637,20 +633,12 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		concat(offset, add)
 		concat(add, sizeLoad)
 		concat(sizeLoad, stackPtrOffset)
-		//concat(sizeLoad, sub)
-		//concat(sub, stackPtrOffset)
 		concat(stackPtrOffset, stackPtrStore)
 		concat(stackPtrStore, retLoad)
 		concat(retLoad, jumpBack)
 		concat(jumpBack, target)
 
 		gen.PopScope()
-
-		/*
-			concat(body, ret)
-			concat(ret, jumpBack)
-			concat(jumpBack, target)
-		*/
 
 		// TODO do checking if function exists
 		gen.functionTable[tree.Constant] = fn

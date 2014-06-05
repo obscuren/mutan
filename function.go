@@ -23,44 +23,12 @@ func (self *Function) GenOffset() int {
 	return self.Size()
 }
 
-/*
-func (self *Function) NewVariable(id string, typ varType) (*Variable, error) {
-	if self.VarTable[id] != nil {
-		return nil, fmt.Errorf("redeclaration of '%v'", id)
-	}
-
-	variable := &Variable{id: id, pos: self.GenOffset(), size: 32}
-	self.VarTable[id] = variable
-
-	return variable, nil
-}
-
-func (self *Function) SetVariable(v *Variable) {
-	self.VarTable[v.id] = v
-}
-
-func (self *Function) GetVariable(id string) *Variable {
-	return self.VarTable[id]
-}
-
-func (self *Function) StackSize() (size int) {
-	for _, variable := range self.VarTable {
-		size += variable.size
-	}
-
-	// Add 32 for the return location
-	// Add 32 for the stack size
-	//size += (2 * 32)
-
-	return
-}
-*/
-
 func (self *Function) NewVar(id string, typ varType) (Var, error) {
 	if self.VarTable[id] != nil {
 		return nil, fmt.Errorf("redeclaration of '%v'", id)
 	}
 
+	println("new var", id, self.Size())
 	var v *Variable
 	switch typ {
 	case varNumTy:
@@ -97,6 +65,7 @@ func (self *Function) Call(gen *IntGen, scope Scope) *IntInstr {
 
 	stackPtr := gen.loadStackPtr()
 	setPtr := gen.addStackPtr(scope.Size())
+	fmt.Printf("%v: size of stack upon call %v, %T\n", self.Id, scope.Size(), scope)
 	/*
 		size := gen.makePush(strconv.Itoa(self.StackSize()))
 		ptr1 := gen.loadStackPtr()
@@ -137,6 +106,7 @@ func (self *Function) Call(gen *IntGen, scope Scope) *IntInstr {
 
 func (self *Function) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
 	retVal := gen.MakeIntCode(expr)
+	fmt.Println(retVal)
 
 	rPos := gen.loadStackPtr()
 	dup := newIntInstr(intDup, "")
