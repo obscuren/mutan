@@ -157,7 +157,7 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemArray)
 
 		return lexArray
-	case "lambda":
+	case "compile":
 		l.emit(itemLamda)
 
 		return lexLambda

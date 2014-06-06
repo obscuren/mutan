@@ -231,7 +231,7 @@ func TestLambda(t *testing.T) {
 
 	d := "hello"
 
-	return lambda {
+	return compile {
 		to := this.data[0]
 		from := this.origin()
 		value := this.data[1]
