@@ -29,6 +29,8 @@ const (
 	StopTy
 	ExitTy
 	ReturnTy
+	RefTy
+	SetPtrTy
 
 	OriginTy
 	AddressTy
@@ -61,6 +63,9 @@ const (
 	FuncDefTy
 	FuncCallTy
 
+	PushTy
+	PopTy
+
 	NilTy
 )
 
@@ -87,6 +92,8 @@ var astAsString = []string{
 	"Stop",
 	"Exit",
 	"Return",
+	"Reference",
+	"Set pointer",
 
 	"Origin",
 	"Address",
@@ -118,6 +125,9 @@ var astAsString = []string{
 
 	"Func def",
 	"Func call",
+
+	"Push",
+	"Pop",
 
 	"Nil",
 }

@@ -143,9 +143,6 @@ func (self *Function) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
 	offset := gen.makePush("32")
 	add := newIntInstr(intAdd, "")
 	sizeLoad := newIntInstr(intMLoad, "")
-	// Now pop the frame off the stack
-	//sub := newIntInstr(intSub, "")
-
 	stackPtrOffset := gen.makePush("0")
 	stackPtrStore := newIntInstr(intMStore, "")
 
@@ -157,10 +154,6 @@ func (self *Function) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
 	concat(dup, offset)
 	concat(offset, add)
 	concat(add, sizeLoad)
-	/*
-		concat(sizeLoad, sub)
-		concat(sub, stackPtrOffset)
-	*/
 	concat(sizeLoad, stackPtrOffset)
 	concat(stackPtrOffset, stackPtrStore)
 	concat(stackPtrStore, rPosLoad)

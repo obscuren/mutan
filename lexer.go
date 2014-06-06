@@ -38,7 +38,6 @@ const (
 	itemNumber                = NUMBER
 	itemBoolean               = BOOLEAN
 	itemAssign                = ASSIGN
-	itemOp                    = OP
 	itemDop                   = DOP /* Double op ++ -- */
 	itemLeftBracket           = LEFT_BRACKET
 	itemRightBracket          = RIGHT_BRACKET
@@ -88,6 +87,11 @@ const (
 	itemFuncDef               = FUNC
 	itemFuncCall              = FUNC_CALL
 	itemReturn                = RETURN
+	itemOp                    = OP
+	itemAnd                   = AND
+	itemMul                   = MUL
+	itemPush                  = PUSH
+	itemPop                   = POP
 )
 
 type item struct {
@@ -171,6 +175,10 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemCreate)
 	case "transact":
 		l.emit(itemTransact)
+	case "m_push":
+		l.emit(itemPush)
+	case "m_pop":
+		l.emit(itemPop)
 	case "exit":
 		l.emit(itemExit)
 	case "sizeof":
@@ -346,6 +354,10 @@ func lexOperator(l *Lexer) stateFn {
 	switch l.blob() {
 	case "=":
 		l.emit(itemAssign)
+	case "&":
+		l.emit(itemAnd)
+	case "*":
+		l.emit(itemMul)
 	case "++", "--":
 		l.emit(itemDop)
 	default:

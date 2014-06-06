@@ -50,9 +50,9 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 
 %token ASSIGN EQUAL IF ELSE FOR LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
 %token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA SIZEOF QUOTE
-%token END_STMT EXIT CREATE TRANSACT NIL BALANCE VAR_ASSIGN LAMBDA COLON ADDRESS RETURN
+%token END_STMT EXIT CREATE TRANSACT NIL BALANCE VAR_ASSIGN LAMBDA COLON ADDRESS RETURN PUSH POP
 %token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR VAR FUNC FUNC_CALL
-%token <str> ID NUMBER INLINE_ASM OP DOP STR BOOLEAN CODE
+%token <str> ID NUMBER INLINE_ASM OP DOP STR BOOLEAN CODE oper AND MUL
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
 %type <tnode> for_statement optional_else_statement ptr sub_expression opt_arg_def_list opt_arg_call_list
@@ -110,6 +110,8 @@ buildins
 	  }
 	| CREATE LEFT_PAR get_variable COMMA ptr RIGHT_PAR { $$ = NewNode(CreateTy, $3, $5) }
 	| SIZEOF LEFT_PAR ID RIGHT_PAR { $$ = NewNode(SizeofTy); $$.Constant = $3 }
+	| PUSH LEFT_PAR expression RIGHT_PAR { $$ = NewNode(PushTy, $3) }
+	| POP LEFT_PAR RIGHT_PAR { $$ = NewNode(PopTy) }
 	| THIS DOT closure_funcs { $$ = $3 }
 	;
 
@@ -184,6 +186,7 @@ for_statement
 
 expression
 	: op_expression { $$ = $1 }
+	| AND ID { $$ = NewNode(RefTy); $$.Constant = $2 }
 	| assign_expression { $$ = $1 }
 	| ID LEFT_PAR opt_arg_call_list RIGHT_PAR
 		{
@@ -203,10 +206,13 @@ opt_arg_call_list
 
 op_expression
     /* ++, -- */
-	: expression DOP { $$ = NewNode(OpTy, $1); $$.Constant = $2 } 
+	: get_id DOP { $$ = NewNode(OpTy, $1); $$.Constant = $2 } 
     /* Everything else */
-	| expression OP sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
+	| sub_expression OP sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
+	| sub_expression AND sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
+	| sub_expression MUL sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
 	;
+
 
 sub_expression
     : simple_expression { $$ = $1; }
@@ -214,7 +220,13 @@ sub_expression
     ;
 
 assign_expression
-	: ID ASSIGN expression
+	: MUL ID ASSIGN expression
+		{
+			node := NewNode(SetPtrTy)
+			node.Constant = $2
+	      		$$ = NewNode(AssignmentTy, $4, node)
+		}
+	| ID ASSIGN expression
 	  {
 	      node := NewNode(SetLocalTy)
 	      node.Constant = $1
@@ -247,7 +259,11 @@ new_var
 	  {
 	      $$ = NewNode(NewVarTy)
 	      $$.Constant = $2
-	      //$$.VarType = $1
+	  }
+	| VAR MUL ID
+	  {
+	      $$ = NewNode(NewVarTy)
+	      $$.Constant = $3
 	  }
 	;
 

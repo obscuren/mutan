@@ -351,3 +351,40 @@ func TestFuncArgs(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestPointers(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var a = 10
+	var b = &a
+	*b = 9
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
+
+func TestRaw(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	func sha3(var a, var s) var {
+		m_push(a + s)
+		m_push(a)
+		asm(SHA3)
+
+		return m_pop() // Returns outcome of the SHA3
+	}
+
+	var a = 5
+	var b = sha3(&a, 1)
+
+	exit b
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}

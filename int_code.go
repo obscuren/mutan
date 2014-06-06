@@ -9,10 +9,14 @@ compiler transforms int code to ASM (very static)
 */
 
 import (
-	_ "fmt"
+	"fmt"
 	"strconv"
 	"strings"
 )
+
+func ___unused() {
+	fmt.Println("")
+}
 
 func cc(v ...*IntInstr) *IntInstr {
 	if len(v) > 0 {
@@ -201,6 +205,13 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		}
 
 		return c
+	case RefTy:
+		c, err := gen.getPtr(tree)
+		if err != nil {
+			gen.addError(err)
+		}
+
+		return c
 	case ConstantTy:
 		blk1, blk2 := pushConstant(tree.Constant)
 		concat(blk1, blk2)
@@ -219,6 +230,13 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return blk1
 	case SetLocalTy:
 		c, err := gen.setMemory(tree)
+		if err != nil {
+			gen.addError(err)
+		}
+
+		return c
+	case SetPtrTy:
+		c, err := gen.setPtr(tree)
 		if err != nil {
 			gen.addError(err)
 		}
@@ -570,6 +588,11 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		}
 
 		return firstInstr
+	case PushTy:
+		return gen.MakeIntCode(tree.Children[0])
+	case PopTy:
+		//c, err := gen.
+		return newIntInstr(intIgnore, "")
 	case FuncCallTy:
 		// Look up function
 		fn := gen.functionTable[tree.Constant]
