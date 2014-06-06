@@ -305,28 +305,27 @@ func (gen *IntGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	// TODO optimize if the expression in offset. If regular const (i.e. 0-9)
 	// do an inline calculation instead.
 
+	// Get stack ptr
+	ptr := gen.loadStackPtr()
+	// Push the variable offset
+	push, cons := pushConstant(strconv.Itoa(variable.Offset()))
+	add := newIntInstr(intAdd, "")
 	// Get the location of the variable in memory
 	loc, locConst := pushConstant(strconv.Itoa(variable.Offset()))
 	// Get the offset (= expression between brackets [expression])
 	offset := gen.MakeIntCode(tree.Children[0])
 	// Get the size of the variable in bytes
-	size, sizeConst := pushConstant(strconv.Itoa(variable.Size()))
+	size, sizeConst := pushConstant("32")
 	// Multiply offset with size
 	mul := newIntInstr(intMul, "")
 	// Add the result to the memory location
-	add := newIntInstr(intAdd, "")
+	iAdd := newIntInstr(intAdd, "")
 	// b = a[0] // loc(a) + sizeOf(type(a)) * len(a)
 	load := newIntInstr(intMLoad, "")
 
-	concat(loc, locConst)
-	concat(locConst, offset)
-	concat(offset, size)
-	concat(size, sizeConst)
-	concat(sizeConst, mul)
-	concat(mul, add)
-	concat(add, load)
+	cc(ptr, push, cons, add, loc, locConst, offset, size, sizeConst, mul, iAdd, load)
 
-	return loc, nil
+	return ptr, nil
 }
 
 func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
@@ -336,32 +335,24 @@ func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 		return tree.Errorf("undefined array: %v", name)
 	}
 
-	// The value which we want to assign
 	val := gen.MakeIntCode(tree.Children[1])
 
-	// Get the location of the variable in memory
-	loc, locConst := pushConstant(strconv.Itoa(variable.Offset()))
-	gen.arrayTable[name] = append(gen.arrayTable[name], locConst)
-
+	// Get stack ptr
+	ptr := gen.loadStackPtr()
+	// Push the variable offset
+	push, cons := pushConstant(strconv.Itoa(variable.Offset()))
+	add := newIntInstr(intAdd, "")
 	// Get the offset (= expression between brackets [expression])
-	offset := gen.MakeIntCode(tree.Children[0])
-	// Get the size of the variable in bytes
-	//size, sizeConst := pushConstant(strconv.Itoa(local.varSize))
+	expr := gen.MakeIntCode(tree.Children[0])
+	// The value which we want to assign
 	size, sizeConst := pushConstant("32")
 	// Multiply offset with size
 	mul := newIntInstr(intMul, "")
-	// Add the result to the memory location
-	add := newIntInstr(intAdd, "")
+	// Add the result to the memory location (ptr + offset + expr)
+	iAdd := newIntInstr(intAdd, "")
 	store := newIntInstr(intMStore, "")
 
-	concat(val, loc)
-	concat(loc, locConst)
-	concat(locConst, offset)
-	concat(offset, size)
-	concat(size, sizeConst)
-	concat(sizeConst, mul)
-	concat(mul, add)
-	concat(add, store)
+	cc(val, ptr, push, cons, add, expr, size, sizeConst, mul, iAdd, store)
 
 	return val, nil
 }

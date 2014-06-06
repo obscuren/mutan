@@ -354,7 +354,9 @@ func TestFuncDef(t *testing.T) {
 func TestFuncArgs(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	func fn(var a, var b) {
-		return b
+		var[10] c
+		c[2] = b
+		return c[1]
 	}
 
 	var a = fn("test", 5)

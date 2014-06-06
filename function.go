@@ -100,7 +100,6 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 	add1 := newIntInstr(intAdd, "")
 	sizeStore := newIntInstr(intMStore, "")
 
-	fmt.Println(args)
 	argInstr := newIntInstr(intIgnore, "")
 	for i, arg := range args {
 		arg := gen.MakeIntCode(arg)
@@ -109,7 +108,6 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 		concat(argInstr, arg)
 		concat(arg, assign)
 	}
-	fmt.Println(argInstr)
 
 	pc := newIntInstr(intPc, "")
 	push := gen.makePush("14")
@@ -138,7 +136,6 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 
 func (self *Function) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
 	retVal := gen.MakeIntCode(expr)
-	fmt.Println(retVal)
 
 	rPos := gen.loadStackPtr()
 	dup := newIntInstr(intDup, "")

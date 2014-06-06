@@ -14,8 +14,12 @@ A simple online editor and compiler can be found [here](http://mutan.jeffew.com)
 
 ```go
 func fn(var a, var b) {
-	return b
+	var[2] c
+	c[0] = a
+	c[1] = b
+	return c[1]
 }
+
 var a = fn(0, 1)
 b := 10
 
