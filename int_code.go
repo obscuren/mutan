@@ -346,21 +346,22 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		}
 
 		return concat(blk1, newIntInstr(op, ""))
+	case StringTy:
+		return gen.makeString(tree)
 		/*
-			case StringTy:
-				blk1 := newIntInstr(intPush20, "")
-				byts, err := hex.DecodeString(tree.Constant)
-				if err != nil {
-					st, e := tree.Errorf("%v: %s", err, tree.Constant)
+			blk1 := newIntInstr(intPush20, "")
+			byts, err := hex.DecodeString(tree.Constant)
+			if err != nil {
+				st, e := tree.Errorf("%v: %s", err, tree.Constant)
 
-					gen.addError(e)
+				gen.addError(e)
 
-					return st
-				}
-				blk2 := newIntInstr(intConst, string(byts))
-				//gen.lastPush = blk2
+				return st
+			}
+			blk2 := newIntInstr(intConst, string(byts))
+			//gen.lastPush = blk2
 
-				return concat(blk1, blk2)
+			return concat(blk1, blk2)
 		*/
 	case StopTy:
 		return newIntInstr(intStop, "")

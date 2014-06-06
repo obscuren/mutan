@@ -92,7 +92,6 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 	}
 
 	self.frame = self.Size() + scope.Size()
-	fmt.Println(args)
 
 	stackPtr := gen.loadStackPtr()
 	setPtr := gen.addStackPtr(scope.Size())
@@ -101,6 +100,7 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 	add1 := newIntInstr(intAdd, "")
 	sizeStore := newIntInstr(intMStore, "")
 
+	fmt.Println(args)
 	argInstr := newIntInstr(intIgnore, "")
 	for i, arg := range args {
 		arg := gen.MakeIntCode(arg)

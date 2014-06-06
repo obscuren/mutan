@@ -357,7 +357,7 @@ func TestFuncArgs(t *testing.T) {
 		return b
 	}
 
-	var a = fn(9, 5)
+	var a = fn("test", 5)
 	exit a
 	`), true)
 

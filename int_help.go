@@ -76,6 +76,19 @@ func (gen *IntGen) makeArg(t *SyntaxTree) (*IntInstr, error) {
 	return pushOff, nil
 }
 
+func (gen *IntGen) makeString(tree *SyntaxTree) *IntInstr {
+	byts := []byte(tree.Constant)
+	hexStr := "0x" + hex.EncodeToString(byts)
+
+	push := newIntInstr(Instr(int(intPush1)-1+len(byts)), "")
+	cons := newIntInstr(intConst, hexStr)
+	cons.size = len(byts)
+
+	concat(push, cons)
+
+	return push
+}
+
 func (gen *IntGen) makePush(num string, v ...int) *IntInstr {
 	var push, cons *IntInstr
 	if len(v) > 0 {

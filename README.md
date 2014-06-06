@@ -17,7 +17,7 @@ func fn(var a, var b) {
 	return b
 }
 var a = fn(0, 1)
-var b = 10
+b := 10
 
 if a > b {
     exit()
@@ -34,7 +34,7 @@ this.store[a] = 10000
 this.store[b] = this.origin()
 
 for i := 0; i < 10; i++ {
-    int32[10] out
+    var[10] out
     call(0xaabbccddeeff112233445566, 0, 10000, i, out)
 }
 
