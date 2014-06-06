@@ -6,11 +6,10 @@ import (
 	"testing"
 )
 
-/*
 func TestCompiler(t *testing.T) {
 	asm, err := CompileStage(strings.NewReader(`
-	int32 a
-	int32 b
+	var a
+	var b
 
 	if 200 < this.value() {
 		a = 20
@@ -26,9 +25,9 @@ func TestCompiler(t *testing.T) {
 
 func TestArray(t *testing.T) {
 	_, err := CompileStage(strings.NewReader(`
-	int8[10] a
-	int8[10] b
-	addr address = 0xa46df28529eb8aa8b8c025b0b413c5f4b688352f
+	var[10] a
+	var[10] b
+	var address = 0xa46df28529eb8aa8b8c025b0b413c5f4b688352f
 	call(address, 0, 15, a, b)
 	// comment int8 b = 20
 	`), true)
@@ -40,7 +39,7 @@ func TestArray(t *testing.T) {
 
 func TestPlusPlus(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	      big i = 0
+	      var i = 0
 	      i++
 	`), true)
 
@@ -67,10 +66,10 @@ func TestElse(t *testing.T) {
 
 func TestFor(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	      int32 b = 10
+	      var b = 10
 	      // regular for
-	      for int32 i = 0; i < 10; i++ {
-		      big t = 10
+	      for var i = 0; i < 10; i++ {
+		      var t = 10
 	      }
 	`), true)
 
@@ -82,7 +81,7 @@ func TestFor(t *testing.T) {
 
 func TestHex(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		addr address = 0xa46df28529eb8aa8b8c025b0b413c5f4b688352f
+		var address = 0xa46df28529eb8aa8b8c025b0b413c5f4b688352f
 	`), true)
 
 	if err != nil {
@@ -93,7 +92,7 @@ func TestHex(t *testing.T) {
 
 func TestData(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		big t = this.data[2]
+		var t = this.data[2]
 		// OR
 		asm (
 			PUSH 64
@@ -122,8 +121,8 @@ func TestTransact(t *testing.T) {
 
 func TestCreate(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		big a = 0xdeadbeef
-		big res = create(10000, a)
+	a := 0xdeadbeef
+	res := create(10000, a)
 	`), true)
 
 	if err != nil {
@@ -135,7 +134,7 @@ func TestCreate(t *testing.T) {
 
 func TestOpt(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		int8[2] test
+		var[2] test
 		test[0] = 1000000000000000000000000000000000000000000
 	`), true)
 
@@ -148,26 +147,10 @@ func TestOpt(t *testing.T) {
 
 func TestBalance(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		big a = this.balance()
+		var a = this.balance()
 		if a > 10 {
-			big b = 10
+			var b = 10
 		}
-	`), true)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(ast)
-}
-
-func TestFunction(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-		// import register from stdlib
-		// // Future feature :-)
-		// func main() {
-		//     register("MyContractName")
-		// }
 	`), true)
 
 	if err != nil {
@@ -179,10 +162,10 @@ func TestFunction(t *testing.T) {
 
 func TestOps(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		int8 test = 10 >= 20
-		int8 itst2 = 10 <= 20
-		int8 test3 = 10 != 20
-		int test4 = 10 % 1 == 0
+		var test = 10 >= 20
+		var itst2 = 10 <= 20
+		var test3 = 10 != 20
+		var test4 = 10 % 1 == 0
 
 		test4 = test & test4
 		test4 = test4 | test3
@@ -199,8 +182,8 @@ func TestOps(t *testing.T) {
 
 func TestBoolean(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		bool t = true
-		bool f = false
+		var t = true
+		var f = false
 	`), true)
 
 	if err != nil {
@@ -225,7 +208,7 @@ func TestNot(t *testing.T) {
 
 func TestShift(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		int8 test = 8 << 2
+		var test = 8 << 2
 		test = 256 >> 3
 	`), true)
 
@@ -239,7 +222,7 @@ func TestShift(t *testing.T) {
 func TestLambda(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	a := "hello world"
-	a = "hello world hello world hello world hello world hello world hello world hello world hello world hello world"
+	a = "test"
 	b := 20
 
 	var[2] c
@@ -312,7 +295,6 @@ func TestSome(t *testing.T) {
 
 	fmt.Println(ast)
 }
-*/
 
 func TestCc(t *testing.T) {
 	instr1 := newIntInstr(intPush1, "")
