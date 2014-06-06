@@ -96,30 +96,12 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case AssignmentTy:
 		var blk1 *IntInstr
 		if len(tree.Children) == 2 {
-			blk2 := gen.MakeIntCode(tree.Children[1])
-			if tree.Children[1].Type == DerefPtrTy {
-				blk2 = cc(blk2, newIntInstr(intMStore, ""))
-			}
-
-			blk1 = gen.setVariable(tree.Children[0], tree.Children[1])
-			concat(blk1, blk2)
-			/*
-				if tree.Children[0].Type != StringTy {
-					concat(blk1, blk2)
-				}
-			*/
+			return gen.setVariable(tree.Children[0], tree.Children[1])
 		} else {
 			blk2 := gen.MakeIntCode(tree.Children[1])
-			blk3 := gen.MakeIntCode(tree.Children[2])
-			gen.CurrentScope().GetVar(tree.Children[2].Constant).SetInstr(blk3.Next)
 			blk1 = gen.setVariable(tree.Children[0], tree.Children[2])
-			concat(blk1, blk2)
-			// In case the type is a string we do _not_ want to concat blk3
-			// because it handles all the MSTORE / etc itself
-			if tree.Children[0].Type != StringTy {
-				concat(blk2, blk3)
-			}
 
+			concat(blk1, blk2)
 		}
 
 		return blk1

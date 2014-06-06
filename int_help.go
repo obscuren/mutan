@@ -429,7 +429,12 @@ func (gen *IntGen) initNewArray(tree *SyntaxTree) (*IntInstr, error) {
 func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {
 	variable := gen.GetVar(identifier.Constant)
 
-	var instr *IntInstr
+	rhs := gen.MakeIntCode(identifier)
+	if identifier.Type == DerefPtrTy {
+		rhs = cc(rhs, newIntInstr(intMStore, ""))
+	}
+
+	var lhs *IntInstr
 	switch tree.Type {
 	case StringTy:
 		if len(tree.Constant) > 32 {
@@ -448,24 +453,24 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 		}
 
 		var length int
-		instr, length = gen.stringToInstr(variable, []byte(tree.Constant), t)
+		lhs, length = gen.stringToInstr(variable, []byte(tree.Constant), t)
 
 		if identifier.Type != SetStoreTy {
 			variable.SetSize(int(math.Max(math.Max(float64(variable.Size()), float64(length)), 32.0)))
 		}
-
-		return instr
 	case ConstantTy:
 		if identifier.Type != SetStoreTy {
 			variable.SetType(varNumTy)
 		}
 
-		instr = gen.MakeIntCode(tree)
+		lhs = gen.MakeIntCode(tree)
 	case DerefPtrTy:
-		instr = cc(gen.MakeIntCode(tree), newIntInstr(intMLoad, ""))
+		lhs = cc(gen.MakeIntCode(tree), newIntInstr(intMLoad, ""))
 	default:
-		instr = gen.MakeIntCode(tree)
+		lhs = gen.MakeIntCode(tree)
 	}
 
-	return instr
+	concat(lhs, rhs)
+
+	return lhs
 }
