@@ -28,7 +28,6 @@ func (self *Function) NewVar(id string, typ varType) (Var, error) {
 		return nil, fmt.Errorf("redeclaration of '%v'", id)
 	}
 
-	println("new var", id, self.Size())
 	var v *Variable
 	switch typ {
 	case varNumTy:

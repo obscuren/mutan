@@ -11,6 +11,23 @@ const (
 	varFuncTy
 )
 
+var varTypeStringTable = []string{
+	"Undefined",
+	"Number",
+	"String",
+	"Array",
+	"Ptr",
+	"Func",
+}
+
+func (self varType) String() string {
+	if len(varTypeStringTable) > int(self) {
+		return varTypeStringTable[int(self)]
+	}
+
+	return "unknown var type"
+}
+
 type Var interface {
 	Id() string
 
@@ -24,15 +41,3 @@ type Var interface {
 	Instr() *IntInstr
 	SetInstr(*IntInstr)
 }
-
-/*
-type Variable struct {
-	id      string
-	typ     varType
-	pos     int
-	size    int
-	varSize int
-
-	instr *IntInstr
-}
-*/

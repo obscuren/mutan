@@ -172,6 +172,7 @@ func (gen *IntGen) stringToInstr(variable Var, b []byte, t Instr) (*IntInstr, in
 	ignore := newIntInstr(intIgnore, "")
 	var lastPush *IntInstr
 	i := 0
+	// TODO clean this up. Strings can no longer be longer than 32 bytes
 	for ; i < len(b); i += 32 {
 		offset := int(math.Min(float64(i+32), float64(len(b))))
 		hex := hex.EncodeToString(b[i:offset])
@@ -196,4 +197,214 @@ func (gen *IntGen) stringToInstr(variable Var, b []byte, t Instr) (*IntInstr, in
 	}
 
 	return ignore, i
+}
+
+// Generates asm for getting a memory address
+func (gen *IntGen) getMemory(tree *SyntaxTree) (*IntInstr, error) {
+	variable := gen.GetVar(tree.Constant)
+	if variable == nil {
+		return tree.Errorf("Undefined variable: %v", tree.Constant)
+	}
+
+	offset := strconv.Itoa(variable.Offset())
+	rPos := gen.loadStackPtr()
+	push, cons := pushConstant(offset)
+	add := newIntInstr(intAdd, "")
+	load := newIntInstr(intMLoad, "")
+
+	concat(rPos, push)
+	concat(push, cons)
+	concat(cons, add)
+	concat(add, load)
+
+	return rPos, nil
+}
+
+func makeStore(offset int) *IntInstr {
+	push, cons := pushConstant(strconv.Itoa(offset))
+	store := newIntInstr(intMStore, "")
+
+	concat(push, cons)
+	concat(cons, store)
+
+	return push
+}
+
+func (gen *IntGen) assignMemory(offset int) *IntInstr {
+	ptr := gen.loadStackPtr()
+	push, cons := pushConstant(strconv.Itoa(offset))
+	add := newIntInstr(intAdd, "")
+	store := newIntInstr(intMStore, "")
+
+	concat(ptr, push)
+	concat(push, cons)
+	concat(cons, add)
+	concat(add, store)
+
+	return ptr
+}
+
+// Generates asm for setting a memory address
+func (gen *IntGen) setMemory(tree *SyntaxTree) (*IntInstr, error) {
+	variable := gen.GetVar(tree.Constant)
+	if variable == nil {
+		return tree.Errorf("Undefined variable '%s'", tree.Constant)
+	}
+
+	instr := gen.assignMemory(variable.Offset())
+
+	return instr, nil
+}
+
+func (gen *IntGen) initNewNumber(tree *SyntaxTree) (*IntInstr, error) {
+	name := tree.Constant
+
+	scope := gen.CurrentScope()
+	_, err := scope.NewVar(name, varUndefinedTy)
+	if err != nil {
+		return newIntInstr(intIgnore, ""), err
+	}
+
+	return nil, nil
+}
+
+func (gen *IntGen) sizeof(tree *SyntaxTree) (*IntInstr, error) {
+	name := tree.Constant
+	variable := gen.CurrentScope().GetVar(name)
+
+	if variable == nil {
+		return tree.Errorf("undefined variable: '%s'", name)
+	}
+
+	push, constant := pushConstant(strconv.Itoa(variable.Size()))
+
+	return concat(push, constant), nil
+}
+
+func (gen *IntGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
+	name := tree.Constant
+	variable := gen.CurrentScope().GetVar(name)
+
+	if variable == nil {
+		tree.Errorf("undefined array: %v", name)
+	}
+
+	// TODO optimize if the expression in offset. If regular const (i.e. 0-9)
+	// do an inline calculation instead.
+
+	// Get the location of the variable in memory
+	loc, locConst := pushConstant(strconv.Itoa(variable.Offset()))
+	// Get the offset (= expression between brackets [expression])
+	offset := gen.MakeIntCode(tree.Children[0])
+	// Get the size of the variable in bytes
+	size, sizeConst := pushConstant(strconv.Itoa(variable.Size()))
+	// Multiply offset with size
+	mul := newIntInstr(intMul, "")
+	// Add the result to the memory location
+	add := newIntInstr(intAdd, "")
+	// b = a[0] // loc(a) + sizeOf(type(a)) * len(a)
+	load := newIntInstr(intMLoad, "")
+
+	concat(loc, locConst)
+	concat(locConst, offset)
+	concat(offset, size)
+	concat(size, sizeConst)
+	concat(sizeConst, mul)
+	concat(mul, add)
+	concat(add, load)
+
+	return loc, nil
+}
+
+func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
+	name := tree.Constant
+	variable := gen.CurrentScope().GetVar(name)
+	if variable == nil {
+		return tree.Errorf("undefined array: %v", name)
+	}
+
+	// The value which we want to assign
+	val := gen.MakeIntCode(tree.Children[1])
+
+	// Get the location of the variable in memory
+	loc, locConst := pushConstant(strconv.Itoa(variable.Offset()))
+	gen.arrayTable[name] = append(gen.arrayTable[name], locConst)
+
+	// Get the offset (= expression between brackets [expression])
+	offset := gen.MakeIntCode(tree.Children[0])
+	// Get the size of the variable in bytes
+	//size, sizeConst := pushConstant(strconv.Itoa(local.varSize))
+	size, sizeConst := pushConstant("32")
+	// Multiply offset with size
+	mul := newIntInstr(intMul, "")
+	// Add the result to the memory location
+	add := newIntInstr(intAdd, "")
+	store := newIntInstr(intMStore, "")
+
+	concat(val, loc)
+	concat(loc, locConst)
+	concat(locConst, offset)
+	concat(offset, size)
+	concat(size, sizeConst)
+	concat(sizeConst, mul)
+	concat(mul, add)
+	concat(add, store)
+
+	return val, nil
+}
+
+func (gen *IntGen) initNewArray(tree *SyntaxTree) (*IntInstr, error) {
+	name := tree.Constant
+	variable := gen.CurrentScope().GetVar(name)
+	variable, err := gen.CurrentScope().NewVar(name, varArrTy)
+	if err != nil {
+		return tree.Errorf("Redeclaration of variable '%s'", name)
+	}
+
+	length, _ := strconv.Atoi(tree.Size)
+	variable.SetSize(32 * length)
+
+	return newIntInstr(intIgnore, ""), nil
+}
+
+func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {
+	variable := gen.GetVar(identifier.Constant)
+
+	var instr *IntInstr
+	switch tree.Type {
+	case StringTy:
+		if len(tree.Constant) > 32 {
+			c, err := tree.Errorf("attempting to store string greater than 32 bytes")
+			gen.addError(err)
+
+			return c
+		}
+
+		var t Instr
+		if identifier.Type == SetStoreTy {
+			return gen.makePush("0x" + hex.EncodeToString([]byte(tree.Constant)))
+		} else {
+			t = intMStore
+			variable.SetType(varStrTy)
+		}
+
+		var length int
+		instr, length = gen.stringToInstr(variable, []byte(tree.Constant), t)
+
+		if identifier.Type != SetStoreTy {
+			variable.SetSize(int(math.Max(math.Max(float64(variable.Size()), float64(length)), 32.0)))
+		}
+
+		return instr
+	case ConstantTy:
+		if identifier.Type != SetStoreTy {
+			variable.SetType(varNumTy)
+		}
+
+		instr = gen.MakeIntCode(tree)
+	default:
+		instr = gen.MakeIntCode(tree)
+	}
+
+	return instr
 }

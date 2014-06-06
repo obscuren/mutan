@@ -18,7 +18,7 @@ func cc(v ...*IntInstr) *IntInstr {
 	if len(v) > 0 {
 		var begin, last *IntInstr
 		for i := 0; i < len(v); i++ {
-			if v[i].Code != intEmpty {
+			if v[i] != nil && v[i].Code != intEmpty {
 				if begin == nil {
 					begin = v[i]
 					last = begin
@@ -195,7 +195,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return concat(blk1, newIntInstr(intEqual, ""))
 	case IdentifierTy:
-		c, err := gen.getMemory(tree, 0)
+		c, err := gen.getMemory(tree)
 		if err != nil {
 			gen.addError(err)
 		}
@@ -530,16 +530,19 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 			return blk1
 		case IdentifierTy:
-			pos, err := gen.findOffset(tree.Children[0], 0)
-			if err != nil {
+			variable := gen.GetVar(tree.Children[0].Constant)
+			if variable == nil {
+				i, err := tree.Errorf("Undefined variable: %v", tree.Constant)
 				gen.addError(err)
-				return newIntInstr(intIgnore, "")
+
+				return i
 			}
 
+			offset := strconv.Itoa(variable.Offset())
 			size := gen.makePush("32")
-			offset := gen.makePush(pos)
-			concat(size, offset)
-			concat(offset, newIntInstr(intReturn, ""))
+			offs := gen.makePush(offset)
+			concat(size, offs)
+			concat(offs, newIntInstr(intReturn, ""))
 
 			return size
 		default:
