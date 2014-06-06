@@ -314,6 +314,17 @@ func TestSome(t *testing.T) {
 }
 */
 
+func TestCc(t *testing.T) {
+	instr1 := newIntInstr(intPush1, "")
+	instr2 := newIntInstr(intPush2, "")
+	instr3 := newIntInstr(intPush3, "")
+	instr4 := newIntInstr(intPush4, "")
+	instr5 := newIntInstr(intPush5, "")
+	instr6 := newIntInstr(intPush6, "")
+
+	cc(nil, nil, instr1, instr2, nil, instr3, instr4, instr5, instr6)
+}
+
 func TestFuncDef(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	func two() {
@@ -340,13 +351,19 @@ func TestFuncDef(t *testing.T) {
 	fmt.Println(ast)
 }
 
-func TestCc(t *testing.T) {
-	instr1 := newIntInstr(intPush1, "")
-	instr2 := newIntInstr(intPush2, "")
-	instr3 := newIntInstr(intPush3, "")
-	instr4 := newIntInstr(intPush4, "")
-	instr5 := newIntInstr(intPush5, "")
-	instr6 := newIntInstr(intPush6, "")
+func TestFuncArgs(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	func fn(var a, var b) {
+		return b
+	}
 
-	cc(nil, nil, instr1, instr2, nil, instr3, instr4, instr5, instr6)
+	var a = fn(9, 5)
+	exit a
+	`), true)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
 }

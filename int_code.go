@@ -592,10 +592,11 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			return c
 		}
 
-		return fn.Call(gen, gen.CurrentScope())
+		return fn.Call(tree.ArgList, gen, gen.CurrentScope())
 	case FuncDefTy:
 		callTarget := newIntInstr(intTarget, "")
 		fn := NewFunction(tree.Constant, callTarget, 0, tree.HasRet)
+		fn.ArgCount = len(tree.ArgList)
 		/****
 		 * Stack frame
 		 *
@@ -603,6 +604,11 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		 */
 		fn.NewVar("___retPtr", varNumTy)
 		fn.NewVar("___frameSize", varNumTy)
+
+		for _, i := range tree.ArgList {
+			v, _ := fn.NewVar(i.Constant, varNumTy)
+			fn.PushArg(v)
+		}
 
 		gen.PushScope(fn)
 

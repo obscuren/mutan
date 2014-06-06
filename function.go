@@ -5,18 +5,40 @@ import (
 	_ "strconv"
 )
 
+type Variables map[string]Var
+
+func (self Variables) String() (ret string) {
+	for k, v := range self {
+		ret += fmt.Sprintf("  %-14s : %d\n", k, v.Offset())
+	}
+	return
+}
+
+type ArgList []Var
+
 type Function struct {
 	CallTarget *IntInstr
 	Id         string
 	ArgCount   int
 	Ret        bool
 	//VarTable      map[string]*Variable
-	VarTable      map[string]Var
+	VarTable      Variables
+	ArgTable      ArgList
 	frame, offset int
 }
 
 func NewFunction(id string, target *IntInstr, ac int, ret bool) *Function {
-	return &Function{target, id, ac, ret, make(map[string]Var), 0, 0}
+	return &Function{target, id, ac, ret, make(map[string]Var), nil, 0, 0}
+}
+
+func (self *Function) String() string {
+	return fmt.Sprintf(`
+### %s ###
+Arguments: %d
+Var Table:
+%v
+`, self.Id, self.ArgCount, self.VarTable)
+
 }
 
 func (self *Function) GenOffset() int {
@@ -43,6 +65,10 @@ func (self *Function) NewVar(id string, typ varType) (Var, error) {
 	return v, nil
 }
 
+func (self *Function) PushArg(v Var) {
+	self.ArgTable = append(self.ArgTable, v)
+}
+
 func (self *Function) SetVar(v Var) {
 	self.VarTable[v.Id()] = v
 }
@@ -59,20 +85,31 @@ func (self *Function) Size() (size int) {
 	return
 }
 
-func (self *Function) Call(gen *IntGen, scope Scope) *IntInstr {
+func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntInstr {
+	if len(args) != self.ArgCount {
+		gen.addError(fmt.Errorf("%s takes %d arguments. Received %d arguments", self.Id, self.ArgCount, len(args)))
+		return newIntInstr(intIgnore, "")
+	}
+
 	self.frame = self.Size() + scope.Size()
+	fmt.Println(args)
 
 	stackPtr := gen.loadStackPtr()
 	setPtr := gen.addStackPtr(scope.Size())
-	fmt.Printf("%v: size of stack upon call %v, %T\n", self.Id, scope.Size(), scope)
-	/*
-		size := gen.makePush(strconv.Itoa(self.StackSize()))
-		ptr1 := gen.loadStackPtr()
-	*/
 	nStackPtr := gen.loadStackPtr()
 	offset := gen.makePush("32")
 	add1 := newIntInstr(intAdd, "")
 	sizeStore := newIntInstr(intMStore, "")
+
+	argInstr := newIntInstr(intIgnore, "")
+	for i, arg := range args {
+		arg := gen.MakeIntCode(arg)
+		assign := gen.assignMemory(self.ArgTable[i].Offset())
+
+		concat(argInstr, arg)
+		concat(arg, assign)
+	}
+	fmt.Println(argInstr)
 
 	pc := newIntInstr(intPc, "")
 	push := gen.makePush("14")
@@ -83,17 +120,13 @@ func (self *Function) Call(gen *IntGen, scope Scope) *IntInstr {
 	p, jmp := newJumpInstr(intJump)
 	jmp.Target = self.CallTarget
 
-	/*
-		concat(setPtr, size)
-		concat(size, ptr1)
-		concat(ptr1, offset)
-	*/
 	concat(stackPtr, setPtr)
 	concat(setPtr, nStackPtr)
 	concat(nStackPtr, offset)
 	concat(offset, add1)
 	concat(add1, sizeStore)
-	concat(sizeStore, pc)
+	concat(sizeStore, argInstr)
+	concat(argInstr, pc)
 	concat(pc, push)
 	concat(push, add)
 	concat(add, ret)

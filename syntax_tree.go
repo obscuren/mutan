@@ -115,6 +115,7 @@ var astAsString = []string{
 	"String",
 
 	"Lambda",
+
 	"Func def",
 	"Func call",
 
@@ -138,6 +139,7 @@ type SyntaxTree struct {
 	Size     string
 	Lineno   int
 	HasRet   bool
+	ArgList  []*SyntaxTree
 }
 
 func NewNode(typ AstType, v ...*SyntaxTree) *SyntaxTree {

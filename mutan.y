@@ -2,10 +2,42 @@
 package mutan
 
 import (
-	_"fmt"
+_	"fmt"
 )
 
 var Tree *SyntaxTree
+
+// Helper function to turn a tree in to a regular list.
+// Especially handy when parsing argument lists
+func makeSlice(tree *SyntaxTree) (ret []*SyntaxTree) {
+	if tree != nil && tree.Type != EmptyTy {
+		ret = append(ret, tree)
+		for _, i := range tree.Children {
+			ret = append(ret, makeSlice(i)...)
+		}
+		tree.Children = nil
+	} 
+
+	return
+}
+
+func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
+	l := makeSlice(tree)
+	// Quick reverse
+	if reverse {
+		for i, j := 0, len(l)-1; i < j; i, j = i+1, j-1 {
+			l[i], l[j] = l[j], l[i]
+		}
+	}
+
+	for _, s := range l {
+		if s.Type != ArgTy {
+			ret = append(ret, s)
+		}
+	}
+
+	return
+}
 
 %}
 
@@ -13,7 +45,7 @@ var Tree *SyntaxTree
 	num int
 	str string
 	tnode *SyntaxTree
-    check bool
+    	check bool
 }
 
 %token ASSIGN EQUAL IF ELSE FOR LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
@@ -23,7 +55,7 @@ var Tree *SyntaxTree
 %token <str> ID NUMBER INLINE_ASM OP DOP TYPE STR BOOLEAN CODE
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
-%type <tnode> for_statement optional_else_statement ptr sub_expression
+%type <tnode> for_statement optional_else_statement ptr sub_expression opt_arg_def_list opt_arg_call_list
 %type <check> optional_type
 
 %%
@@ -42,21 +74,28 @@ statement
 	| LAMBDA LEFT_BRACKET CODE RIGHT_BRACKET { $$ = NewNode(LambdaTy); $$.Constant = $3 }
 	| if_statement { $$ = $1 }
 	| for_statement { $$ = $1 }
-	| FUNC ID LEFT_PAR RIGHT_PAR LEFT_BRACES statement_list RIGHT_BRACES { $$ = NewNode(FuncDefTy, $6); $$.Constant = $2 }
-	| FUNC ID LEFT_PAR RIGHT_PAR optional_type LEFT_BRACES statement_list RIGHT_BRACES
+	| FUNC ID LEFT_PAR opt_arg_def_list RIGHT_PAR optional_type LEFT_BRACES statement_list RIGHT_BRACES
 		{
-			$$ = NewNode(FuncDefTy, $7);
+			$$ = NewNode(FuncDefTy, $8);
 			$$.Constant = $2
-			$$.HasRet = $5
+			$$.HasRet = $6
+			$$.ArgList = makeArgs($4, true)
 		}
 	| ASM LEFT_PAR INLINE_ASM RIGHT_PAR { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
 	| END_STMT { $$ = NewNode(EmptyTy); }
 	;
 
+opt_arg_def_list
+	: opt_arg_def_list VAR ID sep { $$ = NewNode(NewVarTy, $1); $$.Constant = $3 }
+	| /* Empty */ { $$ = nil }
+	;
+
+
 optional_type
     :  VAR { $$ = true }
     | /* Empty */ { $$ = false }
     ;
+
 
 buildins
 	: STOP LEFT_PAR RIGHT_PAR { $$ = NewNode(StopTy) }
@@ -83,6 +122,7 @@ sep
 	: COMMA { $$ = NewNode(EmptyTy) }
 	| /* Empty */ { $$ = NewNode(EmptyTy) }
 	;
+
 
 closure_funcs
 	: ORIGIN LEFT_PAR RIGHT_PAR { $$ = NewNode(OriginTy) }
@@ -145,10 +185,20 @@ for_statement
 expression
 	: op_expression { $$ = $1 }
 	| assign_expression { $$ = $1 }
-	| ID LEFT_PAR RIGHT_PAR { $$ = NewNode(FuncCallTy); $$.Constant = $1 }
+	| ID LEFT_PAR opt_arg_call_list RIGHT_PAR
+		{
+			$$ = NewNode(FuncCallTy, $3)
+			$$.Constant = $1
+			$$.ArgList = makeArgs($3, false)
+		}
 	| RETURN statement { $$ = NewNode(ReturnTy, $2) }
 	| EXIT statement { $$ = NewNode(ExitTy, $2) }
 	| /* Empty */  { $$ = NewNode(EmptyTy) }
+	;
+
+opt_arg_call_list
+	: opt_arg_call_list expression sep { $$ = NewNode(ArgTy, $1, $2);}
+	| /* Empty */ { $$ = nil }
 	;
 
 op_expression
