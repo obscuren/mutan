@@ -87,6 +87,7 @@ statement
 
 opt_arg_def_list
 	: opt_arg_def_list VAR ID sep { $$ = NewNode(NewVarTy, $1); $$.Constant = $3 }
+	| opt_arg_def_list VAR MUL ID sep { $$ = NewNode(NewVarTy, $1); $$.Constant = $4 }
 	| /* Empty */ { $$ = nil }
 	;
 
