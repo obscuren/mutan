@@ -13,18 +13,13 @@ A simple online editor and compiler can be found [here](http://mutan.jeffew.com)
 ### Syntax
 
 ```go
-func helloWorld() var[10] {
-	var[10] a;
-	a[9] = 20
-
-	return a
+func fn(var a, var b) {
+	return b
 }
+var a = fn(0, 1)
+var b = 10
 
-helloWorld()
-
-int32 a = 20
-int32 b = 10
-if a < b {
+if a > b {
     exit()
 } else {
     // :-)
@@ -38,7 +33,7 @@ if a < b {
 this.store[a] = 10000
 this.store[b] = this.origin()
 
-for int8 i = 0; i < 10; i++ {
+for i := 0; i < 10; i++ {
     int32[10] out
     call(0xaabbccddeeff112233445566, 0, 10000, i, out)
 }
@@ -48,7 +43,7 @@ transact(0xa78f6abe, 10000, nil)
 // no args and return values
 call(0xab, 0, 10000, nil, nil)
 // create contract
-big ret = create(value, 0xaabbccddeeff0099887766552211)
+var ret = create(value, 0xaabbccddeeff0099887766552211)
 
 asm (
     PUSH1 10

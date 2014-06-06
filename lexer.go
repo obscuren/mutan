@@ -72,7 +72,6 @@ const (
 	itemDot                   = DOT
 	itemThis                  = THIS
 	itemArray                 = ARRAY
-	itemVarType               = TYPE
 	itemComma                 = COMMA
 	itemCall                  = CALL
 	itemTransact              = TRANSACT
@@ -162,8 +161,7 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemLamda)
 
 		return lexLambda
-	case "var", "bool", "int", "int8", "int16", "int32", "int64", "int256", "big", "string", "addr":
-		//l.emit(itemVarType)
+	case "var":
 		l.emit(itemVar)
 	case "true", "false":
 		l.emit(itemBoolean)
