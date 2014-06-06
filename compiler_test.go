@@ -354,10 +354,6 @@ func TestFuncArgs(t *testing.T) {
 
 func TestPointers(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	func fn(var *a) {
-		return
-	}
-
 	var a = 10
 	var *b = &a
 	*b = 9
@@ -371,7 +367,6 @@ func TestPointers(t *testing.T) {
 }
 
 func TestRaw(t *testing.T) {
-	return
 	ast, err := CompileStage(strings.NewReader(`
 	func sha3(var a, var s) var {
 		m_push(a + s)

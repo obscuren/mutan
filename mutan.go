@@ -183,7 +183,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line mutan.y:308
+//line mutan.y:309
 
 
 
@@ -652,7 +652,7 @@ yydefault:
 		{ yyVAL.tnode = NewNode(NewVarTy, yyS[yypt-3].tnode); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	case 12:
 		//line mutan.y:90
-		{ yyVAL.tnode = NewNode(NewVarTy, yyS[yypt-4].tnode); yyVAL.tnode.Constant = yyS[yypt-1].str }
+		{ yyVAL.tnode = NewNode(NewVarTy, yyS[yypt-4].tnode); yyVAL.tnode.Constant = yyS[yypt-1].str; yyVAL.tnode.Ptr = true }
 	case 13:
 		//line mutan.y:91
 		{ yyVAL.tnode = nil }
@@ -888,9 +888,10 @@ yydefault:
 		{
 		      yyVAL.tnode = NewNode(NewVarTy)
 		      yyVAL.tnode.Constant = yyS[yypt-0].str
+		      yyVAL.tnode.Ptr = true
 		  }
 	case 75:
-		//line mutan.y:273
+		//line mutan.y:274
 		{
 		      yyVAL.tnode = NewNode(NewArrayTy)
 		      //$$.VarType = $1
@@ -899,37 +900,37 @@ yydefault:
 	
 	}
 	case 76:
-		//line mutan.y:283
+		//line mutan.y:284
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 77:
-		//line mutan.y:287
+		//line mutan.y:288
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 78:
-		//line mutan.y:288
+		//line mutan.y:289
 		{ yyVAL.tnode = NewNode(ConstantTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	case 79:
-		//line mutan.y:289
+		//line mutan.y:290
 		{ yyVAL.tnode = NewNode(ArrayTy, yyS[yypt-1].tnode); yyVAL.tnode.Constant = yyS[yypt-3].str }
 	case 80:
-		//line mutan.y:290
+		//line mutan.y:291
 		{ yyVAL.tnode = NewNode(BoolTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	case 81:
-		//line mutan.y:291
-		{ yyVAL.tnode = yyS[yypt-0].tnode }
-	case 82:
 		//line mutan.y:292
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
+	case 82:
+		//line mutan.y:293
+		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 83:
-		//line mutan.y:296
+		//line mutan.y:297
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 84:
-		//line mutan.y:297
+		//line mutan.y:298
 		{ yyVAL.tnode = NewNode(NilTy) }
 	case 85:
-		//line mutan.y:301
+		//line mutan.y:302
 		{ yyVAL.tnode = NewNode(IdentifierTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	case 86:
-		//line mutan.y:305
+		//line mutan.y:306
 		{ yyVAL.tnode = NewNode(StringTy); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	}
 	goto yystack /* stack new state and value */

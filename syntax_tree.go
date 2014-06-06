@@ -149,6 +149,7 @@ type SyntaxTree struct {
 	Size     string
 	Lineno   int
 	HasRet   bool
+	Ptr      bool
 	ArgList  []*SyntaxTree
 }
 
