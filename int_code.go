@@ -97,6 +97,10 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		var blk1 *IntInstr
 		if len(tree.Children) == 2 {
 			blk2 := gen.MakeIntCode(tree.Children[1])
+			if tree.Children[1].Type == DerefPtrTy {
+				blk2 = cc(blk2, newIntInstr(intMStore, ""))
+			}
+
 			blk1 = gen.setVariable(tree.Children[0], tree.Children[1])
 			concat(blk1, blk2)
 			/*
@@ -108,7 +112,6 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			blk2 := gen.MakeIntCode(tree.Children[1])
 			blk3 := gen.MakeIntCode(tree.Children[2])
 			gen.CurrentScope().GetVar(tree.Children[2].Constant).SetInstr(blk3.Next)
-			//gen.locals[tree.Children[2].Constant].instr = blk3.Next
 			blk1 = gen.setVariable(tree.Children[0], tree.Children[2])
 			concat(blk1, blk2)
 			// In case the type is a string we do _not_ want to concat blk3
@@ -235,8 +238,8 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		}
 
 		return c
-	case SetPtrTy:
-		c, err := gen.setPtr(tree)
+	case DerefPtrTy:
+		c, err := gen.pushDerefPtr(tree)
 		if err != nil {
 			gen.addError(err)
 		}

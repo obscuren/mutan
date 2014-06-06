@@ -313,15 +313,34 @@ func (gen *IntGen) setPtr(tree *SyntaxTree) (*IntInstr, error) {
 		return tree.Errorf("undefined array: %v", name)
 	}
 
-	ptr := gen.loadStackPtr()
-	push, cons := pushConstant(strconv.Itoa(variable.Offset()))
-	add := newIntInstr(intAdd, "")
-	load := newIntInstr(intMLoad, "")
+	ptr := gen.dereferencePtr(variable)
 	store := newIntInstr(intMStore, "")
 
-	cc(ptr, push, cons, add, load, store)
+	cc(ptr, store)
 
 	return ptr, nil
+}
+
+func (gen *IntGen) pushDerefPtr(tree *SyntaxTree) (*IntInstr, error) {
+	name := tree.Constant
+	variable := gen.CurrentScope().GetVar(name)
+
+	if variable == nil {
+		return tree.Errorf("undefined array: %v", name)
+	}
+
+	return gen.dereferencePtr(variable), nil
+}
+
+func (gen *IntGen) dereferencePtr(v Var) *IntInstr {
+	ptr := gen.loadStackPtr()
+	push, cons := pushConstant(strconv.Itoa(v.Offset()))
+	add := newIntInstr(intAdd, "")
+	load := newIntInstr(intMLoad, "")
+
+	cc(ptr, push, cons, add, load)
+
+	return ptr
 }
 
 func (gen *IntGen) getPtr(tree *SyntaxTree) (*IntInstr, error) {
@@ -442,6 +461,8 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 		}
 
 		instr = gen.MakeIntCode(tree)
+	case DerefPtrTy:
+		instr = cc(gen.MakeIntCode(tree), newIntInstr(intMLoad, ""))
 	default:
 		instr = gen.MakeIntCode(tree)
 	}

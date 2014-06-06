@@ -56,6 +56,7 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
 %type <tnode> for_statement optional_else_statement ptr sub_expression opt_arg_def_list opt_arg_call_list
+%type <tnode> deref_ptr
 %type <check> optional_type
 
 %%
@@ -189,6 +190,7 @@ expression
 	: op_expression { $$ = $1 }
 	| AND ID { $$ = NewNode(RefTy); $$.Constant = $2 }
 	| assign_expression { $$ = $1 }
+	| deref_ptr { $$ = $1 }
 	| ID LEFT_PAR opt_arg_call_list RIGHT_PAR
 		{
 			$$ = NewNode(FuncCallTy, $3)
@@ -220,12 +222,15 @@ sub_expression
     | op_expression { $$ = $1; }
     ;
 
+deref_ptr
+    : MUL ID { $$ = NewNode(DerefPtrTy); $$.Constant = $2 }
+    ;
+
 assign_expression
-	: MUL ID ASSIGN expression
+	: deref_ptr ASSIGN expression
 		{
-			node := NewNode(SetPtrTy)
-			node.Constant = $2
-	      		$$ = NewNode(AssignmentTy, $4, node)
+			node := $1
+	      		$$ = NewNode(AssignmentTy, $3, node)
 		}
 	| ID ASSIGN expression
 	  {

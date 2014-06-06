@@ -30,7 +30,7 @@ const (
 	ExitTy
 	ReturnTy
 	RefTy
-	SetPtrTy
+	DerefPtrTy
 
 	OriginTy
 	AddressTy
@@ -93,7 +93,7 @@ var astAsString = []string{
 	"Exit",
 	"Return",
 	"Reference",
-	"Set pointer",
+	"Dereference pointer",
 
 	"Origin",
 	"Address",
