@@ -82,7 +82,7 @@ statement
 			$$.HasRet = $6
 			$$.ArgList = makeArgs($4, true)
 		}
-	| ASM LEFT_PAR INLINE_ASM RIGHT_PAR { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
+	| ASM LEFT_BRACES INLINE_ASM RIGHT_BRACES { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
 	| END_STMT { $$ = NewNode(EmptyTy); }
 	;
 

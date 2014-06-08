@@ -94,10 +94,10 @@ func TestData(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		var t = this.data[2]
 		// OR
-		asm (
+		asm {
 			PUSH 64
 			CALLDATALOAD
-		)
+		}
 	`), true)
 
 	if err != nil {
@@ -231,7 +231,7 @@ func TestLambda(t *testing.T) {
 
 	d := "hello"
 
-	return compile {
+	exit compile {
 		to := this.data[0]
 		from := this.origin()
 		value := this.data[1]
@@ -367,13 +367,16 @@ func TestPointers(t *testing.T) {
 	fmt.Println(ast)
 }
 
-func TestRaw(t *testing.T) {
-	return
+func TestAsm(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	func sha3(var a, var s) var {
 		m_push(a + s)
 		m_push(a)
-		asm(SHA3)
+		asm {
+			sha3
+			push1 9   ; This is a comemnt
+			pop       ; This is another comment
+		}
 
 		return m_pop() // Returns outcome of the SHA3
 	}
@@ -385,8 +388,9 @@ func TestRaw(t *testing.T) {
 	`), true)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
 
-	fmt.Println(ast)
 }

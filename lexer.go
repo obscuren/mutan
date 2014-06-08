@@ -306,14 +306,14 @@ out:
 		switch r := l.next(); {
 		case isSpace(r):
 			l.ignore()
-		case r == '(':
-			l.emit(itemLeftPar)
-		case r == ')':
+		case r == '{':
+			l.emit(itemLeftBrace)
+		case r == '}':
 			l.backup()
 
 			break out
 		default:
-			l.acceptRunUntill(')')
+			l.acceptRunUntill('}')
 
 			l.emit(itemInlineAsm)
 		}

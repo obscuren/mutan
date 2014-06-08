@@ -10,6 +10,7 @@ compiler transforms int code to ASM (very static)
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -553,9 +554,12 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case InlineAsmTy:
 		// Remove tabs
 		asm := strings.Replace(tree.Constant, "\t", "", -1)
+		// Remove the comments
+		re := regexp.MustCompile(";.*")
+		asm = re.ReplaceAllString(asm, "")
 		// Remove double spaces
-
 		asm = strings.Replace(asm, "  ", " ", -1)
+		// Split by \n or single space
 		asmSlice := strings.FieldsFunc(asm, func(r rune) bool {
 			switch r {
 			case '\n', ' ':
