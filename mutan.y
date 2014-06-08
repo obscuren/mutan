@@ -145,52 +145,51 @@ closure_funcs
 	| GAS LEFT_PAR RIGHT_PAR { $$ = NewNode(GasTy) }
 	| STORE LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(StoreTy, $3) }
 	| STORE LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression
-	  {
-	      node := NewNode(SetStoreTy, $3)
-	      $$ = NewNode(AssignmentTy, $6, node)
-	  }
+		{
+			node := NewNode(SetStoreTy, $3)
+			$$ = NewNode(AssignmentTy, $6, node)
+		}
 	;
 
 if_statement
 	: IF expression LEFT_BRACES statement_list RIGHT_BRACES optional_else_statement
-	  {
-	      if $6 == nil {
-		    $$ = NewNode(IfThenTy, $2, $4)
-	      } else {
-		    $$ = NewNode(IfThenElseTy, $2, $4, $6)
-	      }
-	  }
+		{
+			if $6 == nil {
+				$$ = NewNode(IfThenTy, $2, $4)
+			} else {
+				$$ = NewNode(IfThenElseTy, $2, $4, $6)
+			}
+		}
 	;
 optional_else_statement
 	: ELSE LEFT_BRACES statement_list RIGHT_BRACES
-	  {
-	      $$ = $3
-	  }
+		{
+			$$ = $3
+		}
 	| /* Empty */ { $$ = nil }
 	;
 
 for_statement
 	: FOR expression END_STMT expression END_STMT expression LEFT_BRACES statement_list RIGHT_BRACES
-	  {
-		  $$ = NewNode(ForThenTy, $2, $4, $6, $8)
-	  }
+		{
+			$$ = NewNode(ForThenTy, $2, $4, $6, $8)
+		}
 	/* TODO */
 	| FOR expression END_STMT expression LEFT_BRACES statement_list RIGHT_BRACES
-	  {
-		  $$ = NewNode(ForThenTy, $2, $4, $6)
-	  }
+		{
+			$$ = NewNode(ForThenTy, $2, $4, $6)
+		}
 	/* TODO */
 	| FOR expression LEFT_BRACES statement_list RIGHT_BRACES
-	  {
-		  $$ = NewNode(ForThenTy, $2, $4)
-	  }
+		{
+			$$ = NewNode(ForThenTy, $2, $4)
+		}
 	;
 
 expression
 	: op_expression { $$ = $1 }
 	| AND ID { $$ = NewNode(RefTy); $$.Constant = $2 }
 	| assign_expression { $$ = $1 }
-	| deref_ptr { $$ = $1 }
 	| ID LEFT_PAR opt_arg_call_list RIGHT_PAR
 		{
 			$$ = NewNode(FuncCallTy, $3)
@@ -211,7 +210,7 @@ op_expression
     /* ++, -- */
 	: get_id DOP { $$ = NewNode(OpTy, $1); $$.Constant = $2 } 
     /* Everything else */
-	| sub_expression OP sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
+	| sub_expression OP  sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
 	| sub_expression AND sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
 	| sub_expression MUL sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
 	;
@@ -222,10 +221,6 @@ sub_expression
     | op_expression { $$ = $1; }
     ;
 
-deref_ptr
-    : MUL ID { $$ = NewNode(DerefPtrTy); $$.Constant = $2 }
-    ;
-
 assign_expression
 	: deref_ptr ASSIGN expression
 		{
@@ -233,28 +228,28 @@ assign_expression
 	      		$$ = NewNode(AssignmentTy, $3, node)
 		}
 	| ID ASSIGN expression
-	  {
-	      node := NewNode(SetLocalTy)
-	      node.Constant = $1
-	      $$ = NewNode(AssignmentTy, $3, node)
-	  }
+		{
+			node := NewNode(SetLocalTy)
+			node.Constant = $1
+			$$ = NewNode(AssignmentTy, $3, node)
+		}
 	| ID LEFT_BRACKET expression RIGHT_BRACKET ASSIGN assign_expression
-	  {
-	      $$ = NewNode(AssignArrayTy, $3, $6); $$.Constant = $1
-	  }
+		{
+			$$ = NewNode(AssignArrayTy, $3, $6); $$.Constant = $1
+		}
 	| new_var ASSIGN expression
-	  {
-	      node := NewNode(SetLocalTy)
-	      node.Constant = $1.Constant
-	      $$ = NewNode(AssignmentTy, $3, $1, node)
-	  }
+		{
+			node := NewNode(SetLocalTy)
+			node.Constant = $1.Constant
+			$$ = NewNode(AssignmentTy, $3, $1, node)
+		}
 	| ID COLON ASSIGN expression
-	  {
-		node := NewNode(SetLocalTy)
-		node.Constant = $1
-		varNode := NewNode(NewVarTy); varNode.Constant = $1
-		$$ = NewNode(AssignmentTy, $4, varNode, node)
-	  }
+		{
+			node := NewNode(SetLocalTy)
+			node.Constant = $1
+			varNode := NewNode(NewVarTy); varNode.Constant = $1
+			$$ = NewNode(AssignmentTy, $4, varNode, node)
+		}
 	| new_var { $$ = $1 }
 	| new_array { $$ = $1 }
 	| simple_expression { $$ = $1 }
@@ -262,27 +257,25 @@ assign_expression
 
 new_var
 	: VAR ID
-	  {
-	      $$ = NewNode(NewVarTy)
-	      $$.Constant = $2
-	  }
+		{
+			$$ = NewNode(NewVarTy)
+			$$.Constant = $2
+		}
 	| VAR MUL ID
-	  {
-	      $$ = NewNode(NewVarTy)
-	      $$.Constant = $3
-	      $$.Ptr = true
-	  }
+		{
+			$$ = NewNode(NewVarTy)
+			$$.Constant = $3
+			$$.Ptr = true
+		}
 	;
 
 new_array
 	: VAR LEFT_BRACKET NUMBER RIGHT_BRACKET ID
-	  {
-	      $$ = NewNode(NewArrayTy)
-	      //$$.VarType = $1
-	      $$.Size = $3
-	      $$.Constant = $5
-
-}
+	  	{
+			$$ = NewNode(NewArrayTy)
+			$$.Size = $3
+			$$.Constant = $5
+		}
 	;
 
 simple_expression
@@ -291,11 +284,16 @@ simple_expression
 
 get_variable
 	: ptr { $$ = $1 }
+	| deref_ptr { $$ = $1 }
 	| NUMBER { $$ = NewNode(ConstantTy); $$.Constant = $1 }
 	| ID LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(ArrayTy, $3); $$.Constant = $1 }
 	| BOOLEAN { $$ = NewNode(BoolTy); $$.Constant = $1 }
 	| string { $$ = $1 }
 	| buildins { $$ = $1 }
+	;
+
+deref_ptr
+	: MUL ID { $$ = NewNode(DerefPtrTy); $$.Constant = $2 }
 	;
 
 ptr

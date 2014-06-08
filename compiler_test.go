@@ -369,7 +369,7 @@ func TestPointers(t *testing.T) {
 
 func TestAsm(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	func sha3(var a, var s) var {
+	func sha3(var *a, var s) var {
 		m_push(a + s)
 		m_push(a)
 		asm {
@@ -383,6 +383,9 @@ func TestAsm(t *testing.T) {
 
 	var a = 5
 	var b = sha3(&a, 1)
+	var *c = &a
+	*c = *c * *c
+
 
 	exit b
 	`), true)
