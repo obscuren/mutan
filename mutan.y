@@ -174,12 +174,6 @@ for_statement
 		{
 			$$ = NewNode(ForThenTy, $2, $4, $6, $8)
 		}
-	/* TODO */
-	| FOR expression END_STMT expression LEFT_BRACES statement_list RIGHT_BRACES
-		{
-			$$ = NewNode(ForThenTy, $2, $4, $6)
-		}
-	/* TODO */
 	| FOR expression LEFT_BRACES statement_list RIGHT_BRACES
 		{
 			$$ = NewNode(ForThenTy, $2, $4)

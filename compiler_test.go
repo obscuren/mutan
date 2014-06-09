@@ -64,21 +64,6 @@ func TestElse(t *testing.T) {
 	fmt.Println(ast)
 }
 
-func TestFor(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-	      var b = 10
-	      // regular for
-	      for var i = 0; i < 10; i++ {
-		      var t = 10
-	      }
-	`), true)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(ast)
-}
-
 func TestHex(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		var address = 0xa46df28529eb8aa8b8c025b0b413c5f4b688352f
@@ -388,6 +373,22 @@ func TestAsm(t *testing.T) {
 
 
 	exit b
+	`), true)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+
+}
+
+func TestWhile(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	i := 0
+	for i < 10 {
+		i++
+	}
 	`), true)
 
 	if err != nil {

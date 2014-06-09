@@ -147,37 +147,54 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return cond
 	case ForThenTy:
-		// Init part
-		init := gen.MakeIntCode(tree.Children[0])
-		// The condition for the loop
-		cond := gen.MakeIntCode(tree.Children[1])
+		var ignore, init, cond, then, aft *IntInstr
+		ignore = newIntInstr(intIgnore, "")
+
 		// Cast to not
 		not := newIntInstr(intNot, "")
 		// Jump to end if statement is false
-		//jmpi := newIntInstr(intJumpi, "")
 		p, jmpi := newJumpInstr(intJumpi)
-		// Body of the loop
-		then := gen.MakeIntCode(tree.Children[3])
-		// Iterator
-		aft := gen.MakeIntCode(tree.Children[2])
 		// Jump back to the start of the loop (targetBack)
-		//jmp := newIntInstr(intJump, "")
 		p2, jmp := newJumpInstr(intJump)
 		// Target for the conditional jump (jmpi)
 		target := newIntInstr(intTarget, "")
+
+		switch len(tree.Children) {
+		case 2: // while
+			// the condition
+			cond = gen.MakeIntCode(tree.Children[0])
+			// block
+			then = gen.MakeIntCode(tree.Children[1])
+			concat(ignore, cond)
+			concat(cond, not)
+			concat(not, p)
+			concat(jmpi, then)
+			concat(then, p2)
+			concat(jmp, target)
+		case 4: // for
+			// Init part
+			init = gen.MakeIntCode(tree.Children[0])
+			// The condition for the loop
+			cond = gen.MakeIntCode(tree.Children[1])
+			// Iterator
+			aft = gen.MakeIntCode(tree.Children[2])
+			// Body of the loop
+			then = gen.MakeIntCode(tree.Children[3])
+
+			concat(ignore, init)
+			concat(init, cond)
+			concat(cond, not)
+			concat(not, p)
+			concat(jmpi, then)
+			concat(then, aft)
+			concat(aft, p2)
+			concat(jmp, target)
+		}
 		// Set targets
 		jmpi.Target = target
 		jmp.Target = cond
 
-		concat(init, cond)
-		concat(cond, not)
-		concat(not, p)
-		concat(jmpi, then)
-		concat(then, aft)
-		concat(aft, p2)
-		concat(jmp, target)
-
-		return init
+		return ignore
 	case EqualTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
 		blk2 := gen.MakeIntCode(tree.Children[1])
