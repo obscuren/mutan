@@ -414,7 +414,8 @@ func TestIpmort(t *testing.T) {
 func TestStatementList(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	var a = 10
-	var b = a + 2
+	var b = (a * 2 + 2)
+	var c = (b)
 	`), true)
 
 	if err != nil {

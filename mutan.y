@@ -55,8 +55,8 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 %token <str> ID NUMBER INLINE_ASM OP DOP STR BOOLEAN CODE oper AND MUL
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
-%type <tnode> for_statement optional_else_statement ptr sub_expression opt_arg_def_list opt_arg_call_list
-%type <tnode> deref_ptr opt_paren
+%type <tnode> for_statement optional_else_statement ptr opt_arg_def_list opt_arg_call_list
+%type <tnode> deref_ptr opt_lpar opt_rpar
 %type <check> optional_type
 
 %%
@@ -66,15 +66,10 @@ program
 	;
 
 statement_list
-	: statement_list opt_paren statement opt_paren { $$ = NewNode(StatementListTy, $1, $3) }
+	: statement_list statement { $$ = NewNode(StatementListTy, $1, $2) }
 	| /* Empty */ { $$ = NewNode(EmptyTy) }
 	;
 
-opt_paren
-	: LEFT_PAR { $$ = NewNode(EmptyTy) }
-	| RIGHT_PAR { $$ = NewNode(EmptyTy) }
-	| /* empty */ { $$ = NewNode(EmptyTy) }
-	;
 
 statement
 	: expression { $$ = $1 }
@@ -207,21 +202,6 @@ opt_arg_call_list
 	| /* Empty */ { $$ = nil }
 	;
 
-op_expression
-    /* ++, -- */
-	: get_id DOP { $$ = NewNode(OpTy, $1); $$.Constant = $2 } 
-    /* Everything else */
-	| sub_expression OP  sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
-	| sub_expression AND sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
-	| sub_expression MUL sub_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
-	;
-
-
-sub_expression
-    : simple_expression { $$ = $1; }
-    | op_expression { $$ = $1; }
-    ;
-
 assign_expression
 	: deref_ptr ASSIGN expression
 		{
@@ -281,6 +261,18 @@ new_array
 
 simple_expression
 	: get_variable { $$ = $1 }
+    | op_expression { $$ = $1 }
+    | opt_lpar get_variable opt_rpar { $$ = $2 }
+    | opt_lpar op_expression opt_rpar { $$ = $2 }
+	;
+
+op_expression
+    /* ++, -- */
+	: get_id DOP { $$ = NewNode(OpTy, $1); $$.Constant = $2 } 
+    /* Everything else */
+	| simple_expression OP simple_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
+	| simple_expression AND simple_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
+	| simple_expression MUL simple_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
 	;
 
 get_variable
@@ -310,5 +302,12 @@ string
 	: QUOTE STR QUOTE { $$ = NewNode(StringTy); $$.Constant = $2 }
 	;
 
+opt_lpar
+	: LEFT_PAR { $$ = NewNode(EmptyTy) }
+	;
+
+opt_rpar 
+	: RIGHT_PAR { $$ = NewNode(EmptyTy) }
+    ;
 %%
 
