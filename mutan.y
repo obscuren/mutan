@@ -51,7 +51,7 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 %token ASSIGN EQUAL IF ELSE FOR LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
 %token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA SIZEOF QUOTE
 %token END_STMT EXIT CREATE TRANSACT NIL BALANCE VAR_ASSIGN LAMBDA COLON ADDRESS RETURN PUSH POP
-%token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR VAR FUNC FUNC_CALL
+%token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR VAR FUNC FUNC_CALL IMPORT
 %token <str> ID NUMBER INLINE_ASM OP DOP STR BOOLEAN CODE oper AND MUL
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
@@ -83,6 +83,7 @@ statement
 			$$.ArgList = makeArgs($4, true)
 		}
 	| ASM LEFT_BRACES INLINE_ASM RIGHT_BRACES { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
+	| IMPORT string { $$ = NewNode(ImportTy, $2) }
 	| END_STMT { $$ = NewNode(EmptyTy); }
 	;
 

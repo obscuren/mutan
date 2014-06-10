@@ -398,3 +398,16 @@ func TestWhile(t *testing.T) {
 	}
 
 }
+
+func TestIpmort(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	import "test"
+	`), true)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+
+}

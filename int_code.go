@@ -669,6 +669,8 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		gen.functionTable[tree.Constant] = fn
 
 		return p
+	case ImportTy:
+		return newIntInstr(intIgnore, "")
 	case LambdaTy:
 		panic("auto lambda triggered in int code gen. report this issue")
 	case EmptyTy:
