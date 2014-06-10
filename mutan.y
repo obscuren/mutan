@@ -56,7 +56,7 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
 %type <tnode> for_statement optional_else_statement ptr sub_expression opt_arg_def_list opt_arg_call_list
-%type <tnode> deref_ptr
+%type <tnode> deref_ptr opt_paren
 %type <check> optional_type
 
 %%
@@ -66,8 +66,14 @@ program
 	;
 
 statement_list
-	: statement_list statement { $$ = NewNode(StatementListTy, $1, $2) }
+	: statement_list opt_paren statement opt_paren { $$ = NewNode(StatementListTy, $1, $3) }
 	| /* Empty */ { $$ = NewNode(EmptyTy) }
+	;
+
+opt_paren
+	: LEFT_PAR { $$ = NewNode(EmptyTy) }
+	| RIGHT_PAR { $$ = NewNode(EmptyTy) }
+	| /* empty */ { $$ = NewNode(EmptyTy) }
 	;
 
 statement

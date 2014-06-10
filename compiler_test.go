@@ -411,3 +411,14 @@ func TestIpmort(t *testing.T) {
 	}
 
 }
+func TestStatementList(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var a = (1 + 2)
+	`), true)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}
