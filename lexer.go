@@ -92,6 +92,7 @@ const (
 	itemMul                   = MUL
 	itemPush                  = PUSH
 	itemPop                   = POP
+	itemImport                = IMPORT
 )
 
 type item struct {
@@ -187,6 +188,8 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemFuncDef)
 	case "return":
 		l.emit(itemReturn)
+	case "import":
+		l.emit(itemImport)
 	default:
 		l.emit(itemIdentifier)
 	}

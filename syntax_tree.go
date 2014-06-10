@@ -66,6 +66,8 @@ const (
 	PushTy
 	PopTy
 
+	ImportTy
+
 	NilTy
 )
 
@@ -128,6 +130,8 @@ var astAsString = []string{
 
 	"Push",
 	"Pop",
+
+	"Import",
 
 	"Nil",
 }
