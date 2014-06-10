@@ -60,6 +60,7 @@ func (self *Function) NewVar(id string, typ varType) (Var, error) {
 	}
 
 	v.offset = self.Size()
+	v.typ = typ
 	self.VarTable[id] = v
 
 	return v, nil

@@ -411,11 +411,31 @@ func TestIpmort(t *testing.T) {
 	}
 
 }
+
 func TestStatementList(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	var a = 10
 	var b = (a * 2 + 2)
-	var c = (b)
+	`), true)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}
+
+func TestArrayToPointer(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	func fn(var *a, var i) var {
+		return a[i]
+	}
+
+	var[2] a
+	a[0] = 1
+	a[10] = 2
+
+	var e = fn(&a, 1)
 	`), true)
 
 	if err != nil {

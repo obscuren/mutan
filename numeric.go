@@ -21,7 +21,7 @@ func NewArray(id string, offset, count int) *Variable {
 }
 
 func (self *Variable) Id() string               { return self.id }
-func (self *Variable) Type() varType            { return varNumTy }
+func (self *Variable) Type() varType            { return self.typ }
 func (self *Variable) SetType(t varType)        { self.typ = t }
 func (self *Variable) Offset() int              { return self.offset }
 func (self *Variable) Size() int                { return self.size }
@@ -39,4 +39,8 @@ func IsArray(v Var) bool {
 
 func VarLength(v Var) int {
 	return v.Size() / 32
+}
+
+func IsPtr(v Var) bool {
+	return v.Type() == varPtrTy
 }

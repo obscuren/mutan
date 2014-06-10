@@ -622,7 +622,11 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		fn.NewVar("___frameSize", varNumTy)
 
 		for _, i := range tree.ArgList {
-			v, _ := fn.NewVar(i.Constant, varNumTy)
+			var t varType
+			if i.Ptr {
+				t = varPtrTy
+			}
+			v, _ := fn.NewVar(i.Constant, t)
 			fn.PushArg(v)
 		}
 

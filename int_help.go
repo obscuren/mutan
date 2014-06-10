@@ -273,7 +273,13 @@ func (gen *IntGen) initNewNumber(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
 
 	scope := gen.CurrentScope()
-	_, err := scope.NewVar(name, varUndefinedTy)
+	var err error
+	if tree.Ptr {
+		_, err = scope.NewVar(name, varPtrTy)
+	} else {
+		_, err = scope.NewVar(name, varUndefinedTy)
+	}
+
 	if err != nil {
 		return newIntInstr(intIgnore, ""), err
 	}
@@ -299,8 +305,9 @@ func (gen *IntGen) getAddress(v Var) *IntInstr {
 	ptr := gen.loadStackPtr()
 	// Push the variable offset
 	push, cons := pushConstant(strconv.Itoa(v.Offset()))
+	add := newIntInstr(intAdd, "")
 
-	cc(ptr, push, cons)
+	cc(ptr, push, cons, add)
 
 	return ptr
 }
@@ -333,12 +340,10 @@ func (gen *IntGen) pushDerefPtr(tree *SyntaxTree) (*IntInstr, error) {
 }
 
 func (gen *IntGen) dereferencePtr(v Var) *IntInstr {
-	ptr := gen.loadStackPtr()
-	push, cons := pushConstant(strconv.Itoa(v.Offset()))
-	add := newIntInstr(intAdd, "")
+	ptr := gen.getAddress(v)
 	load := newIntInstr(intMLoad, "")
 
-	cc(ptr, push, cons, add, load)
+	cc(ptr, load)
 
 	return ptr
 }
@@ -350,6 +355,13 @@ func (gen *IntGen) getPtr(tree *SyntaxTree) (*IntInstr, error) {
 	if variable == nil {
 		return tree.Errorf("undefined array: %v", name)
 	}
+
+	// Get stack ptr
+	ptr := gen.loadStackPtr()
+	// Push the variable offset
+	push, cons := pushConstant(strconv.Itoa(variable.Offset()))
+	cc(ptr, push, cons)
+	return ptr, nil
 
 	return gen.getAddress(variable), nil
 }
@@ -367,9 +379,11 @@ func (gen *IntGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 
 	// Dereference pointer
 	ptr := gen.getAddress(variable)
-	add := newIntInstr(intAdd, "")
-	// Get the location of the variable in memory
-	loc, locConst := pushConstant(strconv.Itoa(variable.Offset()))
+
+	if IsPtr(variable) {
+		ptr = gen.dereferencePtr(variable)
+	}
+
 	// Get the offset (= expression between brackets [expression])
 	offset := gen.MakeIntCode(tree.Children[0])
 	// Get the size of the variable in bytes
@@ -381,7 +395,7 @@ func (gen *IntGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	// b = a[0] // loc(a) + sizeOf(type(a)) * len(a)
 	load := newIntInstr(intMLoad, "")
 
-	cc(ptr, add, loc, locConst, offset, size, sizeConst, mul, iAdd, load)
+	cc(ptr, offset, size, sizeConst, mul, iAdd, load)
 
 	return ptr, nil
 }
@@ -396,7 +410,6 @@ func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 	val := gen.MakeIntCode(tree.Children[1])
 
 	ptr := gen.getAddress(variable)
-	add := newIntInstr(intAdd, "")
 	// Get the offset (= expression between brackets [expression])
 	expr := gen.MakeIntCode(tree.Children[0])
 	// The value which we want to assign
@@ -407,7 +420,7 @@ func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 	iAdd := newIntInstr(intAdd, "")
 	store := newIntInstr(intMStore, "")
 
-	cc(val, ptr, add, expr, size, sizeConst, mul, iAdd, store)
+	cc(val, ptr, expr, size, sizeConst, mul, iAdd, store)
 
 	return val, nil
 }
