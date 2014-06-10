@@ -15,7 +15,7 @@ func TestCompiler(t *testing.T) {
 		a = 20
 		b = 30
 	}
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -30,7 +30,7 @@ func TestArray(t *testing.T) {
 	var address = 0xa46df28529eb8aa8b8c025b0b413c5f4b688352f
 	call(address, 0, 15, a, b)
 	// comment int8 b = 20
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -41,7 +41,7 @@ func TestPlusPlus(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	      var i = 0
 	      i++
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -56,7 +56,7 @@ func TestElse(t *testing.T) {
 	      } else {
 		      this.store[1001] = 10^50
 	      }
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -67,7 +67,7 @@ func TestElse(t *testing.T) {
 func TestHex(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		var address = 0xa46df28529eb8aa8b8c025b0b413c5f4b688352f
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -83,7 +83,7 @@ func TestData(t *testing.T) {
 			PUSH 64
 			CALLDATALOAD
 		}
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -95,7 +95,7 @@ func TestData(t *testing.T) {
 func TestTransact(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		transact(0xaa1adef765cd, 100, nil)
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -108,7 +108,7 @@ func TestCreate(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	a := 0xdeadbeef
 	res := create(10000, a)
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -121,7 +121,7 @@ func TestOpt(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		var[2] test
 		test[0] = 1000000000000000000000000000000000000000000
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -136,7 +136,7 @@ func TestBalance(t *testing.T) {
 		if a > 10 {
 			var b = 10
 		}
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -156,7 +156,7 @@ func TestOps(t *testing.T) {
 		test4 = test4 | test3
 		test4 = test4 ^ test3
 		test4 = test4 ** 2
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -169,7 +169,7 @@ func TestBoolean(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		var t = true
 		var f = false
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -182,7 +182,7 @@ func TestNot(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		if !this.data[0] {
 		}
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -195,7 +195,7 @@ func TestShift(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		var test = 8 << 2
 		test = 256 >> 3
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -226,7 +226,7 @@ func TestLambda(t *testing.T) {
 			this.store[to] = this.store[to] + value
 		}
 	}
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -241,7 +241,7 @@ func TestString(t *testing.T) {
 	b := 10
 	this.store[1] = "hello"
 
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -257,7 +257,7 @@ func TestReturn(t *testing.T) {
 		var a = 10
 		var b = 20
 		return b
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -272,7 +272,7 @@ func TestSome(t *testing.T) {
 	var in = "jeff"
 	var out
 	var res = call(0xa4976648142a1e624c27dca4e9b1a6d8195f660c, 0, 0, in, out)
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -309,7 +309,7 @@ func TestFuncDef(t *testing.T) {
 
 	exit a
 
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -328,7 +328,7 @@ func TestFuncArgs(t *testing.T) {
 
 	var a = fn("test", 5)
 	exit a
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -343,7 +343,7 @@ func TestPointers(t *testing.T) {
 	var *b = &a
 	*b = 9
 	var c = *b
-	`), true)
+	`), false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -373,7 +373,7 @@ func TestAsm(t *testing.T) {
 
 
 	exit b
-	`), true)
+	`), false)
 
 	if err != nil {
 		t.Error(err)
@@ -389,7 +389,7 @@ func TestWhile(t *testing.T) {
 	for i < 10 {
 		i++
 	}
-	`), true)
+	`), false)
 
 	if err != nil {
 		t.Error(err)
@@ -402,7 +402,7 @@ func TestWhile(t *testing.T) {
 func TestIpmort(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	import "test"
-	`), true)
+	`), false)
 
 	if err != nil {
 		t.Error(err)
@@ -413,7 +413,8 @@ func TestIpmort(t *testing.T) {
 }
 func TestStatementList(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	var a = (1 + 2)
+	var a = 10
+	var b = a + 2
 	`), true)
 
 	if err != nil {
