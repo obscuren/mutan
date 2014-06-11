@@ -54,7 +54,7 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 %token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR VAR FUNC FUNC_CALL IMPORT
 %token <str> ID NUMBER INLINE_ASM OP DOP STR BOOLEAN CODE oper AND MUL
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
-%type <tnode> if_statement op_expression buildins closure_funcs new_var new_array arguments sep get_id string
+%type <tnode> if_statement op_expression buildins closure_funcs new_variable arguments sep get_id string
 %type <tnode> for_statement optional_else_statement ptr opt_arg_def_list opt_arg_call_list
 %type <tnode> deref_ptr opt_lpar opt_rpar
 %type <check> optional_type
@@ -183,9 +183,9 @@ for_statement
 	;
 
 expression
-	: op_expression { $$ = $1 }
-	| AND ID { $$ = NewNode(RefTy); $$.Constant = $2 }
-	| assign_expression { $$ = $1 }
+	: assign_expression { $$ = $1 }
+	| simple_expression { $$ = $1 }
+	| new_variable { $$ = $1 }
 	| ID LEFT_PAR opt_arg_call_list RIGHT_PAR
 		{
 			$$ = NewNode(FuncCallTy, $3)
@@ -203,40 +203,37 @@ opt_arg_call_list
 	;
 
 assign_expression
-	: deref_ptr ASSIGN expression
+	: deref_ptr ASSIGN simple_expression
 		{
 			node := $1
 	      		$$ = NewNode(AssignmentTy, $3, node)
 		}
-	| ID ASSIGN expression
+	| ID ASSIGN simple_expression
 		{
 			node := NewNode(SetLocalTy)
 			node.Constant = $1
 			$$ = NewNode(AssignmentTy, $3, node)
 		}
-	| ID LEFT_BRACKET expression RIGHT_BRACKET ASSIGN assign_expression
+	| ID LEFT_BRACKET simple_expression RIGHT_BRACKET ASSIGN simple_expression
 		{
 			$$ = NewNode(AssignArrayTy, $3, $6); $$.Constant = $1
 		}
-	| new_var ASSIGN expression
+	| new_variable ASSIGN simple_expression
 		{
 			node := NewNode(SetLocalTy)
 			node.Constant = $1.Constant
 			$$ = NewNode(AssignmentTy, $3, $1, node)
 		}
-	| ID COLON ASSIGN expression
+	| ID COLON ASSIGN simple_expression
 		{
 			node := NewNode(SetLocalTy)
 			node.Constant = $1
 			varNode := NewNode(NewVarTy); varNode.Constant = $1
 			$$ = NewNode(AssignmentTy, $4, varNode, node)
 		}
-	| new_var { $$ = $1 }
-	| new_array { $$ = $1 }
-	| simple_expression { $$ = $1 }
 	;
 
-new_var
+new_variable
 	: VAR ID
 		{
 			$$ = NewNode(NewVarTy)
@@ -248,10 +245,7 @@ new_var
 			$$.Constant = $3
 			$$.Ptr = true
 		}
-	;
-
-new_array
-	: VAR LEFT_BRACKET NUMBER RIGHT_BRACKET ID
+	| VAR LEFT_BRACKET NUMBER RIGHT_BRACKET ID
 	  	{
 			$$ = NewNode(NewArrayTy)
 			$$.Size = $3
@@ -261,9 +255,9 @@ new_array
 
 simple_expression
 	: get_variable { $$ = $1 }
-    | op_expression { $$ = $1 }
-    | opt_lpar get_variable opt_rpar { $$ = $2 }
-    | opt_lpar op_expression opt_rpar { $$ = $2 }
+	| op_expression { $$ = $1 }
+	| opt_lpar get_variable opt_rpar { $$ = $2 }
+	| opt_lpar op_expression opt_rpar { $$ = $2 }
 	;
 
 op_expression
@@ -278,6 +272,7 @@ op_expression
 get_variable
 	: ptr { $$ = $1 }
 	| deref_ptr { $$ = $1 }
+	| AND ID { $$ = NewNode(RefTy); $$.Constant = $2 }
 	| NUMBER { $$ = NewNode(ConstantTy); $$.Constant = $1 }
 	| ID LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(ArrayTy, $3); $$.Constant = $1 }
 	| BOOLEAN { $$ = NewNode(BoolTy); $$.Constant = $1 }

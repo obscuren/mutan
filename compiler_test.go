@@ -252,11 +252,11 @@ func TestString(t *testing.T) {
 
 func TestReturn(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		return 1000
-		return this.store[this.data[0]]
+		exit 1000
+		exit this.store[this.data[0]]
 		var a = 10
 		var b = 20
-		return b
+		exit b
 	`), false)
 
 	if err != nil {
@@ -295,7 +295,7 @@ func TestCc(t *testing.T) {
 func TestFuncDef(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	func two() {
-		return 2
+		exit 2
 	}
 
 	func one() {
@@ -443,4 +443,22 @@ func TestArrayToPointer(t *testing.T) {
 	} else {
 		fmt.Println(ast)
 	}
+}
+
+func TestPtr(t *testing.T) {
+	return
+	ast, err := CompileStage(strings.NewReader(`
+	var a = 5
+	var *c = &a
+	var d = 10
+
+	*c = *c * *c
+	`), true)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+
 }
