@@ -186,13 +186,7 @@ expression
 	: assign_expression { $$ = $1 }
 	| simple_expression { $$ = $1 }
 	| new_variable { $$ = $1 }
-	| ID LEFT_PAR opt_arg_call_list RIGHT_PAR
-		{
-			$$ = NewNode(FuncCallTy, $3)
-			$$.Constant = $1
-			$$.ArgList = makeArgs($3, false)
-		}
-	| RETURN statement { $$ = NewNode(ReturnTy, $2) }
+	| RETURN simple_expression { $$ = NewNode(ReturnTy, $2) }
 	| EXIT statement { $$ = NewNode(ExitTy, $2) }
 	| /* Empty */  { $$ = NewNode(EmptyTy) }
 	;
@@ -258,6 +252,12 @@ simple_expression
 	| op_expression { $$ = $1 }
 	| opt_lpar get_variable opt_rpar { $$ = $2 }
 	| opt_lpar op_expression opt_rpar { $$ = $2 }
+	| ID LEFT_PAR opt_arg_call_list RIGHT_PAR
+		{
+			$$ = NewNode(FuncCallTy, $3)
+			$$.Constant = $1
+			$$.ArgList = makeArgs($3, false)
+		}
 	;
 
 op_expression
