@@ -449,8 +449,7 @@ func TestPtr(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	var a = 5
 	var *c = &a
-	var d = 10;
-
+	var d = 10
 	*c = *c * *c
 	exit a
 	`), true)

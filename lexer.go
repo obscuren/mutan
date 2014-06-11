@@ -397,8 +397,8 @@ func lexText(l *Lexer) stateFn {
 		case r == '\n':
 			Lineno++
 
-			//l.emit(itemEndStatement)
-			l.ignore()
+			l.emit(itemEndStatement)
+			//l.ignore()
 		case r == '\t':
 			l.ignore()
 		case isSpace(r): // Check whether this is a space (which we ignore)
