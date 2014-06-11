@@ -199,8 +199,7 @@ opt_arg_call_list
 assign_expression
 	: deref_ptr ASSIGN simple_expression
 		{
-			node := $1
-	      		$$ = NewNode(AssignmentTy, $3, node)
+	      		$$ = NewNode(AssignmentTy, $3, $1)
 		}
 	| ID ASSIGN simple_expression
 		{

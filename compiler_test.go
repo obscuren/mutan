@@ -446,13 +446,13 @@ func TestArrayToPointer(t *testing.T) {
 }
 
 func TestPtr(t *testing.T) {
-	return
 	ast, err := CompileStage(strings.NewReader(`
 	var a = 5
 	var *c = &a
-	var d = 10
+	var d = 10;
 
 	*c = *c * *c
+	exit a
 	`), true)
 
 	if err != nil {

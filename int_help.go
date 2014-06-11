@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"math"
 	"math/big"
 	"strconv"
 	"strings"
 )
+
+func __ignore() { fmt.Sprintf("") }
 
 /*********
  * STACK PTR HELPERS
@@ -312,6 +315,30 @@ func (gen *IntGen) getAddress(v Var) *IntInstr {
 	return ptr
 }
 
+func (gen *IntGen) pushDerefPtr(tree *SyntaxTree) (*IntInstr, error) {
+	name := tree.Constant
+	variable := gen.CurrentScope().GetVar(name)
+
+	if variable == nil {
+		return tree.Errorf("undefined array: %v", name)
+	}
+
+	ptr := gen.dereferencePtr(variable)
+	loadRef := newIntInstr(intMLoad, "")
+	cc(ptr, loadRef)
+
+	return ptr, nil
+}
+
+func (gen *IntGen) dereferencePtr(v Var) *IntInstr {
+	ptr := gen.getAddress(v)
+	loadPtr := newIntInstr(intMLoad, "")
+
+	cc(ptr, loadPtr)
+
+	return ptr
+}
+
 func (gen *IntGen) setPtr(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
 	variable := gen.CurrentScope().GetVar(name)
@@ -328,26 +355,6 @@ func (gen *IntGen) setPtr(tree *SyntaxTree) (*IntInstr, error) {
 	return ptr, nil
 }
 
-func (gen *IntGen) pushDerefPtr(tree *SyntaxTree) (*IntInstr, error) {
-	name := tree.Constant
-	variable := gen.CurrentScope().GetVar(name)
-
-	if variable == nil {
-		return tree.Errorf("undefined array: %v", name)
-	}
-
-	return gen.dereferencePtr(variable), nil
-}
-
-func (gen *IntGen) dereferencePtr(v Var) *IntInstr {
-	ptr := gen.getAddress(v)
-	load := newIntInstr(intMLoad, "")
-
-	cc(ptr, load)
-
-	return ptr
-}
-
 func (gen *IntGen) getPtr(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
 	variable := gen.CurrentScope().GetVar(name)
@@ -361,6 +368,7 @@ func (gen *IntGen) getPtr(tree *SyntaxTree) (*IntInstr, error) {
 	// Push the variable offset
 	push, cons := pushConstant(strconv.Itoa(variable.Offset()))
 	cc(ptr, push, cons)
+
 	return ptr, nil
 
 	return gen.getAddress(variable), nil
@@ -439,15 +447,28 @@ func (gen *IntGen) initNewArray(tree *SyntaxTree) (*IntInstr, error) {
 	return newIntInstr(intIgnore, ""), nil
 }
 
+func (gen *IntGen) err(err error) *IntInstr {
+	gen.addError(err)
+
+	return newIntInstr(intIgnore, "")
+}
+
 func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {
 	variable := gen.GetVar(identifier.Constant)
 
-	rhs := gen.MakeIntCode(identifier)
-	if identifier.Type == DerefPtrTy {
-		rhs = cc(rhs, newIntInstr(intMStore, ""))
+	var lhs, rhs *IntInstr
+	var err error
+
+	switch identifier.Type {
+	case DerefPtrTy:
+		lhs, err = gen.setPtr(identifier)
+		if err != nil {
+			return gen.err(err)
+		}
+	default:
+		lhs = gen.MakeIntCode(identifier)
 	}
 
-	var lhs *IntInstr
 	switch tree.Type {
 	case StringTy:
 		if len(tree.Constant) > 32 {
@@ -466,7 +487,7 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 		}
 
 		var length int
-		lhs, length = gen.stringToInstr(variable, []byte(tree.Constant), t)
+		rhs, length = gen.stringToInstr(variable, []byte(tree.Constant), t)
 
 		if identifier.Type != SetStoreTy {
 			variable.SetSize(int(math.Max(math.Max(float64(variable.Size()), float64(length)), 32.0)))
@@ -476,14 +497,14 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 			variable.SetType(varNumTy)
 		}
 
-		lhs = gen.MakeIntCode(tree)
+		rhs = gen.MakeIntCode(tree)
 	case DerefPtrTy:
-		lhs = cc(gen.MakeIntCode(tree), newIntInstr(intMLoad, ""))
+		rhs = cc(gen.MakeIntCode(tree), newIntInstr(intMLoad, ""))
 	default:
-		lhs = gen.MakeIntCode(tree)
+		rhs = gen.MakeIntCode(tree)
 	}
 
-	concat(lhs, rhs)
+	concat(rhs, lhs)
 
-	return lhs
+	return rhs
 }
