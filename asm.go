@@ -41,7 +41,10 @@ var OpCodes = map[string]byte{
 	"callvalue":    0x34,
 	"calldataload": 0x35,
 	"calldatasize": 0x36,
-	"gasprice":     0x38,
+	"calldatacopy": 0x37,
+	"codesize":     0x38,
+	"codecopy":     0x39,
+	"gasprice":     0x3a,
 
 	// 0x40 range - block operations
 	"prevhash":   0x40,
@@ -52,18 +55,19 @@ var OpCodes = map[string]byte{
 	"gaslimit":   0x45,
 
 	// 0x50 range - 'storage' and execution
-	"pop":     0x51,
-	"dup":     0x52,
-	"swap":    0x53,
-	"mload":   0x54,
-	"mstore":  0x55,
-	"mstore8": 0x56,
-	"sload":   0x57,
-	"sstore":  0x58,
-	"jump":    0x59,
-	"jumpi":   0x5a,
-	"pc":      0x5b,
-	"msize":   0x5c,
+	"pop":     0x50,
+	"dup":     0x51,
+	"swap":    0x52,
+	"mload":   0x53,
+	"mstore":  0x54,
+	"mstore8": 0x55,
+	"sload":   0x56,
+	"sstore":  0x57,
+	"jump":    0x58,
+	"jumpi":   0x59,
+	"pc":      0x5a,
+	"msize":   0x5b,
+	"gas":     0x5c,
 
 	// 0x60 range - 'push'
 	"push1":  0x60,

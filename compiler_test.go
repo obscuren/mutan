@@ -444,20 +444,3 @@ func TestArrayToPointer(t *testing.T) {
 		fmt.Println(ast)
 	}
 }
-
-func TestPtr(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-	var a = 5
-	var *c = &a
-	var d = 10
-	*c = *c * *c
-	exit a
-	`), true)
-
-	if err != nil {
-		t.Error(err)
-	} else {
-		fmt.Println(ast)
-	}
-
-}
