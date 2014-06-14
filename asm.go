@@ -6,6 +6,114 @@ import (
 	"os"
 )
 
+var OpCodes = map[string]byte{
+	// 0x0 range - arithmetic ops
+	"stop": 0x00,
+	"add":  0x01,
+	"mul":  0x02,
+	"sub":  0x03,
+	"div":  0x04,
+	"sdiv": 0x05,
+	"mod":  0x06,
+	"smod": 0x07,
+	"exp":  0x08,
+	"neg":  0x09,
+	"lt":   0x0a,
+	"gt":   0x0b,
+	"slt":  0x0c,
+	"sgt":  0x0d,
+	"eq":   0x0e,
+	"not":  0x0f,
+
+	// 0x10 range - bit ops
+	"and":  0x10,
+	"or":   0x11,
+	"xor":  0x12,
+	"byte": 0x13,
+
+	// 0x20 range - crypto
+	"sha3": 0x20,
+
+	// 0x30 range - closure state
+	"address":      0x30,
+	"balance":      0x31,
+	"origin":       0x32,
+	"caller":       0x33,
+	"callvalue":    0x34,
+	"calldataload": 0x35,
+	"calldatasize": 0x36,
+	"calldatacopy": 0x37,
+	"codesize":     0x38,
+	"codecopy":     0x39,
+	"gasprice":     0x3a,
+
+	// 0x40 range - block operations
+	"prevhash":   0x40,
+	"coinbase":   0x41,
+	"timestamp":  0x42,
+	"number":     0x43,
+	"difficulty": 0x44,
+	"gaslimit":   0x45,
+
+	// 0x50 range - 'storage' and execution
+	"pop":     0x50,
+	"dup":     0x51,
+	"swap":    0x52,
+	"mload":   0x53,
+	"mstore":  0x54,
+	"mstore8": 0x55,
+	"sload":   0x56,
+	"sstore":  0x57,
+	"jump":    0x58,
+	"jumpi":   0x59,
+	"pc":      0x5a,
+	"msize":   0x5b,
+	"gas":     0x5c,
+
+	// 0x60 range
+	"push1":  0x60,
+	"push2":  0x61,
+	"push3":  0x62,
+	"push4":  0x63,
+	"push5":  0x64,
+	"push6":  0x65,
+	"push7":  0x66,
+	"push8":  0x67,
+	"push9":  0x68,
+	"push10": 0x69,
+	"push11": 0x6a,
+	"push12": 0x6b,
+	"push13": 0x6c,
+	"push14": 0x6d,
+	"push15": 0x6e,
+	"push16": 0x6f,
+	"push17": 0x70,
+	"push18": 0x71,
+	"push19": 0x72,
+	"push20": 0x73,
+	"push21": 0x74,
+	"push22": 0x75,
+	"push23": 0x76,
+	"push24": 0x77,
+	"push25": 0x78,
+	"push26": 0x79,
+	"push27": 0x7a,
+	"push28": 0x7b,
+	"push29": 0x7c,
+	"push30": 0x7d,
+	"push31": 0x7e,
+	"push32": 0x7f,
+
+	// 0xf0 range - closures
+	"create": 0xf0,
+	"call":   0xf1,
+	"return": 0xf2,
+
+	// 0x70 range - other
+	"suicide": 0xff,
+}
+
+/*
 // Op codes
 var OpCodes = map[string]byte{
 	// 0x0 range - arithmetic ops
@@ -112,6 +220,7 @@ var OpCodes = map[string]byte{
 	"log":     0x70,
 	"suicide": 0x7f,
 }
+*/
 
 // Big to bytes
 //
