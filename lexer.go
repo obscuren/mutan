@@ -466,7 +466,7 @@ func lexer(name, input string) *Lexer {
 		name:  name,
 		input: input,
 		state: lexText,
-		items: make(chan item, 5),
+		items: make(chan item, 10),
 	}
 	Lineno = 0
 

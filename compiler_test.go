@@ -444,3 +444,23 @@ func TestArrayToPointer(t *testing.T) {
 		fmt.Println(ast)
 	}
 }
+
+func TestStuff(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	exit compile {
+		if this.value() >= 1000 {
+			if this.data[0] != 0 {
+				if this.store[this.data[0]] == 0 {
+					this.store[this.data[0]] = this.origin()
+				}
+			}
+		}
+	}
+	`), true)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}

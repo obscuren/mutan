@@ -154,7 +154,7 @@ closure_funcs
 	;
 
 if_statement
-	: IF expression LEFT_BRACES statement_list RIGHT_BRACES optional_else_statement
+	: IF simple_expression LEFT_BRACES statement_list RIGHT_BRACES optional_else_statement
 		{
 			if $6 == nil {
 				$$ = NewNode(IfThenTy, $2, $4)
