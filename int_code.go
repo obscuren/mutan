@@ -259,7 +259,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case OpTy:
 		// TODO clean this up
 		var blk1, blk2, blk3 *IntInstr
-		blk1 = gen.MakeIntCode(tree.Children[0])
+		blk1 = gen.MakeIntCode(tree.Children[1])
 
 		var op Instr
 		switch tree.Constant {
@@ -355,7 +355,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			return c
 		}
 
-		blk2 = gen.MakeIntCode(tree.Children[1])
+		blk2 = gen.MakeIntCode(tree.Children[0])
 		concat(blk1, blk2)
 
 		if blk3 != nil {
