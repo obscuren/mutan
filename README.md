@@ -9,6 +9,10 @@ can be found on [go-ethereum wiki](https://github.com/ethereum/go-ethereum/wiki/
 
 A simple online editor and compiler can be found [here](http://mutan.jeffew.com)
 
+### Install compiler
+
+`go get -u github.com/obscuren/mutan/mutan`
+
 
 ### Syntax
 
