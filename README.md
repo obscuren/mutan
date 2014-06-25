@@ -13,6 +13,15 @@ A simple online editor and compiler can be found [here](http://mutan.jeffew.com)
 
 `go get -u github.com/obscuren/mutan/mutan`
 
+### CLI
+
+```
+mutan [flags] filename
+-s=""        Compile string
+-asm         Output asm instead of bytecode/hex
+-b           Output raw byte array instead of hex
+```
+
 
 ### Syntax
 
@@ -28,7 +37,7 @@ var a = fn(0, 1)
 b := 10
 
 if a > b {
-    exit()
+    stop()
 } else {
     // :-)
     if !a {
@@ -58,6 +67,8 @@ asm {
     push1 0
     mstore
 }
+
+return 20
 ```
 
 Mutan &copy; Jeffrey Wilcke

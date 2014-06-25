@@ -509,6 +509,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			return gen.CurrentScope().MakeReturn(tree.Children[0], gen)
 		}
 
+		// Fall through to exit if this is the global scope
 		fallthrough
 	case ExitTy:
 		switch tree.Children[0].Type {
