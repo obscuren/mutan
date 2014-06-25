@@ -26,6 +26,8 @@ mutan [flags] filename
 ### Syntax
 
 ```go
+import "std.mu"
+
 func fn(var a, var b) {
 	var[2] c
 	c[0] = a
@@ -41,7 +43,7 @@ if a > b {
 } else {
     // :-)
     if !a {
-        if this.data[0] ^ 10 >= 10 {
+        if this.data[0] ** 10 >= 10 {
             this.data[0] = 1000;
         }
     }
