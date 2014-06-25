@@ -54,7 +54,6 @@ func main() {
 		reader   io.Reader
 		compiler = mutan.NewCompiler(backend.NewEthereumBackend())
 	)
-	compiler.Debug = *Debug
 
 	if len(*StrCode) > 0 {
 		reader = strings.NewReader(*StrCode)
