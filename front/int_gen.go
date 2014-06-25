@@ -1,4 +1,4 @@
-package mutan
+package frontend
 
 import (
 	"container/list"
@@ -22,7 +22,7 @@ type IntGen struct {
 	arrayTable    map[string][]*IntInstr
 	stringTable   map[string][]*IntInstr
 
-	errors []error
+	Errors []error
 
 	scopes *list.List
 
@@ -113,10 +113,6 @@ func (gen *IntGen) PushScope(scope Scope) {
 	gen.scopes.PushBack(scope)
 }
 
-func (gen *IntGen) Errors() []error {
-	return gen.errors
-}
-
 func (gen *IntGen) addError(e error) {
-	gen.errors = append(gen.errors, e)
+	gen.Errors = append(gen.Errors, e)
 }

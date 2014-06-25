@@ -1,4 +1,4 @@
-package mutan
+package frontend
 
 import (
 	"fmt"
@@ -89,7 +89,7 @@ func (self *Function) Size() (size int) {
 func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntInstr {
 	if len(args) != self.ArgCount {
 		gen.addError(fmt.Errorf("%s takes %d arguments. Received %d arguments", self.Id, self.ArgCount, len(args)))
-		return newIntInstr(intIgnore, "")
+		return newIntInstr(IntIgnore, "")
 	}
 
 	self.frame = self.Size() + scope.Size()
@@ -98,10 +98,10 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 	setPtr := gen.addStackPtr(scope.Size())
 	nStackPtr := gen.loadStackPtr()
 	offset := gen.makePush("32")
-	add1 := newIntInstr(intAdd, "")
-	sizeStore := newIntInstr(intMStore, "")
+	add1 := newIntInstr(IntAdd, "")
+	sizeStore := newIntInstr(IntMStore, "")
 
-	argInstr := newIntInstr(intIgnore, "")
+	argInstr := newIntInstr(IntIgnore, "")
 	for i, arg := range args {
 		arg := gen.MakeIntCode(arg)
 		assign := gen.assignMemory(self.ArgTable[i].Offset())
@@ -110,13 +110,13 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 		concat(arg, assign)
 	}
 
-	pc := newIntInstr(intPc, "")
+	pc := newIntInstr(IntPc, "")
 	push := gen.makePush("14")
-	add := newIntInstr(intAdd, "")
+	add := newIntInstr(IntAdd, "")
 	ret := gen.loadStackPtr()
-	retStore := newIntInstr(intMStore, "")
+	retStore := newIntInstr(IntMStore, "")
 
-	p, jmp := newJumpInstr(intJump)
+	p, jmp := newJumpInstr(IntJump)
 	jmp.Target = self.CallTarget
 
 	concat(stackPtr, setPtr)
@@ -139,16 +139,16 @@ func (self *Function) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
 	retVal := gen.MakeIntCode(expr)
 
 	rPos := gen.loadStackPtr()
-	dup := newIntInstr(intDup, "")
+	dup := newIntInstr(IntDup, "")
 	// Increment by 1 word
 	offset := gen.makePush("32")
-	add := newIntInstr(intAdd, "")
-	sizeLoad := newIntInstr(intMLoad, "")
+	add := newIntInstr(IntAdd, "")
+	sizeLoad := newIntInstr(IntMLoad, "")
 	stackPtrOffset := gen.makePush("0")
-	stackPtrStore := newIntInstr(intMStore, "")
+	stackPtrStore := newIntInstr(IntMStore, "")
 
-	rPosLoad := newIntInstr(intMLoad, "")
-	jumpBack := newIntInstr(intJump, "")
+	rPosLoad := newIntInstr(IntMLoad, "")
+	jumpBack := newIntInstr(IntJump, "")
 
 	concat(retVal, rPos)
 	concat(rPos, dup)

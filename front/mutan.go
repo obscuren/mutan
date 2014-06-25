@@ -1,8 +1,8 @@
 
-//line mutan.y:2
-package mutan
+//line front/mutan.y:2
+package frontend
 import __yyfmt__ "fmt"
-//line mutan.y:2
+//line front/mutan.y:2
 		
 import (
 _	"fmt"
@@ -43,7 +43,7 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 }
 
 
-//line mutan.y:44
+//line front/mutan.y:44
 type yySymType struct {
 	yys int
 	num int
@@ -185,7 +185,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line mutan.y:306
+//line front/mutan.y:306
 
 
 
@@ -624,28 +624,28 @@ yydefault:
 	switch yynt {
 
 	case 1:
-		//line mutan.y:65
+		//line front/mutan.y:65
 		{ Tree = yyS[yypt-0].tnode }
 	case 2:
-		//line mutan.y:69
+		//line front/mutan.y:69
 		{ yyVAL.tnode = NewNode(StatementListTy, yyS[yypt-1].tnode, yyS[yypt-0].tnode) }
 	case 3:
-		//line mutan.y:70
+		//line front/mutan.y:70
 		{ yyVAL.tnode = NewNode(EmptyTy) }
 	case 4:
-		//line mutan.y:75
+		//line front/mutan.y:75
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 5:
-		//line mutan.y:76
+		//line front/mutan.y:76
 		{ yyVAL.tnode = NewNode(LambdaTy); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	case 6:
-		//line mutan.y:77
+		//line front/mutan.y:77
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 7:
-		//line mutan.y:78
+		//line front/mutan.y:78
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 8:
-		//line mutan.y:80
+		//line front/mutan.y:80
 		{
 				yyVAL.tnode = NewNode(FuncDefTy, yyS[yypt-1].tnode);
 				yyVAL.tnode.Constant = yyS[yypt-7].str
@@ -653,122 +653,122 @@ yydefault:
 				yyVAL.tnode.ArgList = makeArgs(yyS[yypt-5].tnode, true)
 			}
 	case 9:
-		//line mutan.y:86
+		//line front/mutan.y:86
 		{ yyVAL.tnode = NewNode(InlineAsmTy); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	case 10:
-		//line mutan.y:87
+		//line front/mutan.y:87
 		{ yyVAL.tnode = NewNode(ImportTy, yyS[yypt-0].tnode) }
 	case 11:
-		//line mutan.y:88
+		//line front/mutan.y:88
 		{ yyVAL.tnode = NewNode(EmptyTy); }
 	case 12:
-		//line mutan.y:92
+		//line front/mutan.y:92
 		{ yyVAL.tnode = NewNode(NewVarTy, yyS[yypt-3].tnode); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	case 13:
-		//line mutan.y:93
+		//line front/mutan.y:93
 		{ yyVAL.tnode = NewNode(NewVarTy, yyS[yypt-4].tnode); yyVAL.tnode.Constant = yyS[yypt-1].str; yyVAL.tnode.Ptr = true }
 	case 14:
-		//line mutan.y:94
+		//line front/mutan.y:94
 		{ yyVAL.tnode = nil }
 	case 15:
-		//line mutan.y:99
+		//line front/mutan.y:99
 		{ yyVAL.check = true }
 	case 16:
-		//line mutan.y:100
+		//line front/mutan.y:100
 		{ yyVAL.check = false }
 	case 17:
-		//line mutan.y:105
+		//line front/mutan.y:105
 		{ yyVAL.tnode = NewNode(StopTy) }
 	case 18:
-		//line mutan.y:108
+		//line front/mutan.y:108
 		{
 			  yyVAL.tnode = NewNode(CallTy, yyS[yypt-9].tnode, yyS[yypt-7].tnode, yyS[yypt-5].tnode, yyS[yypt-3].tnode, yyS[yypt-1].tnode)
 		  }
 	case 19:
-		//line mutan.y:112
+		//line front/mutan.y:112
 		{
 			  yyVAL.tnode = NewNode(TransactTy, yyS[yypt-5].tnode, yyS[yypt-3].tnode, yyS[yypt-1].tnode)
 		  }
 	case 20:
-		//line mutan.y:115
+		//line front/mutan.y:115
 		{ yyVAL.tnode = NewNode(CreateTy, yyS[yypt-3].tnode, yyS[yypt-1].tnode) }
 	case 21:
-		//line mutan.y:116
+		//line front/mutan.y:116
 		{ yyVAL.tnode = NewNode(SizeofTy); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	case 22:
-		//line mutan.y:117
+		//line front/mutan.y:117
 		{ yyVAL.tnode = NewNode(PushTy, yyS[yypt-1].tnode) }
 	case 23:
-		//line mutan.y:118
+		//line front/mutan.y:118
 		{ yyVAL.tnode = NewNode(PopTy) }
 	case 24:
-		//line mutan.y:119
+		//line front/mutan.y:119
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 25:
-		//line mutan.y:123
+		//line front/mutan.y:123
 		{ yyVAL.tnode = NewNode(ArgTy, yyS[yypt-2].tnode, yyS[yypt-1].tnode) }
 	case 26:
-		//line mutan.y:124
+		//line front/mutan.y:124
 		{ yyVAL.tnode = NewNode(EmptyTy) }
 	case 27:
-		//line mutan.y:128
+		//line front/mutan.y:128
 		{ yyVAL.tnode = NewNode(EmptyTy) }
 	case 28:
-		//line mutan.y:129
+		//line front/mutan.y:129
 		{ yyVAL.tnode = NewNode(EmptyTy) }
 	case 29:
-		//line mutan.y:134
+		//line front/mutan.y:134
 		{ yyVAL.tnode = NewNode(OriginTy) }
 	case 30:
-		//line mutan.y:135
+		//line front/mutan.y:135
 		{ yyVAL.tnode = NewNode(AddressTy) }
 	case 31:
-		//line mutan.y:136
+		//line front/mutan.y:136
 		{ yyVAL.tnode = NewNode(CallerTy) }
 	case 32:
-		//line mutan.y:137
+		//line front/mutan.y:137
 		{ yyVAL.tnode = NewNode(CallValTy) }
 	case 33:
-		//line mutan.y:138
+		//line front/mutan.y:138
 		{ yyVAL.tnode = NewNode(CallDataLoadTy, yyS[yypt-1].tnode) }
 	case 34:
-		//line mutan.y:139
+		//line front/mutan.y:139
 		{ yyVAL.tnode = NewNode(CallDataSizeTy) }
 	case 35:
-		//line mutan.y:140
+		//line front/mutan.y:140
 		{ yyVAL.tnode = NewNode(DiffTy) }
 	case 36:
-		//line mutan.y:141
+		//line front/mutan.y:141
 		{ yyVAL.tnode = NewNode(PrevHashTy) }
 	case 37:
-		//line mutan.y:142
+		//line front/mutan.y:142
 		{ yyVAL.tnode = NewNode(TimestampTy) }
 	case 38:
-		//line mutan.y:143
+		//line front/mutan.y:143
 		{ yyVAL.tnode = NewNode(GasPriceTy) }
 	case 39:
-		//line mutan.y:144
+		//line front/mutan.y:144
 		{ yyVAL.tnode = NewNode(BlockNumTy) }
 	case 40:
-		//line mutan.y:145
+		//line front/mutan.y:145
 		{ yyVAL.tnode = NewNode(CoinbaseTy) }
 	case 41:
-		//line mutan.y:146
+		//line front/mutan.y:146
 		{ yyVAL.tnode = NewNode(BalanceTy) }
 	case 42:
-		//line mutan.y:147
+		//line front/mutan.y:147
 		{ yyVAL.tnode = NewNode(GasTy) }
 	case 43:
-		//line mutan.y:148
+		//line front/mutan.y:148
 		{ yyVAL.tnode = NewNode(StoreTy, yyS[yypt-1].tnode) }
 	case 44:
-		//line mutan.y:150
+		//line front/mutan.y:150
 		{
 				node := NewNode(SetStoreTy, yyS[yypt-3].tnode)
 				yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, node)
 			}
 	case 45:
-		//line mutan.y:158
+		//line front/mutan.y:158
 		{
 				if yyS[yypt-0].tnode == nil {
 					yyVAL.tnode = NewNode(IfThenTy, yyS[yypt-4].tnode, yyS[yypt-2].tnode)
@@ -777,73 +777,73 @@ yydefault:
 				}
 			}
 	case 46:
-		//line mutan.y:168
+		//line front/mutan.y:168
 		{
 				yyVAL.tnode = yyS[yypt-1].tnode
 			}
 	case 47:
-		//line mutan.y:171
+		//line front/mutan.y:171
 		{ yyVAL.tnode = nil }
 	case 48:
-		//line mutan.y:176
+		//line front/mutan.y:176
 		{
 				yyVAL.tnode = NewNode(ForThenTy, yyS[yypt-7].tnode, yyS[yypt-5].tnode, yyS[yypt-3].tnode, yyS[yypt-1].tnode)
 			}
 	case 49:
-		//line mutan.y:180
+		//line front/mutan.y:180
 		{
 				yyVAL.tnode = NewNode(ForThenTy, yyS[yypt-3].tnode, yyS[yypt-1].tnode)
 			}
 	case 50:
-		//line mutan.y:186
+		//line front/mutan.y:186
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 51:
-		//line mutan.y:187
+		//line front/mutan.y:187
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 52:
-		//line mutan.y:188
+		//line front/mutan.y:188
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 53:
-		//line mutan.y:189
+		//line front/mutan.y:189
 		{ yyVAL.tnode = NewNode(ReturnTy, yyS[yypt-0].tnode) }
 	case 54:
-		//line mutan.y:190
+		//line front/mutan.y:190
 		{ yyVAL.tnode = NewNode(ExitTy, yyS[yypt-0].tnode) }
 	case 55:
-		//line mutan.y:191
+		//line front/mutan.y:191
 		{ yyVAL.tnode = NewNode(EmptyTy) }
 	case 56:
-		//line mutan.y:195
+		//line front/mutan.y:195
 		{ yyVAL.tnode = NewNode(ArgTy, yyS[yypt-2].tnode, yyS[yypt-1].tnode);}
 	case 57:
-		//line mutan.y:196
+		//line front/mutan.y:196
 		{ yyVAL.tnode = nil }
 	case 58:
-		//line mutan.y:201
+		//line front/mutan.y:201
 		{
 		      		yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, yyS[yypt-2].tnode)
 			}
 	case 59:
-		//line mutan.y:205
+		//line front/mutan.y:205
 		{
 				node := NewNode(SetLocalTy)
 				node.Constant = yyS[yypt-2].str
 				yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, node)
 			}
 	case 60:
-		//line mutan.y:211
+		//line front/mutan.y:211
 		{
 				yyVAL.tnode = NewNode(AssignArrayTy, yyS[yypt-3].tnode, yyS[yypt-0].tnode); yyVAL.tnode.Constant = yyS[yypt-5].str
 			}
 	case 61:
-		//line mutan.y:215
+		//line front/mutan.y:215
 		{
 				node := NewNode(SetLocalTy)
 				node.Constant = yyS[yypt-2].tnode.Constant
 				yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, yyS[yypt-2].tnode, node)
 			}
 	case 62:
-		//line mutan.y:221
+		//line front/mutan.y:221
 		{
 				node := NewNode(SetLocalTy)
 				node.Constant = yyS[yypt-3].str
@@ -851,100 +851,100 @@ yydefault:
 				yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, varNode, node)
 			}
 	case 63:
-		//line mutan.y:231
+		//line front/mutan.y:231
 		{
 				yyVAL.tnode = NewNode(NewVarTy)
 				yyVAL.tnode.Constant = yyS[yypt-0].str
 			}
 	case 64:
-		//line mutan.y:236
+		//line front/mutan.y:236
 		{
 				yyVAL.tnode = NewNode(NewVarTy)
 				yyVAL.tnode.Constant = yyS[yypt-0].str
 				yyVAL.tnode.Ptr = true
 			}
 	case 65:
-		//line mutan.y:242
+		//line front/mutan.y:242
 		{
 				yyVAL.tnode = NewNode(NewArrayTy)
 				yyVAL.tnode.Size = yyS[yypt-2].str
 				yyVAL.tnode.Constant = yyS[yypt-0].str
 			}
 	case 66:
-		//line mutan.y:250
+		//line front/mutan.y:250
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 67:
-		//line mutan.y:251
+		//line front/mutan.y:251
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 68:
-		//line mutan.y:252
+		//line front/mutan.y:252
 		{ yyVAL.tnode = yyS[yypt-1].tnode }
 	case 69:
-		//line mutan.y:253
+		//line front/mutan.y:253
 		{ yyVAL.tnode = yyS[yypt-1].tnode }
 	case 70:
-		//line mutan.y:255
+		//line front/mutan.y:255
 		{
 				yyVAL.tnode = NewNode(FuncCallTy, yyS[yypt-1].tnode)
 				yyVAL.tnode.Constant = yyS[yypt-3].str
 				yyVAL.tnode.ArgList = makeArgs(yyS[yypt-1].tnode, false)
 			}
 	case 71:
-		//line mutan.y:264
+		//line front/mutan.y:264
 		{ yyVAL.tnode = NewNode(OpTy, yyS[yypt-1].tnode); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	case 72:
-		//line mutan.y:266
+		//line front/mutan.y:266
 		{ yyVAL.tnode = NewNode(OpTy, yyS[yypt-2].tnode, yyS[yypt-0].tnode); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	case 73:
-		//line mutan.y:267
+		//line front/mutan.y:267
 		{ yyVAL.tnode = NewNode(OpTy, yyS[yypt-2].tnode, yyS[yypt-0].tnode); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	case 74:
-		//line mutan.y:268
+		//line front/mutan.y:268
 		{ yyVAL.tnode = NewNode(OpTy, yyS[yypt-2].tnode, yyS[yypt-0].tnode); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	case 75:
-		//line mutan.y:272
+		//line front/mutan.y:272
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 76:
-		//line mutan.y:273
+		//line front/mutan.y:273
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 77:
-		//line mutan.y:274
+		//line front/mutan.y:274
 		{ yyVAL.tnode = NewNode(RefTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	case 78:
-		//line mutan.y:275
+		//line front/mutan.y:275
 		{ yyVAL.tnode = NewNode(ConstantTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	case 79:
-		//line mutan.y:276
+		//line front/mutan.y:276
 		{ yyVAL.tnode = NewNode(ArrayTy, yyS[yypt-1].tnode); yyVAL.tnode.Constant = yyS[yypt-3].str }
 	case 80:
-		//line mutan.y:277
+		//line front/mutan.y:277
 		{ yyVAL.tnode = NewNode(BoolTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	case 81:
-		//line mutan.y:278
+		//line front/mutan.y:278
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 82:
-		//line mutan.y:279
+		//line front/mutan.y:279
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 83:
-		//line mutan.y:283
+		//line front/mutan.y:283
 		{ yyVAL.tnode = NewNode(DerefPtrTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	case 84:
-		//line mutan.y:287
+		//line front/mutan.y:287
 		{ yyVAL.tnode = yyS[yypt-0].tnode }
 	case 85:
-		//line mutan.y:288
+		//line front/mutan.y:288
 		{ yyVAL.tnode = NewNode(NilTy) }
 	case 86:
-		//line mutan.y:292
+		//line front/mutan.y:292
 		{ yyVAL.tnode = NewNode(IdentifierTy); yyVAL.tnode.Constant = yyS[yypt-0].str }
 	case 87:
-		//line mutan.y:296
+		//line front/mutan.y:296
 		{ yyVAL.tnode = NewNode(StringTy); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	case 88:
-		//line mutan.y:300
+		//line front/mutan.y:300
 		{ yyVAL.tnode = NewNode(EmptyTy) }
 	case 89:
-		//line mutan.y:304
+		//line front/mutan.y:304
 		{ yyVAL.tnode = NewNode(EmptyTy) }
 	}
 	goto yystack /* stack new state and value */

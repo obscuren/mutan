@@ -1,4 +1,4 @@
-package mutan
+package frontend
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ func newIntInstr(code Instr, constant string) *IntInstr {
 	return &IntInstr{Code: code, Constant: constant}
 }
 
-func (instr *IntInstr) setNumbers(i int, gen *IntGen) {
+func (instr *IntInstr) SetNumbers(i int, gen *IntGen) {
 	/*
 		var memLoc int
 		for _, variable := range gen.locals {
@@ -66,9 +66,9 @@ func (instr *IntInstr) setNumbers(i int, gen *IntGen) {
 			//num.Constant = strconv.Itoa(gen.locals[num.ConstRef].pos)
 		}
 
-		if num.Code != intTarget && num.Code != intIgnore {
+		if num.Code != IntTarget && num.Code != IntIgnore {
 			switch num.Code {
-			case intConst:
+			case IntConst:
 				if num.size == 0 {
 					panic("NULL")
 				}
@@ -82,10 +82,10 @@ func (instr *IntInstr) setNumbers(i int, gen *IntGen) {
 	}
 }
 
-func (self *IntInstr) linkTargets() {
+func (self *IntInstr) LinkTargets() {
 	instr := self
 	for instr != nil {
-		if instr.Code == intJump || instr.Code == intJumpi {
+		if instr.Code == IntJump || instr.Code == IntJumpi {
 			// Set the target constant which we couldn't set before hand
 			// when the instrbers weren't all set.
 			if instr.TargetNum != nil {

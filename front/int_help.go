@@ -1,4 +1,4 @@
-package mutan
+package frontend
 
 import (
 	"bytes"
@@ -19,18 +19,18 @@ func __ignore() { fmt.Sprintf("") }
 
 func (self *IntGen) loadStackPtr() *IntInstr {
 	push := self.makePush("0")
-	mload := newIntInstr(intMLoad, "")
+	mload := newIntInstr(IntMLoad, "")
 	concat(push, mload)
 
 	return push
 }
 
-func (self *IntGen) setStackPtr(ptr int) *IntInstr {
+func (self *IntGen) SetStackPtr(ptr int) *IntInstr {
 	self.currentStackSize = ptr
 
 	push := self.makePush(strconv.Itoa(ptr))
 	push2 := self.makePush("0")
-	mstore := newIntInstr(intMStore, "")
+	mstore := newIntInstr(IntMStore, "")
 	concat(push, push2)
 	concat(push2, mstore)
 
@@ -40,9 +40,9 @@ func (self *IntGen) setStackPtr(ptr int) *IntInstr {
 func (self *IntGen) addStackPtr(size int) *IntInstr {
 	push := self.makePush(strconv.Itoa(size))
 	load := self.loadStackPtr()
-	add := newIntInstr(intAdd, "")
+	add := newIntInstr(IntAdd, "")
 	loc := self.makePush("0")
-	store := newIntInstr(intMStore, "")
+	store := newIntInstr(IntMStore, "")
 
 	concat(push, load)
 	concat(load, add)
@@ -83,8 +83,8 @@ func (gen *IntGen) makeString(tree *SyntaxTree) *IntInstr {
 	byts := []byte(tree.Constant)
 	hexStr := "0x" + hex.EncodeToString(byts)
 
-	push := newIntInstr(Instr(int(intPush1)-1+len(byts)), "")
-	cons := newIntInstr(intConst, hexStr)
+	push := newIntInstr(Instr(int(IntPush1)-1+len(byts)), "")
+	cons := newIntInstr(IntConst, hexStr)
 	cons.size = len(byts)
 
 	concat(push, cons)
@@ -96,8 +96,8 @@ func (gen *IntGen) makePush(num string, v ...int) *IntInstr {
 	var push, cons *IntInstr
 	if len(v) > 0 {
 		n, _ := strconv.Atoi(num)
-		push = newIntInstr(intPush4, "")
-		cons = newIntInstr(intConst, "0x"+hex.EncodeToString(numberToBytes(int32(n), v[0])))
+		push = newIntInstr(IntPush4, "")
+		cons = newIntInstr(IntConst, "0x"+hex.EncodeToString(numberToBytes(int32(n), v[0])))
 		cons.size = v[0]
 	} else {
 		push, cons = pushConstant(num)
@@ -121,12 +121,12 @@ func constToPush(constant string) (*IntInstr, int) {
 	if numBytes == 0 {
 		numBytes = 1
 	}
-	return newIntInstr(Instr(int(intPush1)-1+numBytes), ""), numBytes
+	return newIntInstr(Instr(int(IntPush1)-1+numBytes), ""), numBytes
 }
 
 func pushConstant(constant string) (*IntInstr, *IntInstr) {
 	blk1, numBytes := constToPush(constant)
-	blk2 := newIntInstr(intConst, constant)
+	blk2 := newIntInstr(IntConst, constant)
 	blk2.size = numBytes
 
 	return blk1, blk2
@@ -147,9 +147,9 @@ func numberToBytes(num interface{}, bits int) []byte {
 // e.g. if the code script was 50 bytes, it would generate 2 memory storages instructions
 // for: [0-31] & [32-50] and returns (50)
 func (gen *IntGen) compileLambda(memOffset int, tree *SyntaxTree) (*IntInstr, int) {
-	code, errors := Compile(strings.NewReader(tree.Constant), false)
+	code, errors := Compiler.Compile(strings.NewReader(tree.Constant))
 	if len(errors) != 0 {
-		gen.errors = append(gen.errors, errors...)
+		gen.Errors = append(gen.Errors, errors...)
 		return nil, 0
 	}
 
@@ -158,7 +158,7 @@ func (gen *IntGen) compileLambda(memOffset int, tree *SyntaxTree) (*IntInstr, in
 }
 
 func (gen *IntGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
-	ignore := newIntInstr(intIgnore, "")
+	ignore := newIntInstr(IntIgnore, "")
 	var lastPush *IntInstr
 	i := 0
 	l := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -168,7 +168,7 @@ func (gen *IntGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
 		hex := hex.EncodeToString(append(b[i:offset], l[0:32-len(b[i:offset])]...))
 		mem := gen.makePush(strconv.Itoa(i + memOffset))
 		push := gen.makePush("0x" + hex)
-		store := newIntInstr(intMStore, "")
+		store := newIntInstr(IntMStore, "")
 		concat(push, mem)
 		concat(mem, store)
 
@@ -185,7 +185,7 @@ func (gen *IntGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {
 }
 
 func (gen *IntGen) stringToInstr(variable Var, b []byte, t Instr) (*IntInstr, int) {
-	ignore := newIntInstr(intIgnore, "")
+	ignore := newIntInstr(IntIgnore, "")
 	var lastPush *IntInstr
 	i := 0
 	// TODO clean this up. Strings can no longer be longer than 32 bytes
@@ -194,7 +194,7 @@ func (gen *IntGen) stringToInstr(variable Var, b []byte, t Instr) (*IntInstr, in
 		hex := hex.EncodeToString(b[i:offset])
 		mem := gen.makePush(strconv.Itoa(i))
 
-		if t != intSStore {
+		if t != IntSStore {
 			gen.stringTable[variable.Id()] = append(gen.stringTable[variable.Id()], mem.Next)
 		}
 
@@ -225,8 +225,8 @@ func (gen *IntGen) getMemory(tree *SyntaxTree) (*IntInstr, error) {
 	offset := strconv.Itoa(variable.Offset())
 	rPos := gen.loadStackPtr()
 	push, cons := pushConstant(offset)
-	add := newIntInstr(intAdd, "")
-	load := newIntInstr(intMLoad, "")
+	add := newIntInstr(IntAdd, "")
+	load := newIntInstr(IntMLoad, "")
 
 	concat(rPos, push)
 	concat(push, cons)
@@ -238,7 +238,7 @@ func (gen *IntGen) getMemory(tree *SyntaxTree) (*IntInstr, error) {
 
 func makeStore(offset int) *IntInstr {
 	push, cons := pushConstant(strconv.Itoa(offset))
-	store := newIntInstr(intMStore, "")
+	store := newIntInstr(IntMStore, "")
 
 	concat(push, cons)
 	concat(cons, store)
@@ -249,8 +249,8 @@ func makeStore(offset int) *IntInstr {
 func (gen *IntGen) assignMemory(offset int) *IntInstr {
 	ptr := gen.loadStackPtr()
 	push, cons := pushConstant(strconv.Itoa(offset))
-	add := newIntInstr(intAdd, "")
-	store := newIntInstr(intMStore, "")
+	add := newIntInstr(IntAdd, "")
+	store := newIntInstr(IntMStore, "")
 
 	concat(ptr, push)
 	concat(push, cons)
@@ -284,7 +284,7 @@ func (gen *IntGen) initNewNumber(tree *SyntaxTree) (*IntInstr, error) {
 	}
 
 	if err != nil {
-		return newIntInstr(intIgnore, ""), err
+		return newIntInstr(IntIgnore, ""), err
 	}
 
 	return nil, nil
@@ -308,7 +308,7 @@ func (gen *IntGen) getAddress(v Var) *IntInstr {
 	ptr := gen.loadStackPtr()
 	// Push the variable offset
 	push, cons := pushConstant(strconv.Itoa(v.Offset()))
-	add := newIntInstr(intAdd, "")
+	add := newIntInstr(IntAdd, "")
 
 	cc(ptr, push, cons, add)
 
@@ -324,7 +324,7 @@ func (gen *IntGen) pushDerefPtr(tree *SyntaxTree) (*IntInstr, error) {
 	}
 
 	ptr := gen.dereferencePtr(variable)
-	loadRef := newIntInstr(intMLoad, "")
+	loadRef := newIntInstr(IntMLoad, "")
 	cc(ptr, loadRef)
 
 	return ptr, nil
@@ -332,7 +332,7 @@ func (gen *IntGen) pushDerefPtr(tree *SyntaxTree) (*IntInstr, error) {
 
 func (gen *IntGen) dereferencePtr(v Var) *IntInstr {
 	ptr := gen.getAddress(v)
-	loadPtr := newIntInstr(intMLoad, "")
+	loadPtr := newIntInstr(IntMLoad, "")
 
 	cc(ptr, loadPtr)
 
@@ -348,7 +348,7 @@ func (gen *IntGen) setPtr(tree *SyntaxTree) (*IntInstr, error) {
 	}
 
 	ptr := gen.dereferencePtr(variable)
-	store := newIntInstr(intMStore, "")
+	store := newIntInstr(IntMStore, "")
 
 	cc(ptr, store)
 
@@ -397,11 +397,11 @@ func (gen *IntGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	// Get the size of the variable in bytes
 	size, sizeConst := pushConstant("32")
 	// Multiply offset with size
-	mul := newIntInstr(intMul, "")
+	mul := newIntInstr(IntMul, "")
 	// Add the result to the memory location
-	iAdd := newIntInstr(intAdd, "")
+	iAdd := newIntInstr(IntAdd, "")
 	// b = a[0] // loc(a) + sizeOf(type(a)) * len(a)
-	load := newIntInstr(intMLoad, "")
+	load := newIntInstr(IntMLoad, "")
 
 	cc(ptr, offset, size, sizeConst, mul, iAdd, load)
 
@@ -423,10 +423,10 @@ func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 	// The value which we want to assign
 	size, sizeConst := pushConstant("32")
 	// Multiply offset with size
-	mul := newIntInstr(intMul, "")
+	mul := newIntInstr(IntMul, "")
 	// Add the result to the memory location (ptr + offset + expr)
-	iAdd := newIntInstr(intAdd, "")
-	store := newIntInstr(intMStore, "")
+	iAdd := newIntInstr(IntAdd, "")
+	store := newIntInstr(IntMStore, "")
 
 	cc(val, ptr, expr, size, sizeConst, mul, iAdd, store)
 
@@ -444,13 +444,13 @@ func (gen *IntGen) initNewArray(tree *SyntaxTree) (*IntInstr, error) {
 	length, _ := strconv.Atoi(tree.Size)
 	variable.SetSize(32 * length)
 
-	return newIntInstr(intIgnore, ""), nil
+	return newIntInstr(IntIgnore, ""), nil
 }
 
 func (gen *IntGen) err(err error) *IntInstr {
 	gen.addError(err)
 
-	return newIntInstr(intIgnore, "")
+	return newIntInstr(IntIgnore, "")
 }
 
 func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {
@@ -482,7 +482,7 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 		if identifier.Type == SetStoreTy {
 			return gen.makePush("0x" + hex.EncodeToString([]byte(tree.Constant)))
 		} else {
-			t = intMStore
+			t = IntMStore
 			variable.SetType(varStrTy)
 		}
 
@@ -499,7 +499,7 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 
 		rhs = gen.MakeIntCode(tree)
 	case DerefPtrTy:
-		rhs = cc(gen.MakeIntCode(tree), newIntInstr(intMLoad, ""))
+		rhs = cc(gen.MakeIntCode(tree), newIntInstr(IntMLoad, ""))
 	default:
 		rhs = gen.MakeIntCode(tree)
 	}

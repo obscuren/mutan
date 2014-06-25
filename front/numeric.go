@@ -1,4 +1,4 @@
-package mutan
+package frontend
 
 type Variable struct {
 	id     string

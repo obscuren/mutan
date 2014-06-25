@@ -1,4 +1,4 @@
-package mutan
+package frontend
 
 type Pointer struct {
 	id     string

@@ -1,3 +1,3 @@
 all:
-			go tool yacc -o mutan.go mutan.y
+			go tool yacc -o front/mutan.go front/mutan.y
 			go test

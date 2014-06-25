@@ -1,4 +1,4 @@
-package mutan
+package frontend
 
 type varType byte
 

@@ -2,81 +2,111 @@ package mutan
 
 import (
 	"fmt"
+	"github.com/obscuren/mutan/front"
 	"io"
 	"io/ioutil"
 )
 
 type CompilerBackend interface {
-	Compile(instr *IntInstr) ([]interface{}, error)
+	Compile(*frontend.IntInstr) ([]interface{}, error)
 }
 
 type Compiler struct {
-	intInsrs *IntInstr
+	intInsrs *frontend.IntInstr
 
 	Backend CompilerBackend
+
+	Debug bool
 }
 
 func NewCompiler(backend CompilerBackend) *Compiler {
-	return &Compiler{Backend: backend}
+	c := &Compiler{Backend: backend}
+	frontend.Compiler = c
+
+	return c
 }
 
-func (self *Compiler) Compile(instr *IntInstr) ([]interface{}, error) {
-	return self.Backend.Compile(instr)
+func (self *Compiler) PreProcessorStage(str string) (string, error) {
+	return frontend.PreProcess(str)
 }
 
-func CompileStage(source io.Reader, debug bool) (asm []interface{}, errors []error) {
-	var buff []byte
-	// Read all at once
-	buff, err := ioutil.ReadAll(source)
+func (self *Compiler) CompileStage(code string) (asm []interface{}, errors []error) {
+	ast, err := frontend.MakeAst(code)
 	if err != nil {
 		errors = append(errors, err)
 		return
 	}
 
-	s, _ := PreProcess(string(buff))
-
-	var ast *SyntaxTree
-	ast, err = MakeAst(s)
-	if err != nil {
-		errors = append(errors, err)
-		return
-	}
-
-	if debug {
+	if self.Debug {
 		fmt.Println(ast)
 	}
 
-	gen := NewGen()
-	gen.NewVar("___stackPtr", varNumTy)
-	ptr := gen.setStackPtr(0)
+	gen := frontend.NewGen()
+	gen.NewVar("___stackPtr", 1)
+	ptr := gen.SetStackPtr(0)
 
-	intCode := concat(ptr, gen.MakeIntCode(ast))
-	if len(gen.errors) > 0 {
-		for _, genErr := range gen.errors {
+	intCode := frontend.Concat(ptr, gen.MakeIntCode(ast))
+	if len(gen.Errors) > 0 {
+		for _, genErr := range gen.Errors {
 			fmt.Println(genErr)
 		}
-		return nil, gen.Errors()
+		return nil, gen.Errors
 	}
-	intCode.setNumbers(0, gen)
-	intCode.linkTargets()
+	intCode.SetNumbers(0, gen)
+	intCode.LinkTargets()
 
-	if debug {
+	if self.Debug {
 		fmt.Println(intCode)
 	}
 
-	comp := NewCompiler(NewEthereumBackend())
-	asm, err = comp.Compile(intCode)
+	asm, err = self.Backend.Compile(intCode)
+	if err != nil {
+		errors = append(errors, err)
+		return
+	}
 
 	return
 }
 
-func Compile(source io.Reader, debug bool) (byteCode []byte, errors []error) {
-	asm, err := CompileStage(source, debug)
+func (self *Compiler) AssemblerStage(asm ...interface{}) ([]byte, error) {
+	return frontend.Assemble(asm...)
+}
+
+func (self *Compiler) ReadAll(source io.Reader) (string, error) {
+	var buff []byte
+	// Read all at once
+	buff, err := ioutil.ReadAll(source)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	bytes := Assemble(asm...)
+	return string(buff), nil
+}
 
-	return bytes, nil
+func (self *Compiler) Compile(source io.Reader) (bytecode []byte, errors []error) {
+	code, err := self.ReadAll(source)
+	if err != nil {
+		errors = append(errors, err)
+		return
+	}
+
+	code, err = self.PreProcessorStage(code)
+	if err != nil {
+		errors = append(errors, err)
+		return
+	}
+
+	var asm []interface{}
+	asm, errors = self.CompileStage(code)
+	if errors != nil {
+		return
+	}
+
+	bytecode, err = self.AssemblerStage(asm...)
+	if err != nil {
+		errors = append(errors, err)
+		return
+	}
+
+	return
 }

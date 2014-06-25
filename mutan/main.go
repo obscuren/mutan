@@ -4,13 +4,45 @@ import (
 	"flag"
 	"fmt"
 	"github.com/obscuren/mutan"
+	"github.com/obscuren/mutan/backends"
+	"io"
 	"os"
 	"strings"
 )
 
-var Debug = flag.Bool("d", false, "enable debug output")
-var DisableAssembler = flag.Bool("asm", false, "disable assembler stage")
-var StrCode = flag.String("s", "", "code string")
+var (
+	Debug     = flag.Bool("d", false, "enable debug output")
+	StrCode   = flag.String("s", "", "code string")
+	ByteArray = flag.Bool("b", false, "output byte array instead of hex")
+
+	ShowAssembler = flag.Bool("asm", false, "output assembler")
+)
+
+func Panic(format string, v ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, v...)
+	os.Exit(1)
+}
+
+func Compile(compiler *mutan.Compiler, reader io.Reader) (asm []interface{}, errors []error) {
+	code, err := compiler.ReadAll(reader)
+	if err != nil {
+		errors = append(errors, err)
+		return
+	}
+
+	code, err = compiler.PreProcessorStage(code)
+	if err != nil {
+		errors = append(errors, err)
+		return
+	}
+
+	asm, errors = compiler.CompileStage(code)
+	if errors != nil {
+		return
+	}
+
+	return
+}
 
 func main() {
 	flag.Usage = func() {
@@ -19,37 +51,46 @@ func main() {
 	}
 	flag.Parse()
 
-	var asm []interface{}
-	var e []error
-	if len(*StrCode) > 0 {
-		asm, e = mutan.CompileStage(strings.NewReader(*StrCode), *Debug)
-		if e != nil {
-			fmt.Println(e)
-			os.Exit(1)
-		}
-	} else {
-		file, err := os.Open(os.Args[len(os.Args)-1])
-		if err != nil {
-			fmt.Println("error:", err)
-			os.Exit(1)
-		}
+	var (
+		reader   io.Reader
+		compiler = mutan.NewCompiler(backend.NewEthereumBackend())
+	)
+	compiler.Debug = *Debug
 
-		asm, e = mutan.CompileStage(file, *Debug)
-		if e != nil {
-			fmt.Println(e)
-			os.Exit(1)
+	if len(*StrCode) > 0 {
+		reader = strings.NewReader(*StrCode)
+	} else {
+		if len(flag.Arg(0)) > 0 {
+			file, err := os.Open(os.Args[len(os.Args)-1])
+			if err != nil {
+				Panic("%v\n", err)
+			}
+
+			reader = file
+		} else {
+			Panic("no file specified\n")
 		}
 	}
 
-	if *DisableAssembler {
-		s := fmt.Sprintln(asm)
-		fmt.Println(s[1 : len(s)-2])
-		for i, val := range asm {
-			fmt.Println(i, ":", val)
-		}
-	} else {
-		bytes := mutan.Assemble(asm...)
+	asm, err := Compile(compiler, reader)
+	if err != nil {
+		Panic("%v\n", err)
+	}
 
-		fmt.Printf("bytes: %v\nhex: 0x%x\n", bytes, bytes)
+	if *ShowAssembler {
+		s := fmt.Sprintln(asm)
+
+		fmt.Println(s[1 : len(s)-2])
+	} else {
+		bytes, err := compiler.AssemblerStage(asm...)
+		if err != nil {
+			Panic("%v\n", err)
+		}
+
+		if *ByteArray {
+			fmt.Println(bytes)
+		} else {
+			fmt.Printf("%x\n", bytes)
+		}
 	}
 }

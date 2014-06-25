@@ -53,11 +53,11 @@ call(0xab, 0, 10000, nil, nil)
 // create contract
 var ret = create(value, 0xaabbccddeeff0099887766552211)
 
-asm (
-    PUSH1 10
-    PUSH1 0
-    MSTORE
-)
+asm {
+    push1 10
+    push1 0
+    mstore
+}
 ```
 
 Mutan &copy; Jeffrey Wilcke

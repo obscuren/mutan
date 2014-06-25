@@ -1,4 +1,8 @@
-package mutan
+package backend
+
+import (
+	. "github.com/obscuren/mutan/front"
+)
 
 type EthereumBackend struct {
 	asm []interface{}
@@ -18,157 +22,157 @@ func (c *EthereumBackend) Compile(instr *IntInstr) ([]interface{}, error) {
 	// The following code is very explicit. I could have used string.Upcase
 	for instr != nil {
 		switch instr.Code {
-		case intDup:
+		case IntDup:
 			c.add("dup")
-		case intPc:
+		case IntPc:
 			c.add("pc")
-		case intSwp:
+		case IntSwp:
 			c.add("swap")
-		case intPush1:
+		case IntPush1:
 			c.add("push1")
-		case intPush2:
+		case IntPush2:
 			c.add("push2")
-		case intPush3:
+		case IntPush3:
 			c.add("push3")
-		case intPush4:
+		case IntPush4:
 			c.add("push4")
-		case intPush5:
+		case IntPush5:
 			c.add("push5")
-		case intPush6:
+		case IntPush6:
 			c.add("push6")
-		case intPush7:
+		case IntPush7:
 			c.add("push7")
-		case intPush8:
+		case IntPush8:
 			c.add("push8")
-		case intPush9:
+		case IntPush9:
 			c.add("push9")
-		case intPush10:
+		case IntPush10:
 			c.add("push10")
-		case intPush11:
+		case IntPush11:
 			c.add("push11")
-		case intPush12:
+		case IntPush12:
 			c.add("push12")
-		case intPush13:
+		case IntPush13:
 			c.add("push13")
-		case intPush14:
+		case IntPush14:
 			c.add("push14")
-		case intPush15:
+		case IntPush15:
 			c.add("push15")
-		case intPush16:
+		case IntPush16:
 			c.add("push16")
-		case intPush17:
+		case IntPush17:
 			c.add("push17")
-		case intPush18:
+		case IntPush18:
 			c.add("push18")
-		case intPush19:
+		case IntPush19:
 			c.add("push19")
-		case intPush20:
+		case IntPush20:
 			c.add("push20")
-		case intPush21:
+		case IntPush21:
 			c.add("push21")
-		case intPush22:
+		case IntPush22:
 			c.add("push22")
-		case intPush23:
+		case IntPush23:
 			c.add("push23")
-		case intPush24:
+		case IntPush24:
 			c.add("push24")
-		case intPush25:
+		case IntPush25:
 			c.add("push25")
-		case intPush26:
+		case IntPush26:
 			c.add("push26")
-		case intPush27:
+		case IntPush27:
 			c.add("push27")
-		case intPush28:
+		case IntPush28:
 			c.add("push28")
-		case intPush29:
+		case IntPush29:
 			c.add("push29")
-		case intPush30:
+		case IntPush30:
 			c.add("push30")
-		case intPush31:
+		case IntPush31:
 			c.add("push31")
-		case intPush32:
+		case IntPush32:
 			c.add("push32")
-		case intConst:
+		case IntConst:
 			c.add(instr.Constant)
-		case intEqual:
+		case IntEqual:
 			c.add("eq")
-		case intGt:
+		case IntGt:
 			c.add("gt")
-		case intLt:
+		case IntLt:
 			c.add("lt")
-		case intMul:
+		case IntMul:
 			c.add("mul")
-		case intSub:
+		case IntSub:
 			c.add("sub")
-		case intDiv:
+		case IntDiv:
 			c.add("div")
-		case intExp:
+		case IntExp:
 			c.add("exp")
-		case intMod:
+		case IntMod:
 			c.add("mod")
-		case intXor:
+		case IntXor:
 			c.add("xor")
-		case intOr:
+		case IntOr:
 			c.add("or")
-		case intAnd:
+		case IntAnd:
 			c.add("and")
-		case intAdd:
+		case IntAdd:
 			c.add("add")
-		case intAssign:
-		case intEmpty:
-		case intMStore:
+		case IntAssign:
+		case IntEmpty:
+		case IntMStore:
 			c.add("mstore")
-		case intMLoad:
+		case IntMLoad:
 			c.add("mload")
-		case intNot:
+		case IntNot:
 			c.add("not")
-		case intJumpi:
+		case IntJumpi:
 			c.add("jumpi")
-		case intJump:
+		case IntJump:
 			c.add("jump")
-		case intSStore:
+		case IntSStore:
 			c.add("sstore")
-		case intSLoad:
+		case IntSLoad:
 			c.add("sload")
-		case intStop:
+		case IntStop:
 			c.add("stop")
-		case intOrigin:
+		case IntOrigin:
 			c.add("origin")
-		case intAddress:
+		case IntAddress:
 			c.add("address")
-		case intBalance:
+		case IntBalance:
 			c.add("balance")
-		case intCaller:
+		case IntCaller:
 			c.add("caller")
-		case intCallVal:
+		case IntCallVal:
 			c.add("callvalue")
-		case intCallDataLoad:
+		case IntCallDataLoad:
 			c.add("calldataload")
-		case intCallDataSize:
+		case IntCallDataSize:
 			c.add("calldatasize")
-		case intGasPrice:
+		case IntGasPrice:
 			c.add("gasprice")
-		case intDiff:
+		case IntDiff:
 			c.add("difficulty")
-		case intPrevHash:
+		case IntPrevHash:
 			c.add("prevhash")
-		case intTimestamp:
+		case IntTimestamp:
 			c.add("timestamp")
-		case intCoinbase:
+		case IntCoinbase:
 			c.add("coinbase")
-		case intGas:
+		case IntGas:
 			c.add("gas")
-		case intBlockNum:
+		case IntBlockNum:
 			c.add("number")
-		case intCall:
+		case IntCall:
 			c.add("call")
-		case intCreate:
+		case IntCreate:
 			c.add("create")
-		case intReturn:
+		case IntReturn:
 			c.add("return")
-		case intASM:
+		case IntASM:
 			c.add(instr.Constant)
-		case intTarget:
+		case IntTarget:
 		}
 
 		instr = instr.Next

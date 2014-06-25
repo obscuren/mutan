@@ -1,5 +1,5 @@
 %{
-package mutan
+package frontend
 
 import (
 _	"fmt"

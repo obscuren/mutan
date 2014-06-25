@@ -1,4 +1,4 @@
-package mutan
+package frontend
 
 import (
 	"fmt"
@@ -183,7 +183,7 @@ func (p *SyntaxTree) String() string {
 
 // Creates an error and returns an ignore instruction
 func (p *SyntaxTree) Errorf(format string, v ...interface{}) (*IntInstr, error) {
-	return newIntInstr(intIgnore, ""), fmt.Errorf("line %d: "+format, append([]interface{}{p.Lineno}, v...)...)
+	return newIntInstr(IntIgnore, ""), fmt.Errorf("line %d: "+format, append([]interface{}{p.Lineno}, v...)...)
 }
 
 func MakeAst(source string) (*SyntaxTree, error) {
