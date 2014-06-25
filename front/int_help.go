@@ -284,7 +284,7 @@ func (gen *IntGen) initNewNumber(tree *SyntaxTree) (*IntInstr, error) {
 	}
 
 	if err != nil {
-		return newIntInstr(IntIgnore, ""), err
+		return gen.Errorf(tree, "%v", err)
 	}
 
 	return nil, nil

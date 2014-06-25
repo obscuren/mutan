@@ -504,6 +504,9 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		concat(val, create)
 
 		return script
+	case ScopeTy:
+		// TODO
+		return gen.MakeIntCode(tree.Children[0])
 	case ReturnTy:
 		if gen.CurrentScope() != gen {
 			return gen.CurrentScope().MakeReturn(tree.Children[0], gen)

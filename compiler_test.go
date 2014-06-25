@@ -457,3 +457,21 @@ func TestIpmort(t *testing.T) {
 	}
 
 }
+
+func TestLocalScope(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var a = 10
+
+	// Test the scope
+	{
+		var b = 20
+	}
+	`), false)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+
+}

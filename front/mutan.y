@@ -85,6 +85,7 @@ statement
 		}
 	| ASM LEFT_BRACES INLINE_ASM RIGHT_BRACES { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
 	| IMPORT string { $$ = NewNode(ImportTy); $$.Constant = $2.Constant }
+	| LEFT_BRACES statement_list RIGHT_BRACES { $$ = NewNode(ScopeTy, $2) }
 	| END_STMT { $$ = NewNode(EmptyTy); }
 	;
 
