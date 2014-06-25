@@ -84,7 +84,7 @@ statement
 			$$.ArgList = makeArgs($4, true)
 		}
 	| ASM LEFT_BRACES INLINE_ASM RIGHT_BRACES { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
-	| IMPORT string { $$ = NewNode(ImportTy, $2) }
+	| IMPORT string { $$ = NewNode(ImportTy); $$.Constant = $2.Constant }
 	| END_STMT { $$ = NewNode(EmptyTy); }
 	;
 

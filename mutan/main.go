@@ -11,7 +11,6 @@ import (
 )
 
 var (
-	Debug     = flag.Bool("d", false, "enable debug output")
 	StrCode   = flag.String("s", "", "code string")
 	ByteArray = flag.Bool("b", false, "output byte array instead of hex")
 

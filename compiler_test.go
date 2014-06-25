@@ -373,9 +373,7 @@ func TestAsm(t *testing.T) {
 		m_push(a + s)
 		m_push(a)
 		asm {
-			sha3
-			push1 9   ; This is a comemnt
-			pop       ; This is another comment
+			sha3      ; perform sha3
 		}
 
 		return m_pop() // Returns outcome of the SHA3
@@ -404,19 +402,6 @@ func TestWhile(t *testing.T) {
 	for i < 10 {
 		i++
 	}
-	`), false)
-
-	if err != nil {
-		t.Error(err)
-	} else {
-		fmt.Println(ast)
-	}
-
-}
-
-func TestIpmort(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-	import "test"
 	`), false)
 
 	if err != nil {
@@ -460,22 +445,15 @@ func TestArrayToPointer(t *testing.T) {
 	}
 }
 
-func TestStuff(t *testing.T) {
+func TestIpmort(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	exit compile {
-		if this.value() >= 1000 {
-			if this.data[0] != 0 {
-				if this.store[this.data[0]] == 0 {
-					this.store[this.data[0]] = this.origin()
-				}
-			}
-		}
-	}
-	`), true)
+	import "mutan/test.mu"
+	`), false)
 
 	if err != nil {
 		t.Error(err)
 	} else {
 		fmt.Println(ast)
 	}
+
 }

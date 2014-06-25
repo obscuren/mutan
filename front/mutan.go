@@ -657,7 +657,7 @@ yydefault:
 		{ yyVAL.tnode = NewNode(InlineAsmTy); yyVAL.tnode.Constant = yyS[yypt-1].str }
 	case 10:
 		//line front/mutan.y:87
-		{ yyVAL.tnode = NewNode(ImportTy, yyS[yypt-0].tnode) }
+		{ yyVAL.tnode = NewNode(ImportTy); yyVAL.tnode.Constant = yyS[yypt-0].tnode.Constant }
 	case 11:
 		//line front/mutan.y:88
 		{ yyVAL.tnode = NewNode(EmptyTy); }

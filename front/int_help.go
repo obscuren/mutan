@@ -65,7 +65,7 @@ func (gen *IntGen) makeArg(t *SyntaxTree) (*IntInstr, error) {
 	name := t.Constant
 	variable := gen.CurrentScope().GetVar(name)
 	if variable == nil {
-		return t.Errorf("undefine variable: '%s'", t.Constant)
+		return gen.Errorf(t, "undefine variable: '%s'", t.Constant)
 	}
 
 	pushOff, offCons := pushConstant(strconv.Itoa(variable.Size()))
@@ -219,7 +219,7 @@ func (gen *IntGen) stringToInstr(variable Var, b []byte, t Instr) (*IntInstr, in
 func (gen *IntGen) getMemory(tree *SyntaxTree) (*IntInstr, error) {
 	variable := gen.GetVar(tree.Constant)
 	if variable == nil {
-		return tree.Errorf("Undefined variable: %v", tree.Constant)
+		return gen.Errorf(tree, "Undefined variable: %v", tree.Constant)
 	}
 
 	offset := strconv.Itoa(variable.Offset())
@@ -264,7 +264,7 @@ func (gen *IntGen) assignMemory(offset int) *IntInstr {
 func (gen *IntGen) setMemory(tree *SyntaxTree) (*IntInstr, error) {
 	variable := gen.GetVar(tree.Constant)
 	if variable == nil {
-		return tree.Errorf("Undefined variable '%s'", tree.Constant)
+		return gen.Errorf(tree, "Undefined variable '%s'", tree.Constant)
 	}
 
 	instr := gen.assignMemory(variable.Offset())
@@ -295,7 +295,7 @@ func (gen *IntGen) sizeof(tree *SyntaxTree) (*IntInstr, error) {
 	variable := gen.CurrentScope().GetVar(name)
 
 	if variable == nil {
-		return tree.Errorf("undefined variable: '%s'", name)
+		return gen.Errorf(tree, "undefined variable: '%s'", name)
 	}
 
 	push, constant := pushConstant(strconv.Itoa(variable.Size()))
@@ -320,7 +320,7 @@ func (gen *IntGen) pushDerefPtr(tree *SyntaxTree) (*IntInstr, error) {
 	variable := gen.CurrentScope().GetVar(name)
 
 	if variable == nil {
-		return tree.Errorf("undefined array: %v", name)
+		return gen.Errorf(tree, "undefined array: %v", name)
 	}
 
 	ptr := gen.dereferencePtr(variable)
@@ -344,7 +344,7 @@ func (gen *IntGen) setPtr(tree *SyntaxTree) (*IntInstr, error) {
 	variable := gen.CurrentScope().GetVar(name)
 
 	if variable == nil {
-		return tree.Errorf("undefined array: %v", name)
+		return gen.Errorf(tree, "undefined array: %v", name)
 	}
 
 	ptr := gen.dereferencePtr(variable)
@@ -360,7 +360,7 @@ func (gen *IntGen) getPtr(tree *SyntaxTree) (*IntInstr, error) {
 	variable := gen.CurrentScope().GetVar(name)
 
 	if variable == nil {
-		return tree.Errorf("undefined array: %v", name)
+		return gen.Errorf(tree, "undefined array: %v", name)
 	}
 
 	// Get stack ptr
@@ -379,7 +379,7 @@ func (gen *IntGen) getArray(tree *SyntaxTree) (*IntInstr, error) {
 	variable := gen.CurrentScope().GetVar(name)
 
 	if variable == nil {
-		return tree.Errorf("undefined array: %v", name)
+		return gen.Errorf(tree, "undefined array: %v", name)
 	}
 
 	// TODO optimize if the expression in offset. If regular const (i.e. 0-9)
@@ -412,7 +412,7 @@ func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
 	variable := gen.CurrentScope().GetVar(name)
 	if variable == nil {
-		return tree.Errorf("undefined array: %v", name)
+		return gen.Errorf(tree, "undefined array: %v", name)
 	}
 
 	val := gen.MakeIntCode(tree.Children[1])
@@ -438,7 +438,7 @@ func (gen *IntGen) initNewArray(tree *SyntaxTree) (*IntInstr, error) {
 	variable := gen.CurrentScope().GetVar(name)
 	variable, err := gen.CurrentScope().NewVar(name, varArrTy)
 	if err != nil {
-		return tree.Errorf("Redeclaration of variable '%s'", name)
+		return gen.Errorf(tree, "Redeclaration of variable '%s'", name)
 	}
 
 	length, _ := strconv.Atoi(tree.Size)
@@ -472,7 +472,7 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 	switch tree.Type {
 	case StringTy:
 		if len(tree.Constant) > 32 {
-			c, err := tree.Errorf("attempting to store string greater than 32 bytes")
+			c, err := gen.Errorf(tree, "attempting to store string greater than 32 bytes")
 			gen.addError(err)
 
 			return c

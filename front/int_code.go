@@ -10,6 +10,8 @@ compiler transforms int code to ASM (very static)
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -330,7 +332,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 				concat(opInstr, c)
 			} else {
 				// TODO?
-				c, err := tree.Errorf("++ only supported on identifiers")
+				c, err := gen.Errorf(tree, "++ only supported on identifiers")
 				gen.addError(err)
 				return c
 			}
@@ -353,7 +355,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		case "&&":
 
 		default:
-			c, err := tree.Errorf("Expected operator, got '%v'", tree.Constant)
+			c, err := gen.Errorf(tree, "Expected operator, got '%v'", tree.Constant)
 			gen.addError(err)
 			return c
 		}
@@ -503,7 +505,11 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return script
 	case ReturnTy:
-		return gen.CurrentScope().MakeReturn(tree.Children[0], gen)
+		if gen.CurrentScope() != gen {
+			return gen.CurrentScope().MakeReturn(tree.Children[0], gen)
+		}
+
+		fallthrough
 	case ExitTy:
 		switch tree.Children[0].Type {
 		case LambdaTy:
@@ -543,7 +549,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		case IdentifierTy:
 			variable := gen.GetVar(tree.Children[0].Constant)
 			if variable == nil {
-				i, err := tree.Errorf("Undefined variable: %v", tree.Constant)
+				i, err := gen.Errorf(tree, "Undefined variable: %v", tree.Constant)
 				gen.addError(err)
 
 				return i
@@ -557,7 +563,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 			return size
 		default:
-			c, err := tree.Errorf("return; '%v' not (yet) supported", tree.Children[0].Type)
+			c, err := gen.Errorf(tree, "return; '%v' not (yet) supported", tree.Children[0].Type)
 			gen.addError(err)
 
 			return c
@@ -606,7 +612,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		// Look up function
 		fn := gen.functionTable[tree.Constant]
 		if fn == nil {
-			c, err := tree.Errorf("undefine: '%s'", tree.Constant)
+			c, err := gen.Errorf(tree, "undefine: '%s'", tree.Constant)
 			gen.addError(err)
 			return c
 		}
@@ -677,7 +683,33 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return p
 	case ImportTy:
-		return newIntInstr(IntIgnore, "")
+		file, err := os.Open(tree.Constant)
+		if err != nil {
+			instr, e := gen.Errorf(tree, "import: %v", err)
+			gen.addError(e)
+			return instr
+		}
+
+		buff, err := ioutil.ReadAll(file)
+		if err != nil {
+			instr, e := gen.Errorf(tree, "import buff: %v", err)
+			gen.addError(e)
+			return instr
+		}
+
+		ast, err := MakeAst(string(buff))
+		if err != nil {
+			instr, e := gen.Errorf(tree, "import: %v", err)
+			gen.addError(e)
+			return instr
+		}
+
+		ofn := gen.filename
+		gen.filename = tree.Constant
+		instr := gen.MakeIntCode(ast)
+		gen.filename = ofn
+
+		return instr
 	case LambdaTy:
 		panic("auto lambda triggered in int code gen. report this issue")
 	case EmptyTy:

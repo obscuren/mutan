@@ -27,6 +27,8 @@ type IntGen struct {
 	scopes *list.List
 
 	currentStackSize int
+
+	filename string
 }
 
 func NewGen() *IntGen {
@@ -37,6 +39,11 @@ func NewGen() *IntGen {
 		stringTable:   make(map[string][]*IntInstr),
 		scopes:        list.New(),
 	}
+}
+
+// Creates an error and returns an ignore instruction
+func (p *IntGen) Errorf(tree *SyntaxTree, format string, v ...interface{}) (*IntInstr, error) {
+	return newIntInstr(IntIgnore, ""), fmt.Errorf("%s:%d: "+format, append([]interface{}{p.filename, tree.Lineno}, v...)...)
 }
 
 func (self *IntGen) NewVar(id string, typ varType) (Var, error) {
@@ -91,8 +98,8 @@ func (self *IntGen) CurrentScope() Scope {
 	return self
 }
 
-func (self *IntGen) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
-	c, err := expr.Errorf("return now allowed in global scope")
+func (self *IntGen) MakeReturn(tree *SyntaxTree, gen *IntGen) *IntInstr {
+	c, err := self.Errorf(tree, "unexpected make return call")
 	gen.addError(err)
 
 	return c
