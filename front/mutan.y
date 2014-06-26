@@ -109,9 +109,9 @@ buildins
 	  {
 		  $$ = NewNode(CallTy, $3, $5, $7, $9, $11)
 	  }
-	| TRANSACT LEFT_PAR get_variable COMMA get_variable COMMA ptr RIGHT_PAR
+	| TRANSACT LEFT_PAR get_variable COMMA get_variable COMMA get_variable COMMA ptr RIGHT_PAR
 	  {
-		  $$ = NewNode(TransactTy, $3, $5, $7)
+		  $$ = NewNode(TransactTy, $3, $5, $7, $9)
 	  }
 	| CREATE LEFT_PAR get_variable COMMA ptr RIGHT_PAR { $$ = NewNode(CreateTy, $3, $5) }
 	| SIZEOF LEFT_PAR ID RIGHT_PAR { $$ = NewNode(SizeofTy); $$.Constant = $3 }

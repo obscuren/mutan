@@ -118,18 +118,6 @@ func TestData(t *testing.T) {
 	fmt.Println(ast)
 }
 
-func TestTransact(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-		transact(0xaa1adef765cd, 100, nil)
-	`), false)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(ast)
-}
-
 func TestCreate(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	a := 0xdeadbeef
@@ -474,4 +462,16 @@ func TestLocalScope(t *testing.T) {
 		fmt.Println(ast)
 	}
 
+}
+
+func TestTransact(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		transact(0xaa1adef765cd, 1000, 100, nil)
+	`), false)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
 }

@@ -474,21 +474,18 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return ret
 	case TransactTy:
 		ret := gen.pushNil()
-		arg, err := gen.makeArg(tree.Children[2])
+		arg, err := gen.makeArg(tree.Children[3])
 		if err != nil {
 			gen.addError(err)
 			return arg
 		}
+
+		value := gen.MakeIntCode(tree.Children[2])
 		sender := gen.MakeIntCode(tree.Children[0])
-		value := gen.MakeIntCode(tree.Children[1])
-		gas := gen.makePush("0")
+		gas := gen.MakeIntCode(tree.Children[1])
 		call := newIntInstr(IntCall, "")
 
-		concat(ret, arg)
-		concat(arg, gas)
-		concat(gas, value)
-		concat(value, sender)
-		concat(sender, call)
+		cc(ret, arg, value, sender, gas, call)
 
 		return ret
 	case CreateTy:
