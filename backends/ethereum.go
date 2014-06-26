@@ -140,6 +140,10 @@ func (c *EthereumBackend) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("origin")
 		case IntAddress:
 			c.add("address")
+		case IntCodeCopy:
+			c.add("codecopy")
+		case IntInlineCode:
+			c.add(instr.Constant)
 		case IntBalance:
 			c.add("balance")
 		case IntCaller:

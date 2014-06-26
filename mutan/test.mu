@@ -1,8 +1,11 @@
-this.store[this.origin()] = 10
+return compile {
+	to := this.data[0]
+	from := this.origin()
+	value := this.data[1]
 
-var a = 10
-var b = 10
+	if this.store[from] >= value {
+		this.store[from] = this.store[from] - value
+			this.store[to] = this.store[to] + value
+	}
+}
 
-return 10
-return this.store[0]
-return a

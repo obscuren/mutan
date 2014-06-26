@@ -11,21 +11,15 @@ import (
 func CompileStage(reader io.Reader, debug bool) (asm []interface{}, errors []error) {
 	compiler := NewCompiler(backend.NewEthereumBackend())
 
-	code, err := compiler.ReadAll(reader)
-
-	if err != nil {
-		errors = append(errors, err)
-		return
-	}
-
-	code, err = compiler.PreProcessorStage(code)
-	if err != nil {
-		errors = append(errors, err)
-		return
-	}
-
-	asm, errors = compiler.CompileStage(code)
+	ic, errors := compiler.Intermediate(reader)
 	if errors != nil {
+		return
+	}
+
+	var err error
+	asm, err = compiler.CompileStage(ic)
+	if err != nil {
+		errors = append(errors, err)
 		return
 	}
 
@@ -218,37 +212,6 @@ func TestShift(t *testing.T) {
 	fmt.Println(ast)
 }
 
-func TestLambda(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-	a := "hello world"
-	a = "test"
-	b := 20
-
-	var[2] c
-	c[0] = 10
-	c[2] = 100
-
-	d := "hello"
-
-	exit compile {
-		to := this.data[0]
-		from := this.origin()
-		value := this.data[1]
-
-		if this.store[from] >= value {
-			this.store[from] = this.store[from] - value
-			this.store[to] = this.store[to] + value
-		}
-	}
-	`), false)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(ast)
-}
-
 func TestString(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	a := "hello world"
@@ -400,6 +363,18 @@ func TestWhile(t *testing.T) {
 
 }
 
+func TestTransact(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		transact(0xaa1adef765cd, 1000, 100, nil)
+	`), false)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
+
 func TestStatementList(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	var a = 10
@@ -464,9 +439,18 @@ func TestLocalScope(t *testing.T) {
 
 }
 
-func TestTransact(t *testing.T) {
+func TestInlineCompile(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		transact(0xaa1adef765cd, 1000, 100, nil)
+	return compile {
+		to := this.data[0]
+		from := this.origin()
+		value := this.data[1]
+
+		if this.store[from] >= value {
+			this.store[from] = this.store[from] - value
+			this.store[to] = this.store[to] + value
+		}
+	}
 	`), false)
 
 	if err != nil {

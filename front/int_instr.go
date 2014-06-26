@@ -1,8 +1,8 @@
 package frontend
 
 import (
+	"encoding/hex"
 	"fmt"
-	_ "strconv"
 )
 
 type IntInstr struct {
@@ -73,6 +73,11 @@ func (instr *IntInstr) SetNumbers(i int, gen *IntGen) {
 					panic("NULL")
 				}
 				i += num.size
+			case IntInlineCode:
+				//gen.InlineCode[num.Number].OffsetInstr.Constant = "0x" + hex.EncodeToString(numberToBytes(int32(i), 32))
+				gen.InlineCode[num.Number].OffsetInstr.Constant = string(numberToBytes(int32(i), 32))
+
+				i += num.size
 			default:
 				i++
 			}
@@ -90,9 +95,24 @@ func (self *IntInstr) LinkTargets() {
 			// when the instrbers weren't all set.
 			if instr.TargetNum != nil {
 				instr.TargetNum.Constant = string(numberToBytes(int32(instr.Target.n), 32))
+				//instr.TargetNum.Constant = "0x" + hex.EncodeToString(numberToBytes(int32(instr.Target.n), 32))
 			}
 		}
 
 		instr = instr.Next
+	}
+}
+
+func (self *IntInstr) LinkCode(inlineCode []InlineCode) {
+	// Append stop
+	cc(self, newIntInstr(IntStop, ""))
+
+	for i, inlineCode := range inlineCode {
+		hex := hex.EncodeToString(inlineCode.Code)
+		cons := newIntInstr(IntInlineCode, "0x"+hex)
+		cons.size = len(hex) / 2
+		cons.Number = i
+
+		cc(self, cons)
 	}
 }

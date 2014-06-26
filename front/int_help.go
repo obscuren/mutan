@@ -150,11 +150,25 @@ func (gen *IntGen) compileLambda(memOffset int, tree *SyntaxTree) (*IntInstr, in
 	code, errors := Compiler.Compile(strings.NewReader(tree.Constant))
 	if len(errors) != 0 {
 		gen.Errors = append(gen.Errors, errors...)
-		return nil, 0
+		return newIntInstr(IntIgnore, ""), 0
 	}
 
-	return gen.bytesToHexInstr(memOffset, code)
+	var (
+		inlineCode = InlineCode{code, nil, 0}
+		length     = gen.makePush(strconv.Itoa(len(code)))
+		cOffset    = newIntInstr(IntPush4, "")
+		cConst     = newIntInstr(IntConst, "")
+		mOffset    = gen.makePush("0")
+		codecopy   = newIntInstr(IntCodeCopy, "")
+	)
+	cConst.Constant = "0x" + hex.EncodeToString(numberToBytes(int32(0), 32))
+	cConst.size = 4
+	inlineCode.OffsetInstr = cConst
+	cc(length, cOffset, cConst, mOffset, codecopy)
 
+	gen.InlineCode = append(gen.InlineCode, inlineCode)
+
+	return length, len(code)
 }
 
 func (gen *IntGen) bytesToHexInstr(memOffset int, b []byte) (*IntInstr, int) {

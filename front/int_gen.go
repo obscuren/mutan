@@ -14,6 +14,12 @@ type Scope interface {
 	MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr
 }
 
+type InlineCode struct {
+	Code        []byte
+	OffsetInstr *IntInstr
+	Offset      int
+}
+
 type IntGen struct {
 	VarTable map[string]Var
 
@@ -29,6 +35,8 @@ type IntGen struct {
 	currentStackSize int
 
 	filename string
+
+	InlineCode []InlineCode
 }
 
 func NewGen() *IntGen {

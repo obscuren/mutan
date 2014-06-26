@@ -65,6 +65,7 @@ const (
 	IntStop
 	IntOrigin
 	IntAddress
+	IntCodeCopy
 	IntCaller
 	IntCallVal
 	IntCallDataLoad
@@ -90,6 +91,7 @@ const (
 	IntSizeof
 
 	IntIgnore
+	IntInlineCode
 )
 
 var instrAsString = []string{
@@ -154,6 +156,7 @@ var instrAsString = []string{
 	"stop",
 	"origin",
 	"address",
+	"codecopy",
 	"caller",
 	"value",
 	"dataload",
@@ -178,6 +181,7 @@ var instrAsString = []string{
 	"sizeof",
 
 	"ignore",
+	"inline",
 }
 
 func (op Instr) String() string {

@@ -23,27 +23,6 @@ func Panic(format string, v ...interface{}) {
 	os.Exit(1)
 }
 
-func Compile(compiler *mutan.Compiler, reader io.Reader) (asm []interface{}, errors []error) {
-	code, err := compiler.ReadAll(reader)
-	if err != nil {
-		errors = append(errors, err)
-		return
-	}
-
-	code, err = compiler.PreProcessorStage(code)
-	if err != nil {
-		errors = append(errors, err)
-		return
-	}
-
-	asm, errors = compiler.CompileStage(code)
-	if errors != nil {
-		return
-	}
-
-	return
-}
-
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] filename\n", os.Args[0])
@@ -76,7 +55,7 @@ func main() {
 		}
 	}
 
-	asm, err := Compile(compiler, reader)
+	asm, err := compiler.Assemble(reader)
 	if err != nil {
 		Panic("%v\n", err)
 	}

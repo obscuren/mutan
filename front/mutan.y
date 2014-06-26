@@ -73,7 +73,6 @@ statement_list
 
 statement
 	: expression { $$ = $1 }
-	| LAMBDA LEFT_BRACKET CODE RIGHT_BRACKET { $$ = NewNode(LambdaTy); $$.Constant = $3 }
 	| if_statement { $$ = $1 }
 	| for_statement { $$ = $1 }
 	| FUNC ID LEFT_PAR opt_arg_def_list RIGHT_PAR optional_type LEFT_BRACES statement_list RIGHT_BRACES
@@ -118,6 +117,7 @@ buildins
 	| PUSH LEFT_PAR expression RIGHT_PAR { $$ = NewNode(PushTy, $3) }
 	| POP LEFT_PAR RIGHT_PAR { $$ = NewNode(PopTy) }
 	| THIS DOT closure_funcs { $$ = $3 }
+	| LAMBDA LEFT_BRACKET CODE RIGHT_BRACKET { $$ = NewNode(LambdaTy); $$.Constant = $3 }
 	;
 
 arguments
@@ -188,7 +188,7 @@ expression
 	| simple_expression { $$ = $1 }
 	| new_variable { $$ = $1 }
 	| RETURN simple_expression { $$ = NewNode(ReturnTy, $2) }
-	| EXIT statement { $$ = NewNode(ExitTy, $2) }
+	| EXIT simple_expression { $$ = NewNode(ExitTy, $2) }
 	| /* Empty */  { $$ = NewNode(EmptyTy) }
 	;
 

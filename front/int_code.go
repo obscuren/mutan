@@ -514,15 +514,14 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case ExitTy:
 		switch tree.Children[0].Type {
 		case LambdaTy:
-			retVal, num := gen.compileLambda(0, tree.Children[0])
-			if num != 0 {
-				size := gen.makePush("0")
-				offset := gen.makePush(strconv.Itoa(num))
-				concat(retVal, offset)
-				concat(offset, size)
+			instr, l := gen.compileLambda(0, tree.Children[0])
 
-				return concat(retVal, newIntInstr(IntReturn, ""))
-			}
+			size := gen.makePush(strconv.Itoa(l))
+			offset := gen.makePush("0")
+
+			cc(instr, size, offset, newIntInstr(IntReturn, ""))
+
+			return instr
 		case ConstantTy:
 			cons := gen.makePush(tree.Children[0].Constant)
 			store := makeStore(0)
