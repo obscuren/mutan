@@ -7,14 +7,15 @@ import (
 	"github.com/obscuren/mutan/backends"
 	"io"
 	"os"
+	"runtime"
 	"strings"
 )
 
 var (
-	StrCode   = flag.String("s", "", "code string")
-	ByteArray = flag.Bool("b", false, "output byte array instead of hex")
-
+	StrCode       = flag.String("s", "", "code string")
+	ByteArray     = flag.Bool("b", false, "output byte array instead of hex")
 	ShowAssembler = flag.Bool("asm", false, "output assembler")
+	Version       = flag.Bool("v", false, "show version")
 )
 
 func Panic(format string, v ...interface{}) {
@@ -49,6 +50,11 @@ func main() {
 		flag.PrintDefaults()
 	}
 	flag.Parse()
+
+	if *Version {
+		fmt.Fprintf(os.Stdout, "Mutan version 0.4 (EVM 0.5) (%s)\n", runtime.GOOS)
+		os.Exit(0)
+	}
 
 	var (
 		reader   io.Reader
