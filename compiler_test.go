@@ -462,7 +462,7 @@ func TestInlineCompile(t *testing.T) {
 
 func TestIt(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	var a = "hello
+	this.call(
 	`), false)
 
 	if err != nil {

@@ -316,7 +316,9 @@ out:
 
 			break out
 		default:
-			l.acceptRunUntill('}')
+			if !l.acceptRunUntill('}') {
+				return nil
+			}
 
 			l.emit(itemInlineAsm)
 		}

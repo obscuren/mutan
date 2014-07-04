@@ -17,6 +17,8 @@ type Compiler struct {
 	Backend CompilerBackend
 
 	Debug bool
+
+	Silent bool
 }
 
 func NewCompiler(backend CompilerBackend) *Compiler {
@@ -70,7 +72,7 @@ func (self *Compiler) IntermediateStage(code string) (intCode *frontend.IntInstr
 	ptr := gen.SetStackPtr(0)
 
 	intCode = frontend.Concat(ptr, gen.MakeIntCode(ast))
-	if len(gen.Errors) > 0 {
+	if len(gen.Errors) > 0 && !self.Silent {
 		for _, genErr := range gen.Errors {
 			fmt.Println(genErr)
 		}
