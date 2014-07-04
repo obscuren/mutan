@@ -16,6 +16,7 @@ type IntInstr struct {
 	size      int
 	n         int
 	variable  Variable
+	LineNo    int
 }
 
 func (instr *IntInstr) String() string {

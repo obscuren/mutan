@@ -465,11 +465,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		gas := gen.MakeIntCode(tree.Children[2])
 		call := newIntInstr(IntCall, "")
 
-		concat(ret, arg)
-		concat(arg, gas)
-		concat(gas, value)
-		concat(value, sender)
-		concat(sender, call)
+		cc(ret, arg, value, sender, gas, call)
 
 		return ret
 	case TransactTy:
