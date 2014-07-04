@@ -459,3 +459,15 @@ func TestInlineCompile(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestIt(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var a = "hello
+	`), false)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}

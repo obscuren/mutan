@@ -26,7 +26,7 @@ func isOperator(t rune) bool {
 	return strings.IndexRune("=+-/*><^!%&|", t) >= 0
 }
 
-const eof = -1
+const eof = -2
 
 type stateFn func(*Lexer) stateFn
 type itemType int
@@ -371,7 +371,11 @@ func lexOperator(l *Lexer) stateFn {
 }
 
 func lexInsideString(l *Lexer) stateFn {
-	l.acceptRunUntill('"')
+	if !l.acceptRunUntill('"') {
+		l.err = fmt.Errorf("Expected '\"'")
+		return nil
+	}
+
 	l.emit(itemStr)
 
 	l.next()
@@ -466,7 +470,7 @@ func lexer(name, input string) *Lexer {
 		name:  name,
 		input: input,
 		state: lexText,
-		items: make(chan item, 10),
+		items: make(chan item, 20),
 	}
 	Lineno = 0
 
@@ -522,11 +526,22 @@ func (l *Lexer) acceptRun(valid string) {
 	l.backup()
 }
 
-func (l *Lexer) acceptRunUntill(until rune) {
+func (l *Lexer) acceptRunUntill(until rune) bool {
 	// Continues running until a rune is found
-	for strings.IndexRune(string(until), l.next()) == -1 {
+	var i rune
+	for i = l.next(); strings.IndexRune(string(until), i) == -1; i = l.next() {
+		if i == eof {
+			break
+		}
 	}
+
 	l.backup()
+
+	if i == eof {
+		return false
+	}
+
+	return true
 }
 
 // Grabs the next item of the channel and returns it, or nil if we're done
@@ -543,6 +558,7 @@ func (l *Lexer) nextItem() item {
 			l.state = l.state(l)
 		}
 	}
+
 	panic("not reached")
 }
 
