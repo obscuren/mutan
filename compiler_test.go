@@ -138,21 +138,6 @@ func TestOpt(t *testing.T) {
 	fmt.Println(ast)
 }
 
-func TestBalance(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-		var a = this.balance()
-		if a > 10 {
-			var b = 10
-		}
-	`), false)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(ast)
-}
-
 func TestOps(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		var test = 10 >= 20
@@ -460,9 +445,24 @@ func TestInlineCompile(t *testing.T) {
 	fmt.Println(ast)
 }
 
-func TestIt(t *testing.T) {
+func TestSyntaxErr(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	this.call(
+	`), false)
+
+	if err == nil {
+		fmt.Println("expected error")
+	}
+
+	fmt.Println(ast)
+}
+
+func TestBalance(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+		var a = this.balance(0xaabbccddeeff)
+		if a > 10 {
+			var b = 10
+		}
 	`), false)
 
 	if err != nil {

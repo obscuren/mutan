@@ -144,7 +144,7 @@ closure_funcs
 	| GASPRICE LEFT_PAR RIGHT_PAR { $$ = NewNode(GasPriceTy) }
 	| BLOCKNUM LEFT_PAR RIGHT_PAR { $$ = NewNode(BlockNumTy) }
 	| COINBASE LEFT_PAR RIGHT_PAR { $$ = NewNode(CoinbaseTy) }
-	| BALANCE LEFT_PAR RIGHT_PAR { $$ = NewNode(BalanceTy) }
+	| BALANCE LEFT_PAR get_variable RIGHT_PAR { $$ = NewNode(BalanceTy, $3) }
 	| GAS LEFT_PAR RIGHT_PAR { $$ = NewNode(GasTy) }
 	| STORE LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(StoreTy, $3) }
 	| STORE LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression

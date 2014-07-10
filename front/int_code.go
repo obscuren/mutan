@@ -409,7 +409,8 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case CoinbaseTy:
 		return newIntInstr(IntCoinbase, "")
 	case BalanceTy:
-		return newIntInstr(IntBalance, "")
+		blk1 := gen.MakeIntCode(tree.Children[0])
+		return concat(blk1, newIntInstr(IntBalance, ""))
 	case GasTy:
 		return newIntInstr(IntGas, "")
 	case BlockNumTy:
