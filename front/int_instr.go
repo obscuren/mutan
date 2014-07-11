@@ -70,9 +70,6 @@ func (instr *IntInstr) SetNumbers(i int, gen *IntGen) {
 		if num.Code != IntTarget && num.Code != IntIgnore {
 			switch num.Code {
 			case IntConst:
-				if num.size == 0 {
-					panic("NULL")
-				}
 				i += num.size
 			case IntInlineCode:
 				//gen.InlineCode[num.Number].OffsetInstr.Constant = "0x" + hex.EncodeToString(numberToBytes(int32(i), 32))

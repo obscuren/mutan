@@ -116,12 +116,18 @@ func (gen *IntGen) pushNil() *IntInstr {
 }
 
 func constToPush(constant string) (*IntInstr, int) {
-	num, _ := new(big.Int).SetString(constant, 0)
+	num, ok := new(big.Int).SetString(constant, 0)
+	if !ok {
+		return newIntInstr(IntIgnore, ""), 0
+	}
+
 	numBytes := len(num.Bytes())
 	if numBytes == 0 {
 		numBytes = 1
 	}
+
 	return newIntInstr(Instr(int(IntPush1)-1+numBytes), ""), numBytes
+
 }
 
 func pushConstant(constant string) (*IntInstr, *IntInstr) {
