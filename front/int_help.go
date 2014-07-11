@@ -148,10 +148,6 @@ func numberToBytes(num interface{}, bits int) []byte {
 	return buf.Bytes()[buf.Len()-(bits/8):]
 }
 
-// Compiles the given code and stores it at memory position given by the mem offset
-// Returns the instructions necessary to handle this lambda and returns the maximum size
-// e.g. if the code script was 50 bytes, it would generate 2 memory storages instructions
-// for: [0-31] & [32-50] and returns (50)
 func (gen *IntGen) compileLambda(memOffset int, tree *SyntaxTree) (*IntInstr, int) {
 	code, errors := Compiler.Compile(strings.NewReader(tree.Constant))
 	if len(errors) != 0 {
@@ -167,6 +163,7 @@ func (gen *IntGen) compileLambda(memOffset int, tree *SyntaxTree) (*IntInstr, in
 		mOffset    = gen.makePush("0")
 		codecopy   = newIntInstr(IntCodeCopy, "")
 	)
+
 	cConst.Constant = "0x" + hex.EncodeToString(numberToBytes(int32(0), 32))
 	cConst.size = 4
 	inlineCode.OffsetInstr = cConst

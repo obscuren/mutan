@@ -486,11 +486,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return ret
 	case CreateTy:
-		script, err := gen.makeArg(tree.Children[1])
-		if err != nil {
-			gen.addError(err)
-			return script
-		}
+		script := gen.MakeIntCode(tree.Children[1])
 		val := gen.MakeIntCode(tree.Children[0])
 		create := newIntInstr(IntCreate, "")
 
@@ -511,14 +507,10 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case ExitTy:
 		switch tree.Children[0].Type {
 		case LambdaTy:
-			instr, l := gen.compileLambda(0, tree.Children[0])
+			ret := gen.MakeIntCode(tree.Children[0])
+			cc(ret, newIntInstr(IntReturn, ""))
 
-			size := gen.makePush(strconv.Itoa(l))
-			offset := gen.makePush("0")
-
-			cc(instr, size, offset, newIntInstr(IntReturn, ""))
-
-			return instr
+			return ret
 		case ConstantTy:
 			cons := gen.makePush(tree.Children[0].Constant)
 			store := makeStore(0)
@@ -708,7 +700,15 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return instr
 	case LambdaTy:
-		panic("auto lambda triggered in int code gen. report this issue")
+		instr, l := gen.compileLambda(0, tree)
+		fmt.Printf("lambda: %x\n", gen.InlineCode[len(gen.InlineCode)-1].Code)
+
+		size := gen.makePush(strconv.Itoa(l))
+		offset := gen.makePush("0")
+
+		cc(instr, size, offset)
+
+		return instr
 	case EmptyTy:
 		return newIntInstr(IntEmpty, "")
 	}

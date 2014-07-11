@@ -424,27 +424,6 @@ func TestLocalScope(t *testing.T) {
 
 }
 
-func TestInlineCompile(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-	return compile {
-		to := this.data[0]
-		from := this.origin()
-		value := this.data[1]
-
-		if this.store[from] >= value {
-			this.store[from] = this.store[from] - value
-			this.store[to] = this.store[to] + value
-		}
-	}
-	`), false)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(ast)
-}
-
 func TestSyntaxErr(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	this.call(
@@ -463,6 +442,26 @@ func TestBalance(t *testing.T) {
 		if a > 10 {
 			var b = 10
 		}
+	`), false)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}
+
+func TestInlineCompile(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var addr = create(0, compile {
+		return compile {
+			return 10
+		}
+	})
+
+	return compile {
+		return 10
+	}
 	`), false)
 
 	if err != nil {

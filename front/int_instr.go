@@ -33,32 +33,6 @@ func newIntInstr(code Instr, constant string) *IntInstr {
 }
 
 func (instr *IntInstr) SetNumbers(i int, gen *IntGen) {
-	/*
-		var memLoc int
-		for _, variable := range gen.locals {
-			variable.pos = memLoc
-
-			switch variable.typ {
-			case varArrTy:
-				for _, cons := range gen.arrayTable[variable.id] {
-					cons.Constant = strconv.Itoa(memLoc)
-				}
-			case varStrTy:
-				for _, instr := range gen.stringTable[variable.id] {
-					num, _ := strconv.Atoi(instr.Constant.(string))
-					instr.Constant = strconv.Itoa(num + memLoc)
-					variable.pos = num + memLoc
-				}
-			default:
-				if variable.instr != nil {
-					variable.instr.Constant = strconv.Itoa(memLoc)
-				}
-			}
-
-			memLoc += variable.size
-		}
-	*/
-
 	num := instr
 	for num != nil {
 		num.n = i

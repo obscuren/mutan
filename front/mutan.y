@@ -112,7 +112,7 @@ buildins
 	  {
 		  $$ = NewNode(TransactTy, $3, $5, $7, $9)
 	  }
-	| CREATE LEFT_PAR get_variable COMMA ptr RIGHT_PAR { $$ = NewNode(CreateTy, $3, $5) }
+	| CREATE LEFT_PAR get_variable COMMA simple_expression RIGHT_PAR { $$ = NewNode(CreateTy, $3, $5) }
 	| SIZEOF LEFT_PAR ID RIGHT_PAR { $$ = NewNode(SizeofTy); $$.Constant = $3 }
 	| PUSH LEFT_PAR expression RIGHT_PAR { $$ = NewNode(PushTy, $3) }
 	| POP LEFT_PAR RIGHT_PAR { $$ = NewNode(PopTy) }
