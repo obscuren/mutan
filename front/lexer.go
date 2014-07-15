@@ -93,6 +93,7 @@ const (
 	itemPush                  = PUSH
 	itemPop                   = POP
 	itemImport                = IMPORT
+	itemByte                  = BYTE
 )
 
 type item struct {
@@ -190,6 +191,8 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemReturn)
 	case "import":
 		l.emit(itemImport)
+	case "byte":
+		l.emit(itemByte)
 	default:
 		l.emit(itemIdentifier)
 	}
@@ -603,5 +606,5 @@ func (l *Lexer) Lex(lval *yySymType) int {
 }
 
 func (l *Lexer) Error(s string) {
-	l.err = fmt.Errorf("line %d: %s", Lineno, s)
+	l.err = fmt.Errorf("line %d: %s: %s", Lineno, s, l.blob())
 }

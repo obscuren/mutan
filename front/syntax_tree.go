@@ -70,6 +70,8 @@ const (
 
 	ImportTy
 
+	ByteTy
+
 	NilTy
 )
 
@@ -136,6 +138,8 @@ var astAsString = []string{
 	"Scope",
 
 	"Import",
+
+	"Byte",
 
 	"Nil",
 }

@@ -365,10 +365,9 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		if blk3 != nil {
 			opinstr := newIntInstr(op, "")
-			concat(blk2, opinstr)
-			concat(opinstr, blk3)
+			cc(blk2, opinstr, blk3)
 
-			return blk1
+			return blk2
 		}
 
 		return concat(blk2, newIntInstr(op, ""))
@@ -415,6 +414,14 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return newIntInstr(IntGas, "")
 	case BlockNumTy:
 		return newIntInstr(IntBlockNum, "")
+	case ByteTy:
+		value := gen.MakeIntCode(tree.Children[0])
+		th := gen.MakeIntCode(tree.Children[1])
+		b := newIntInstr(IntByte, "")
+
+		cc(value, th, b)
+
+		return value
 	case NewArrayTy: // Create a new array
 		c, err := gen.initNewArray(tree)
 		if err != nil {
@@ -701,12 +708,13 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		return instr
 	case LambdaTy:
 		instr, l := gen.compileLambda(0, tree)
-		fmt.Printf("lambda: %x\n", gen.InlineCode[len(gen.InlineCode)-1].Code)
 
 		size := gen.makePush(strconv.Itoa(l))
-		offset := gen.makePush("0")
+		dup := gen.makePush(strconv.Itoa(l - 1))
+		offset := newIntInstr(IntMSize, "")
+		sub := newIntInstr(IntSub, "")
 
-		cc(instr, size, offset)
+		cc(instr, size, dup, offset, sub)
 
 		return instr
 	case EmptyTy:

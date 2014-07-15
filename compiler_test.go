@@ -470,3 +470,22 @@ func TestInlineCompile(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestByte(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var a = 100
+	var b = 1
+	if byte(a, b) != 1 {
+		stop()
+	}
+
+	this.data
+
+	`), false)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(ast)
+}

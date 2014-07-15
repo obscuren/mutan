@@ -124,6 +124,8 @@ func (c *EthereumBackend) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("mstore")
 		case IntMLoad:
 			c.add("mload")
+		case IntMSize:
+			c.add("msize")
 		case IntNot:
 			c.add("not")
 		case IntJumpi:
@@ -174,6 +176,8 @@ func (c *EthereumBackend) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("create")
 		case IntReturn:
 			c.add("return")
+		case IntByte:
+			c.add("byte")
 		case IntASM:
 			c.add(instr.Constant)
 		case IntTarget:

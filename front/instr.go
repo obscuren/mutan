@@ -58,6 +58,7 @@ const (
 
 	IntMStore
 	IntMLoad
+	IntMSize
 	IntNot
 	IntJumpi
 	IntSStore
@@ -89,6 +90,7 @@ const (
 	IntCall
 	IntCreate
 	IntSizeof
+	IntByte
 
 	IntIgnore
 	IntInlineCode
@@ -149,6 +151,7 @@ var instrAsString = []string{
 	"push32",
 	"mstore",
 	"mload",
+	"msize",
 	"not",
 	"jmpi",
 	"sstore",
@@ -179,6 +182,7 @@ var instrAsString = []string{
 	"call",
 	"create",
 	"sizeof",
+	"byte",
 
 	"ignore",
 	"inline",
