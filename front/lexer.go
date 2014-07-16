@@ -67,9 +67,13 @@ const (
 	itemBlockNum              = BLOCKNUM
 	itemCoinbase              = COINBASE
 	itemBalance               = BALANCE
+	itemSha3                  = SHA3
 	itemGas                   = GAS
 	itemDot                   = DOT
-	itemThis                  = THIS
+	itemBlock                 = BLOCK
+	itemTx                    = TX
+	itemContract              = CONTRACT
+	itemCallS                 = CALL_S
 	itemArray                 = ARRAY
 	itemComma                 = COMMA
 	itemCall                  = CALL
@@ -155,10 +159,23 @@ func lexStatement(l *Lexer) stateFn {
 		return lexInsideAsm
 	case "stop":
 		l.emit(itemStop)
-	case "this":
-		l.emit(itemThis)
+	case "block":
+		l.emit(itemBlock)
 
-		return lexClosureScope
+		return lexBlockScope
+	case "this":
+		l.emit(itemCallS)
+
+		return lexCallScope
+	case "tx":
+		l.emit(itemTx)
+
+		return lexTxScope
+	case "contract":
+		l.emit(itemContract)
+
+		return lexContractScope
+
 	case "array":
 		l.emit(itemArray)
 
@@ -193,6 +210,10 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemImport)
 	case "byte":
 		l.emit(itemByte)
+	case "balance":
+		l.emit(itemBalance)
+	case "sha3":
+		l.emit(itemSha3)
 	default:
 		l.emit(itemIdentifier)
 	}
@@ -240,7 +261,7 @@ func lexArray(l *Lexer) stateFn {
 	return lexText
 }
 
-func lexClosureScope(l *Lexer) stateFn {
+func lexBlockScope(l *Lexer) stateFn {
 	if !l.accept(".") {
 		l.err = fmt.Errorf("Expected '.'")
 
@@ -252,23 +273,9 @@ func lexClosureScope(l *Lexer) stateFn {
 	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
 	l.acceptRun(acceptance)
 	switch l.blob() {
-	case "caller":
-		l.emit(itemCaller)
-	case "origin":
-		l.emit(itemOrigin)
-	case "address":
-		l.emit(itemAddress)
-	case "value":
-		l.emit(itemCallVal)
-	case "dataLoad":
-		l.emit(itemCallDataLoad)
-	case "data":
-		l.emit(itemCallDataLoad)
-	case "dataSize":
-		l.emit(itemCallDataSize)
-	case "gasPrice":
-		l.emit(itemGasPrice)
-	case "diff":
+	case "coinbase":
+		l.emit(itemCoinbase)
+	case "difficulty":
 		l.emit(itemDifficulty)
 	case "prevHash":
 		l.emit(itemPrevHash)
@@ -276,14 +283,85 @@ func lexClosureScope(l *Lexer) stateFn {
 		l.emit(itemTimeStamp)
 	case "number":
 		l.emit(itemBlockNum)
-	case "coinbase":
-		l.emit(itemCoinbase)
+	default:
+		l.err = fmt.Errorf("Undefined '%s'", l.blob())
+
+		return nil
+	}
+
+	return lexText
+}
+
+func lexCallScope(l *Lexer) stateFn {
+	if !l.accept(".") {
+		l.err = fmt.Errorf("Expected '.'")
+
+		return nil
+	}
+
+	l.emit(itemDot)
+
+	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
+	l.acceptRun(acceptance)
+	switch l.blob() {
+	case "data":
+		l.emit(itemCallDataLoad)
 	case "gas":
 		l.emit(itemGas)
-	case "store":
+	case "address":
+		l.emit(itemCaller)
+	default:
+		l.err = fmt.Errorf("Undefined '%s'", l.blob())
+
+		return nil
+	}
+
+	return lexText
+}
+
+func lexTxScope(l *Lexer) stateFn {
+	if !l.accept(".") {
+		l.err = fmt.Errorf("Expected '.'")
+
+		return nil
+	}
+
+	l.emit(itemDot)
+
+	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
+	l.acceptRun(acceptance)
+	switch l.blob() {
+	case "gasPrice":
+		l.emit(itemGasPrice)
+	case "origin":
+		l.emit(itemOrigin)
+	case "value":
+		l.emit(itemCallVal)
+	default:
+		l.err = fmt.Errorf("Undefined '%s'", l.blob())
+
+		return nil
+	}
+
+	return lexText
+}
+
+func lexContractScope(l *Lexer) stateFn {
+	if !l.accept(".") {
+		l.err = fmt.Errorf("Expected '.'")
+
+		return nil
+	}
+
+	l.emit(itemDot)
+
+	acceptance := "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ"
+	l.acceptRun(acceptance)
+	switch l.blob() {
+	case "address":
+		l.emit(itemAddress)
+	case "storage":
 		l.emit(itemStore)
-	case "balance":
-		l.emit(itemBalance)
 	default:
 		l.err = fmt.Errorf("Undefined '%s'", l.blob())
 

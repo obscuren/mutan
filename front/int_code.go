@@ -349,7 +349,6 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			blk3 = newIntInstr(IntNot, "")
 		case "!":
 			// Reconstruct this one (We ought to clean this code)
-			blk1 = gen.MakeIntCode(tree.Children[1])
 			opinstr := newIntInstr(IntNot, "")
 			return concat(blk1, opinstr)
 		case "&&":
