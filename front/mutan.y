@@ -128,6 +128,7 @@ buildins
 	| POP LEFT_PAR RIGHT_PAR { $$ = NewNode(PopTy) }
 	| BYTE LEFT_PAR simple_expression COMMA simple_expression RIGHT_PAR { $$ = NewNode(ByteTy, $3, $5) }
 	| BALANCE LEFT_PAR get_variable RIGHT_PAR { $$ = NewNode(BalanceTy, $3) }
+	| SHA3 LEFT_PAR ptr COMMA simple_expression RIGHT_PAR { $$ = NewNode(Sha3Ty, $3, $5) }
 	| BLOCK DOT block_funcs { $$ = $3 }
 	| TX DOT tx_funcs { $$ = $3 }
 	| CONTRACT DOT contract_funcs { $$ = $3 }

@@ -194,7 +194,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line front/mutan.y:332
+//line front/mutan.y:333
 
 //line yacctab:1
 var yyExca = []int{
@@ -203,171 +203,170 @@ var yyExca = []int{
 	-2, 0,
 }
 
-const yyNprod = 96
+const yyNprod = 97
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 946
+const yyLast = 934
 
 var yyAct = []int{
 
-	32, 4, 185, 26, 55, 13, 2, 112, 21, 207,
-	56, 57, 61, 146, 216, 19, 80, 54, 78, 208,
-	64, 59, 62, 63, 215, 96, 75, 55, 103, 72,
-	163, 19, 70, 56, 57, 55, 152, 55, 116, 79,
-	73, 56, 57, 56, 57, 221, 35, 55, 187, 117,
-	74, 124, 55, 56, 57, 115, 77, 76, 56, 57,
-	51, 98, 99, 100, 101, 36, 240, 19, 93, 109,
-	238, 106, 107, 108, 232, 231, 186, 214, 213, 114,
-	19, 160, 159, 121, 121, 121, 158, 92, 125, 91,
-	121, 119, 122, 123, 127, 90, 206, 243, 128, 19,
-	179, 241, 180, 204, 109, 66, 150, 202, 200, 199,
-	149, 68, 151, 155, 198, 19, 154, 19, 67, 197,
-	196, 69, 205, 195, 19, 194, 193, 192, 164, 162,
-	161, 126, 118, 113, 102, 177, 175, 69, 173, 172,
-	171, 170, 169, 168, 167, 166, 165, 95, 89, 88,
-	87, 86, 85, 84, 83, 82, 81, 218, 217, 121,
-	121, 178, 19, 157, 19, 153, 190, 188, 189, 191,
-	176, 174, 102, 94, 148, 223, 201, 104, 203, 222,
-	219, 52, 210, 182, 211, 226, 105, 19, 184, 19,
-	212, 140, 110, 65, 58, 19, 141, 131, 132, 130,
-	133, 134, 143, 22, 144, 23, 136, 30, 138, 111,
-	220, 137, 147, 209, 121, 121, 6, 53, 145, 14,
-	31, 5, 224, 225, 228, 142, 227, 71, 233, 229,
-	230, 135, 121, 121, 139, 237, 239, 129, 12, 19,
-	19, 121, 19, 19, 242, 46, 47, 48, 49, 3,
-	1, 0, 0, 0, 0, 0, 38, 41, 16, 40,
-	45, 0, 0, 0, 0, 0, 0, 0, 0, 44,
-	42, 43, 39, 0, 0, 0, 11, 35, 0, 50,
-	0, 15, 17, 0, 18, 10, 236, 0, 0, 8,
+	32, 4, 190, 26, 150, 81, 2, 47, 48, 49,
+	50, 62, 79, 98, 19, 114, 223, 55, 38, 41,
+	65, 40, 45, 46, 105, 222, 118, 221, 228, 56,
+	19, 44, 42, 43, 39, 57, 58, 21, 56, 35,
+	56, 51, 192, 56, 57, 58, 57, 58, 167, 57,
+	58, 56, 34, 56, 37, 156, 126, 57, 58, 57,
+	58, 71, 36, 61, 28, 213, 33, 19, 119, 29,
+	111, 56, 27, 25, 35, 214, 76, 57, 58, 117,
+	19, 78, 77, 52, 123, 123, 123, 36, 116, 127,
+	74, 123, 123, 246, 239, 131, 95, 238, 132, 19,
+	75, 191, 220, 219, 169, 164, 111, 163, 154, 162,
+	94, 93, 153, 92, 155, 159, 19, 13, 19, 212,
+	249, 121, 124, 125, 184, 19, 185, 247, 130, 210,
+	67, 208, 206, 60, 63, 64, 69, 205, 204, 203,
+	202, 73, 201, 68, 200, 199, 70, 181, 198, 168,
+	166, 80, 165, 128, 120, 115, 104, 182, 180, 70,
+	178, 177, 176, 123, 123, 19, 175, 19, 174, 173,
+	172, 171, 170, 97, 100, 101, 102, 103, 91, 90,
+	89, 207, 88, 209, 108, 109, 110, 87, 86, 217,
+	85, 19, 84, 19, 83, 82, 225, 224, 183, 19,
+	193, 194, 161, 157, 179, 104, 96, 129, 152, 106,
+	230, 229, 226, 53, 216, 187, 227, 233, 107, 189,
+	123, 123, 144, 112, 66, 59, 211, 145, 30, 23,
+	158, 235, 22, 234, 113, 240, 236, 237, 54, 123,
+	123, 151, 244, 245, 215, 19, 19, 123, 19, 19,
+	248, 135, 136, 134, 137, 138, 72, 231, 232, 6,
+	14, 31, 5, 146, 47, 48, 49, 50, 147, 139,
+	148, 143, 133, 12, 3, 38, 41, 16, 40, 45,
+	46, 140, 195, 142, 149, 196, 141, 197, 44, 42,
+	43, 39, 1, 0, 0, 11, 35, 0, 51, 0,
+	15, 17, 0, 18, 10, 243, 0, 218, 8, 34,
+	0, 37, 24, 7, 0, 9, 0, 0, 0, 36,
+	20, 28, 0, 33, 0, 0, 29, 0, 0, 27,
+	25, 47, 48, 49, 50, 0, 0, 0, 0, 0,
+	0, 0, 38, 41, 16, 40, 45, 46, 0, 0,
+	0, 0, 0, 0, 0, 44, 42, 43, 39, 0,
+	0, 0, 11, 35, 0, 51, 0, 15, 17, 0,
+	18, 10, 242, 0, 0, 8, 34, 0, 37, 24,
+	7, 0, 9, 0, 0, 0, 36, 20, 28, 0,
+	33, 0, 0, 29, 0, 0, 27, 25, 47, 48,
+	49, 50, 0, 0, 0, 0, 0, 0, 0, 38,
+	41, 16, 40, 45, 46, 0, 0, 0, 0, 0,
+	0, 0, 44, 42, 43, 39, 0, 0, 0, 11,
+	35, 0, 51, 0, 15, 17, 0, 18, 10, 241,
+	0, 0, 8, 34, 0, 37, 24, 7, 0, 9,
+	0, 0, 0, 36, 20, 28, 0, 33, 0, 0,
+	29, 0, 0, 27, 25, 47, 48, 49, 50, 0,
+	0, 0, 0, 0, 0, 0, 38, 41, 16, 40,
+	45, 46, 0, 0, 0, 0, 0, 0, 0, 44,
+	42, 43, 39, 0, 0, 0, 11, 35, 0, 51,
+	0, 15, 17, 0, 18, 10, 188, 0, 0, 8,
 	34, 0, 37, 24, 7, 0, 9, 0, 0, 0,
 	36, 20, 28, 0, 33, 0, 0, 29, 0, 0,
-	27, 25, 46, 47, 48, 49, 0, 0, 0, 0,
-	0, 0, 0, 38, 41, 16, 40, 45, 0, 0,
+	27, 25, 47, 48, 49, 50, 0, 0, 0, 0,
+	0, 0, 0, 38, 41, 16, 40, 45, 46, 0,
 	0, 0, 0, 0, 0, 0, 44, 42, 43, 39,
-	0, 0, 0, 11, 35, 0, 50, 0, 15, 17,
-	0, 18, 10, 235, 0, 0, 8, 34, 0, 37,
+	0, 0, 0, 11, 35, 0, 51, 0, 15, 17,
+	0, 18, 10, 186, 0, 0, 8, 34, 0, 37,
 	24, 7, 0, 9, 0, 0, 0, 36, 20, 28,
-	0, 33, 0, 0, 29, 0, 0, 27, 25, 46,
-	47, 48, 49, 0, 0, 0, 0, 0, 0, 0,
-	38, 41, 16, 40, 45, 0, 0, 0, 0, 0,
+	0, 33, 0, 0, 29, 0, 0, 27, 25, 47,
+	48, 49, 50, 0, 0, 0, 0, 0, 0, 0,
+	38, 41, 16, 40, 45, 46, 0, 0, 0, 0,
 	0, 0, 0, 44, 42, 43, 39, 0, 0, 0,
-	11, 35, 0, 50, 0, 15, 17, 0, 18, 10,
-	234, 0, 0, 8, 34, 0, 37, 24, 7, 0,
+	11, 35, 0, 51, 0, 15, 17, 0, 18, 10,
+	99, 0, 0, 8, 34, 0, 37, 24, 7, 0,
 	9, 0, 0, 0, 36, 20, 28, 0, 33, 0,
-	0, 29, 0, 0, 27, 25, 46, 47, 48, 49,
+	0, 29, 0, 0, 27, 25, 47, 48, 49, 50,
 	0, 0, 0, 0, 0, 0, 0, 38, 41, 16,
-	40, 45, 0, 0, 0, 0, 0, 0, 0, 0,
+	40, 45, 46, 0, 0, 0, 0, 0, 0, 0,
 	44, 42, 43, 39, 0, 0, 0, 11, 35, 0,
-	50, 0, 15, 17, 0, 18, 10, 183, 0, 0,
+	51, 0, 15, 17, 0, 18, 10, 0, 0, 0,
 	8, 34, 0, 37, 24, 7, 0, 9, 0, 0,
 	0, 36, 20, 28, 0, 33, 0, 0, 29, 0,
-	0, 27, 25, 46, 47, 48, 49, 0, 0, 0,
-	0, 0, 0, 0, 38, 41, 16, 40, 45, 0,
+	0, 27, 25, 47, 48, 49, 50, 0, 0, 0,
+	0, 0, 0, 0, 38, 41, 16, 40, 45, 46,
 	0, 0, 0, 0, 0, 0, 0, 44, 42, 43,
-	39, 0, 0, 0, 11, 35, 0, 50, 0, 15,
-	17, 0, 18, 10, 181, 0, 0, 8, 34, 0,
-	37, 24, 7, 0, 9, 0, 0, 0, 36, 20,
+	39, 0, 0, 0, 0, 35, 0, 51, 0, 15,
+	0, 0, 0, 0, 0, 0, 0, 0, 34, 160,
+	37, 24, 0, 0, 0, 0, 0, 0, 36, 20,
 	28, 0, 33, 0, 0, 29, 0, 0, 27, 25,
-	46, 47, 48, 49, 0, 0, 0, 0, 0, 0,
-	0, 38, 41, 16, 40, 45, 0, 0, 0, 0,
+	47, 48, 49, 50, 0, 0, 0, 0, 0, 0,
+	0, 38, 41, 16, 40, 45, 46, 0, 0, 0,
 	0, 0, 0, 0, 44, 42, 43, 39, 0, 0,
-	0, 11, 35, 0, 50, 0, 15, 17, 0, 18,
-	10, 97, 0, 0, 8, 34, 0, 37, 24, 7,
-	0, 9, 0, 0, 0, 36, 20, 28, 0, 33,
-	0, 0, 29, 0, 0, 27, 25, 46, 47, 48,
-	49, 0, 0, 0, 0, 0, 0, 0, 38, 41,
-	16, 40, 45, 0, 0, 0, 0, 0, 0, 0,
-	0, 44, 42, 43, 39, 0, 0, 0, 11, 35,
-	0, 50, 0, 15, 17, 0, 18, 10, 0, 0,
-	0, 8, 34, 0, 37, 24, 7, 0, 9, 0,
-	0, 0, 36, 20, 28, 0, 33, 0, 0, 29,
-	0, 0, 27, 25, 46, 47, 48, 49, 0, 0,
-	0, 0, 0, 0, 0, 38, 41, 16, 40, 45,
-	0, 0, 0, 0, 0, 0, 0, 0, 44, 42,
-	43, 39, 0, 0, 0, 0, 35, 0, 50, 0,
-	15, 0, 0, 0, 0, 0, 0, 0, 0, 34,
-	156, 37, 24, 0, 0, 0, 0, 0, 0, 36,
-	20, 28, 0, 33, 0, 0, 29, 0, 0, 27,
-	25, 46, 47, 48, 49, 0, 0, 0, 0, 0,
-	0, 0, 38, 41, 16, 40, 45, 0, 0, 0,
-	0, 0, 0, 0, 0, 44, 42, 43, 39, 0,
-	0, 0, 0, 35, 0, 50, 0, 15, 0, 0,
-	0, 0, 0, 0, 0, 0, 34, 0, 37, 24,
-	46, 47, 48, 49, 0, 0, 36, 20, 28, 0,
-	33, 38, 41, 29, 40, 45, 27, 25, 0, 0,
-	0, 0, 0, 0, 44, 42, 43, 39, 0, 0,
-	0, 0, 35, 0, 50, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 34, 0, 37, 0, 46,
-	47, 48, 49, 0, 0, 36, 60, 28, 0, 33,
-	38, 41, 29, 40, 45, 27, 25, 0, 0, 0,
-	0, 0, 0, 44, 42, 43, 39, 0, 0, 0,
-	0, 35, 0, 50, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 37, 0, 0, 0,
-	0, 0, 0, 0, 36, 120, 28, 0, 0, 0,
-	0, 29, 0, 0, 27, 25,
+	0, 0, 35, 0, 51, 0, 15, 0, 0, 0,
+	0, 0, 0, 0, 0, 34, 0, 37, 24, 0,
+	0, 0, 0, 0, 0, 36, 20, 28, 0, 33,
+	0, 0, 29, 0, 0, 27, 25, 47, 48, 49,
+	50, 0, 0, 0, 0, 0, 0, 0, 38, 41,
+	0, 40, 45, 46, 0, 0, 0, 0, 0, 0,
+	0, 44, 42, 43, 39, 0, 0, 0, 0, 35,
+	0, 51, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 37, 0, 0, 0, 0, 0,
+	0, 0, 36, 122, 28, 0, 0, 0, 0, 29,
+	0, 0, 27, 25,
 }
 var yyPact = []int{
 
-	-1000, -1000, 643, -1000, -1000, -1000, -1000, 0, 137, 6,
-	-1000, -1000, -1000, -59, 161, 826, 826, 826, 777, 160,
-	72, -1000, -1000, 826, -20, -3, -1000, -4, -1000, -1000,
-	-1000, -1000, -46, 826, -1000, -1000, -49, 107, 106, 105,
-	104, 103, 102, 101, 100, 99, 39, 33, 31, 12,
-	127, 98, -37, -1000, 576, 826, 826, 826, 826, -59,
-	88, -1000, -59, -16, 142, 826, 826, 777, 159, -1000,
-	83, 83, -59, -1000, -5, -23, -1000, -1000, -1000, -59,
-	-10, 82, 875, 875, 875, -9, 777, 81, 826, 875,
-	176, 197, 164, 192, -54, -1000, 129, -1000, -59, -59,
-	-59, -59, 777, -1000, 777, -1000, -59, -59, -11, 118,
-	826, 710, -1000, -1000, -1000, -1000, 116, -1000, -1000, 28,
-	126, -1000, 24, 23, 80, 79, -1000, -28, 78, -1000,
-	97, 96, 95, 94, 93, -1000, 92, 91, 90, -1000,
-	89, 125, -1000, 87, 124, 86, 114, 50, -1000, 509,
-	148, 442, 155, -1000, -59, 18, -1000, -12, 875, 875,
-	826, -1000, -1000, 826, -1000, 77, 76, 75, 73, 70,
-	69, 64, 59, 58, 777, 57, 777, 53, -1000, 44,
-	-51, 140, 777, -1000, 826, -1000, -1000, -1000, 20, 19,
-	-26, -36, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000,
-	-1000, 111, -1000, 110, -1000, 136, -1000, 18, -15, -1000,
-	135, 131, -59, 875, 875, -1000, -1000, 152, -1000, -1000,
-	-1000, 18, -1000, -1000, 17, 16, 777, 375, -1000, 308,
-	241, 10, 10, -1000, -1000, -1000, -1000, 8, -1000, 51,
-	10, -1000, 47, -1000,
+	-1000, -1000, 662, -1000, -1000, -1000, -1000, 23, 169, 28,
+	-1000, -1000, -1000, -12, 192, 3, 3, 3, 796, 191,
+	97, -1000, -1000, 3, 30, 22, -1000, 21, -1000, -1000,
+	-1000, -1000, -52, 3, -1000, -1000, -60, 146, 145, 143,
+	141, 139, 138, 133, 131, 130, 129, 57, 55, 54,
+	40, 160, 124, -49, -1000, 595, 3, 3, 3, 3,
+	-12, 110, -1000, -12, -20, 174, 3, 3, 796, 190,
+	-1000, 105, 105, -12, -1000, 19, -35, -1000, -1000, -1000,
+	-12, 9, 104, 863, 863, 863, -4, 796, 103, 3,
+	863, 38, 230, 272, 195, 258, -63, -1000, 163, -1000,
+	-12, -12, -12, -12, 796, -1000, 796, -1000, -12, -12,
+	8, 156, 3, 729, -1000, -1000, -1000, -1000, 155, -1000,
+	-1000, 51, 159, -1000, 49, 47, 102, 100, -1000, -10,
+	99, 46, -1000, -1000, 123, 122, 121, 120, 119, -1000,
+	117, 113, 112, -1000, 111, 158, -1000, 109, 101, 108,
+	151, 74, -1000, 528, 180, 461, 186, -1000, -12, 43,
+	-1000, -18, 863, 863, 3, -1000, -1000, 3, -1000, 3,
+	98, 95, 94, 92, 90, 89, 88, 87, 82, 796,
+	81, 796, 79, -1000, 67, 5, 172, 796, -1000, 3,
+	-1000, -1000, -1000, 45, 44, -23, -25, -34, -1000, -1000,
+	-1000, -1000, -1000, -1000, -1000, -1000, -1000, 150, -1000, 149,
+	-1000, 168, -1000, 43, -32, -1000, 167, 166, -12, 863,
+	863, -1000, -1000, -1000, 184, -1000, -1000, -1000, 43, -1000,
+	-1000, 39, 36, 796, 394, -1000, 327, 260, 38, 38,
+	-1000, -1000, -1000, -1000, 35, 77, 38, -1000, 70, -1000,
 }
 var yyPgo = []int{
 
-	0, 250, 6, 249, 1, 238, 5, 8, 237, 234,
-	231, 225, 221, 203, 220, 219, 219, 2, 0, 207,
-	216, 213, 3, 212, 209, 12, 205, 7, 122,
+	0, 292, 6, 274, 1, 273, 117, 37, 272, 271,
+	269, 263, 262, 232, 261, 260, 260, 2, 0, 228,
+	259, 244, 3, 241, 234, 11, 229, 15, 226,
 }
 var yyR1 = []int{
 
 	0, 1, 2, 2, 3, 3, 3, 3, 3, 3,
 	3, 3, 23, 23, 23, 28, 28, 14, 14, 14,
 	14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
-	14, 16, 16, 17, 17, 9, 9, 9, 11, 11,
-	11, 11, 8, 8, 8, 8, 8, 10, 10, 10,
-	12, 21, 21, 20, 20, 4, 4, 4, 4, 4,
-	4, 24, 24, 5, 5, 5, 5, 5, 15, 15,
-	15, 6, 6, 6, 6, 6, 13, 13, 13, 13,
-	13, 7, 7, 7, 7, 7, 7, 7, 7, 25,
-	22, 22, 18, 19, 26, 27,
+	14, 14, 16, 16, 17, 17, 9, 9, 9, 11,
+	11, 11, 11, 8, 8, 8, 8, 8, 10, 10,
+	10, 12, 21, 21, 20, 20, 4, 4, 4, 4,
+	4, 4, 24, 24, 5, 5, 5, 5, 5, 15,
+	15, 15, 6, 6, 6, 6, 6, 13, 13, 13,
+	13, 13, 7, 7, 7, 7, 7, 7, 7, 7,
+	25, 22, 22, 18, 19, 26, 27,
 }
 var yyR2 = []int{
 
 	0, 1, 2, 0, 1, 1, 1, 9, 4, 2,
 	3, 1, 4, 5, 0, 1, 0, 3, 12, 10,
-	6, 4, 4, 3, 6, 4, 3, 3, 3, 3,
-	4, 3, 0, 1, 0, 3, 4, 6, 3, 4,
-	1, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	6, 4, 0, 9, 5, 1, 1, 1, 2, 2,
-	0, 3, 0, 3, 3, 6, 3, 4, 2, 3,
-	5, 1, 1, 3, 3, 4, 2, 3, 3, 3,
-	2, 1, 1, 2, 1, 4, 1, 1, 1, 2,
-	1, 1, 1, 3, 1, 1,
+	6, 4, 4, 3, 6, 4, 6, 3, 3, 3,
+	3, 4, 3, 0, 1, 0, 3, 4, 6, 3,
+	4, 1, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 6, 4, 0, 9, 5, 1, 1, 1, 2,
+	2, 0, 3, 0, 3, 3, 6, 3, 4, 2,
+	3, 5, 1, 1, 3, 3, 4, 2, 3, 3,
+	3, 2, 1, 1, 2, 1, 4, 1, 1, 1,
+	2, 1, 1, 1, 3, 1, 1,
 }
 var yyChk = []int{
 
@@ -375,55 +374,55 @@ var yyChk = []int{
 	44, 35, -5, -6, -15, 40, 17, 41, 43, -25,
 	60, -7, -13, -26, 52, 70, -22, 69, 61, 66,
 	-19, -14, -18, 63, 49, 36, 59, 51, 15, 31,
-	18, 16, 29, 30, 28, 19, 4, 5, 6, 7,
-	38, 60, 44, -19, -2, 63, 69, 70, 33, -6,
-	60, -25, -6, -6, -4, 33, 33, 46, 39, 49,
-	-7, -13, -6, 60, 70, 46, 60, 60, 64, -6,
-	65, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	56, 56, 56, 56, 46, 49, 62, 45, -6, -6,
-	-6, -6, 46, 44, 35, 44, -6, -6, -6, -4,
-	33, -24, -27, 50, -27, 60, 61, 59, 50, -7,
-	60, -18, -7, -7, 60, -4, 50, -6, -7, -8,
-	23, 21, 22, 24, 25, -10, 9, 14, 11, -9,
-	27, 32, -11, 10, 12, 26, 67, -23, 45, -2,
-	-4, -2, 47, 47, -6, -4, 50, 47, 58, 58,
-	58, 50, 50, 58, 50, 49, 49, 49, 49, 49,
-	49, 49, 49, 49, 46, 49, 46, 49, 47, 50,
-	52, 45, 35, 45, 33, -17, 58, 60, -7, -7,
-	-6, -6, 50, 50, 50, 50, 50, 50, 50, 50,
-	50, -4, 50, -4, 50, -28, 52, 60, 70, -21,
-	42, -4, -6, 58, 58, 50, 50, 47, 47, 44,
-	-17, 60, 44, 44, -7, -7, 33, -2, -17, -2,
-	-2, 58, 58, -4, 45, 45, 45, -22, 60, -22,
-	58, 50, -22, 50,
+	18, 16, 29, 30, 28, 19, 20, 4, 5, 6,
+	7, 38, 60, 44, -19, -2, 63, 69, 70, 33,
+	-6, 60, -25, -6, -6, -4, 33, 33, 46, 39,
+	49, -7, -13, -6, 60, 70, 46, 60, 60, 64,
+	-6, 65, 49, 49, 49, 49, 49, 49, 49, 49,
+	49, 49, 56, 56, 56, 56, 46, 49, 62, 45,
+	-6, -6, -6, -6, 46, 44, 35, 44, -6, -6,
+	-6, -4, 33, -24, -27, 50, -27, 60, 61, 59,
+	50, -7, 60, -18, -7, -7, 60, -4, 50, -6,
+	-7, -22, 60, -8, 23, 21, 22, 24, 25, -10,
+	9, 14, 11, -9, 27, 32, -11, 10, 12, 26,
+	67, -23, 45, -2, -4, -2, 47, 47, -6, -4,
+	50, 47, 58, 58, 58, 50, 50, 58, 50, 58,
+	49, 49, 49, 49, 49, 49, 49, 49, 49, 46,
+	49, 46, 49, 47, 50, 52, 45, 35, 45, 33,
+	-17, 58, 60, -7, -7, -6, -6, -6, 50, 50,
+	50, 50, 50, 50, 50, 50, 50, -4, 50, -4,
+	50, -28, 52, 60, 70, -21, 42, -4, -6, 58,
+	58, 50, 50, 50, 47, 47, 44, -17, 60, 44,
+	44, -7, -7, 33, -2, -17, -2, -2, 58, 58,
+	-4, 45, 45, 45, -22, -22, 58, 50, -22, 50,
 }
 var yyDef = []int{
 
 	3, -2, 1, 2, 4, 5, 6, 0, 0, 0,
-	3, 11, 55, 56, 57, 0, 0, 0, 60, 82,
-	92, 71, 72, 0, 0, 0, 81, 0, 84, 86,
-	87, 88, 90, 0, 94, 91, 0, 0, 0, 0,
+	3, 11, 56, 57, 58, 0, 0, 0, 61, 83,
+	93, 72, 73, 0, 0, 0, 82, 0, 85, 87,
+	88, 89, 91, 0, 95, 92, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 9, 0, 0, 0, 0, 0, 58,
-	92, 82, 59, 0, 0, 0, 0, 60, 0, 62,
-	71, 72, 0, 68, 0, 0, 89, 83, 76, 80,
-	0, 0, 0, 0, 0, 0, 60, 0, 0, 0,
-	0, 0, 0, 0, 0, 14, 0, 10, 77, 78,
-	79, 66, 60, 3, 60, 3, 63, 64, 0, 0,
-	0, 60, 73, 95, 74, 69, 0, 93, 17, 0,
-	92, 90, 0, 0, 0, 0, 23, 0, 0, 26,
-	0, 0, 0, 0, 0, 27, 0, 0, 0, 28,
-	0, 0, 29, 0, 40, 0, 0, 0, 8, 0,
-	0, 0, 0, 85, 67, 34, 75, 0, 0, 0,
-	0, 21, 22, 0, 25, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 60, 0, 60, 0, 30, 16,
-	0, 52, 60, 54, 0, 61, 33, 70, 0, 0,
-	0, 0, 42, 43, 44, 45, 46, 47, 48, 49,
-	35, 0, 38, 0, 41, 0, 15, 34, 0, 50,
-	0, 0, 65, 0, 0, 20, 24, 36, 39, 3,
-	12, 34, 3, 3, 0, 0, 60, 0, 13, 0,
-	0, 0, 0, 37, 7, 51, 53, 0, 92, 0,
-	0, 19, 0, 18,
+	0, 0, 0, 0, 9, 0, 0, 0, 0, 0,
+	59, 93, 83, 60, 0, 0, 0, 0, 61, 0,
+	63, 72, 73, 0, 69, 0, 0, 90, 84, 77,
+	81, 0, 0, 0, 0, 0, 0, 61, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 14, 0, 10,
+	78, 79, 80, 67, 61, 3, 61, 3, 64, 65,
+	0, 0, 0, 61, 74, 96, 75, 70, 0, 94,
+	17, 0, 93, 91, 0, 0, 0, 0, 23, 0,
+	0, 0, 93, 27, 0, 0, 0, 0, 0, 28,
+	0, 0, 0, 29, 0, 0, 30, 0, 41, 0,
+	0, 0, 8, 0, 0, 0, 0, 86, 68, 35,
+	76, 0, 0, 0, 0, 21, 22, 0, 25, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 61,
+	0, 61, 0, 31, 16, 0, 53, 61, 55, 0,
+	62, 34, 71, 0, 0, 0, 0, 0, 43, 44,
+	45, 46, 47, 48, 49, 50, 36, 0, 39, 0,
+	42, 0, 15, 35, 0, 51, 0, 0, 66, 0,
+	0, 20, 24, 26, 37, 40, 3, 12, 35, 3,
+	3, 0, 0, 61, 0, 13, 0, 0, 0, 0,
+	38, 7, 52, 54, 0, 0, 0, 19, 0, 18,
 }
 var yyTok1 = []int{
 
@@ -805,7 +804,7 @@ yydefault:
 	case 26:
 		//line front/mutan.y:131
 		{
-			yyVAL.tnode = yyS[yypt-0].tnode
+			yyVAL.tnode = NewNode(Sha3Ty, yyS[yypt-3].tnode, yyS[yypt-1].tnode)
 		}
 	case 27:
 		//line front/mutan.y:132
@@ -825,21 +824,21 @@ yydefault:
 	case 30:
 		//line front/mutan.y:135
 		{
-			yyVAL.tnode = NewNode(LambdaTy)
-			yyVAL.tnode.Constant = yyS[yypt-1].str
+			yyVAL.tnode = yyS[yypt-0].tnode
 		}
 	case 31:
-		//line front/mutan.y:139
+		//line front/mutan.y:136
 		{
-			yyVAL.tnode = NewNode(ArgTy, yyS[yypt-2].tnode, yyS[yypt-1].tnode)
+			yyVAL.tnode = NewNode(LambdaTy)
+			yyVAL.tnode.Constant = yyS[yypt-1].str
 		}
 	case 32:
 		//line front/mutan.y:140
 		{
-			yyVAL.tnode = NewNode(EmptyTy)
+			yyVAL.tnode = NewNode(ArgTy, yyS[yypt-2].tnode, yyS[yypt-1].tnode)
 		}
 	case 33:
-		//line front/mutan.y:144
+		//line front/mutan.y:141
 		{
 			yyVAL.tnode = NewNode(EmptyTy)
 		}
@@ -849,83 +848,88 @@ yydefault:
 			yyVAL.tnode = NewNode(EmptyTy)
 		}
 	case 35:
-		//line front/mutan.y:150
+		//line front/mutan.y:146
 		{
-			yyVAL.tnode = NewNode(AddressTy)
+			yyVAL.tnode = NewNode(EmptyTy)
 		}
 	case 36:
 		//line front/mutan.y:151
 		{
-			yyVAL.tnode = NewNode(StoreTy, yyS[yypt-1].tnode)
+			yyVAL.tnode = NewNode(AddressTy)
 		}
 	case 37:
-		//line front/mutan.y:153
+		//line front/mutan.y:152
+		{
+			yyVAL.tnode = NewNode(StoreTy, yyS[yypt-1].tnode)
+		}
+	case 38:
+		//line front/mutan.y:154
 		{
 			node := NewNode(SetStoreTy, yyS[yypt-3].tnode)
 			yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, node)
 		}
-	case 38:
-		//line front/mutan.y:160
-		{
-			yyVAL.tnode = NewNode(CallerTy)
-		}
 	case 39:
 		//line front/mutan.y:161
 		{
-			yyVAL.tnode = NewNode(CallDataLoadTy, yyS[yypt-1].tnode)
+			yyVAL.tnode = NewNode(CallerTy)
 		}
 	case 40:
 		//line front/mutan.y:162
 		{
-			yyVAL.tnode = NewNode(CallDataSizeTy)
+			yyVAL.tnode = NewNode(CallDataLoadTy, yyS[yypt-1].tnode)
 		}
 	case 41:
 		//line front/mutan.y:163
 		{
-			yyVAL.tnode = NewNode(GasTy)
+			yyVAL.tnode = NewNode(CallDataSizeTy)
 		}
 	case 42:
-		//line front/mutan.y:168
+		//line front/mutan.y:164
 		{
-			yyVAL.tnode = NewNode(TimestampTy)
+			yyVAL.tnode = NewNode(GasTy)
 		}
 	case 43:
 		//line front/mutan.y:169
 		{
-			yyVAL.tnode = NewNode(DiffTy)
+			yyVAL.tnode = NewNode(TimestampTy)
 		}
 	case 44:
 		//line front/mutan.y:170
 		{
-			yyVAL.tnode = NewNode(PrevHashTy)
+			yyVAL.tnode = NewNode(DiffTy)
 		}
 	case 45:
 		//line front/mutan.y:171
 		{
-			yyVAL.tnode = NewNode(BlockNumTy)
+			yyVAL.tnode = NewNode(PrevHashTy)
 		}
 	case 46:
 		//line front/mutan.y:172
 		{
-			yyVAL.tnode = NewNode(CoinbaseTy)
+			yyVAL.tnode = NewNode(BlockNumTy)
 		}
 	case 47:
-		//line front/mutan.y:176
+		//line front/mutan.y:173
 		{
-			yyVAL.tnode = NewNode(OriginTy)
+			yyVAL.tnode = NewNode(CoinbaseTy)
 		}
 	case 48:
 		//line front/mutan.y:177
 		{
-			yyVAL.tnode = NewNode(GasPriceTy)
+			yyVAL.tnode = NewNode(OriginTy)
 		}
 	case 49:
 		//line front/mutan.y:178
 		{
-			yyVAL.tnode = NewNode(CallValTy)
+			yyVAL.tnode = NewNode(GasPriceTy)
 		}
 	case 50:
-		//line front/mutan.y:183
+		//line front/mutan.y:179
+		{
+			yyVAL.tnode = NewNode(CallValTy)
+		}
+	case 51:
+		//line front/mutan.y:184
 		{
 			if yyS[yypt-0].tnode == nil {
 				yyVAL.tnode = NewNode(IfThenTy, yyS[yypt-4].tnode, yyS[yypt-2].tnode)
@@ -933,30 +937,25 @@ yydefault:
 				yyVAL.tnode = NewNode(IfThenElseTy, yyS[yypt-4].tnode, yyS[yypt-2].tnode, yyS[yypt-0].tnode)
 			}
 		}
-	case 51:
-		//line front/mutan.y:193
+	case 52:
+		//line front/mutan.y:194
 		{
 			yyVAL.tnode = yyS[yypt-1].tnode
 		}
-	case 52:
-		//line front/mutan.y:196
+	case 53:
+		//line front/mutan.y:197
 		{
 			yyVAL.tnode = nil
 		}
-	case 53:
-		//line front/mutan.y:201
+	case 54:
+		//line front/mutan.y:202
 		{
 			yyVAL.tnode = NewNode(ForThenTy, yyS[yypt-7].tnode, yyS[yypt-5].tnode, yyS[yypt-3].tnode, yyS[yypt-1].tnode)
 		}
-	case 54:
-		//line front/mutan.y:205
+	case 55:
+		//line front/mutan.y:206
 		{
 			yyVAL.tnode = NewNode(ForThenTy, yyS[yypt-3].tnode, yyS[yypt-1].tnode)
-		}
-	case 55:
-		//line front/mutan.y:211
-		{
-			yyVAL.tnode = yyS[yypt-0].tnode
 		}
 	case 56:
 		//line front/mutan.y:212
@@ -971,55 +970,60 @@ yydefault:
 	case 58:
 		//line front/mutan.y:214
 		{
-			yyVAL.tnode = NewNode(ReturnTy, yyS[yypt-0].tnode)
+			yyVAL.tnode = yyS[yypt-0].tnode
 		}
 	case 59:
 		//line front/mutan.y:215
 		{
-			yyVAL.tnode = NewNode(ExitTy, yyS[yypt-0].tnode)
+			yyVAL.tnode = NewNode(ReturnTy, yyS[yypt-0].tnode)
 		}
 	case 60:
 		//line front/mutan.y:216
 		{
-			yyVAL.tnode = NewNode(EmptyTy)
+			yyVAL.tnode = NewNode(ExitTy, yyS[yypt-0].tnode)
 		}
 	case 61:
-		//line front/mutan.y:220
+		//line front/mutan.y:217
 		{
-			yyVAL.tnode = NewNode(ArgTy, yyS[yypt-2].tnode, yyS[yypt-1].tnode)
+			yyVAL.tnode = NewNode(EmptyTy)
 		}
 	case 62:
 		//line front/mutan.y:221
 		{
-			yyVAL.tnode = nil
+			yyVAL.tnode = NewNode(ArgTy, yyS[yypt-2].tnode, yyS[yypt-1].tnode)
 		}
 	case 63:
-		//line front/mutan.y:226
+		//line front/mutan.y:222
+		{
+			yyVAL.tnode = nil
+		}
+	case 64:
+		//line front/mutan.y:227
 		{
 			yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, yyS[yypt-2].tnode)
 		}
-	case 64:
-		//line front/mutan.y:230
+	case 65:
+		//line front/mutan.y:231
 		{
 			node := NewNode(SetLocalTy)
 			node.Constant = yyS[yypt-2].str
 			yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, node)
 		}
-	case 65:
-		//line front/mutan.y:236
+	case 66:
+		//line front/mutan.y:237
 		{
 			yyVAL.tnode = NewNode(AssignArrayTy, yyS[yypt-3].tnode, yyS[yypt-0].tnode)
 			yyVAL.tnode.Constant = yyS[yypt-5].str
 		}
-	case 66:
-		//line front/mutan.y:240
+	case 67:
+		//line front/mutan.y:241
 		{
 			node := NewNode(SetLocalTy)
 			node.Constant = yyS[yypt-2].tnode.Constant
 			yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, yyS[yypt-2].tnode, node)
 		}
-	case 67:
-		//line front/mutan.y:246
+	case 68:
+		//line front/mutan.y:247
 		{
 			node := NewNode(SetLocalTy)
 			node.Constant = yyS[yypt-3].str
@@ -1027,30 +1031,25 @@ yydefault:
 			varNode.Constant = yyS[yypt-3].str
 			yyVAL.tnode = NewNode(AssignmentTy, yyS[yypt-0].tnode, varNode, node)
 		}
-	case 68:
-		//line front/mutan.y:256
+	case 69:
+		//line front/mutan.y:257
 		{
 			yyVAL.tnode = NewNode(NewVarTy)
 			yyVAL.tnode.Constant = yyS[yypt-0].str
 		}
-	case 69:
-		//line front/mutan.y:261
+	case 70:
+		//line front/mutan.y:262
 		{
 			yyVAL.tnode = NewNode(NewVarTy)
 			yyVAL.tnode.Constant = yyS[yypt-0].str
 			yyVAL.tnode.Ptr = true
 		}
-	case 70:
-		//line front/mutan.y:267
+	case 71:
+		//line front/mutan.y:268
 		{
 			yyVAL.tnode = NewNode(NewArrayTy)
 			yyVAL.tnode.Size = yyS[yypt-2].str
 			yyVAL.tnode.Constant = yyS[yypt-0].str
-		}
-	case 71:
-		//line front/mutan.y:275
-		{
-			yyVAL.tnode = yyS[yypt-0].tnode
 		}
 	case 72:
 		//line front/mutan.y:276
@@ -1060,7 +1059,7 @@ yydefault:
 	case 73:
 		//line front/mutan.y:277
 		{
-			yyVAL.tnode = yyS[yypt-1].tnode
+			yyVAL.tnode = yyS[yypt-0].tnode
 		}
 	case 74:
 		//line front/mutan.y:278
@@ -1068,23 +1067,22 @@ yydefault:
 			yyVAL.tnode = yyS[yypt-1].tnode
 		}
 	case 75:
-		//line front/mutan.y:280
+		//line front/mutan.y:279
+		{
+			yyVAL.tnode = yyS[yypt-1].tnode
+		}
+	case 76:
+		//line front/mutan.y:281
 		{
 			yyVAL.tnode = NewNode(FuncCallTy, yyS[yypt-1].tnode)
 			yyVAL.tnode.Constant = yyS[yypt-3].str
 			yyVAL.tnode.ArgList = makeArgs(yyS[yypt-1].tnode, false)
 		}
-	case 76:
-		//line front/mutan.y:289
+	case 77:
+		//line front/mutan.y:290
 		{
 			yyVAL.tnode = NewNode(OpTy, yyS[yypt-1].tnode)
 			yyVAL.tnode.Constant = yyS[yypt-0].str
-		}
-	case 77:
-		//line front/mutan.y:291
-		{
-			yyVAL.tnode = NewNode(OpTy, yyS[yypt-2].tnode, yyS[yypt-0].tnode)
-			yyVAL.tnode.Constant = yyS[yypt-1].str
 		}
 	case 78:
 		//line front/mutan.y:292
@@ -1101,13 +1099,14 @@ yydefault:
 	case 80:
 		//line front/mutan.y:294
 		{
-			yyVAL.tnode = NewNode(OpTy, yyS[yypt-0].tnode)
+			yyVAL.tnode = NewNode(OpTy, yyS[yypt-2].tnode, yyS[yypt-0].tnode)
 			yyVAL.tnode.Constant = yyS[yypt-1].str
 		}
 	case 81:
-		//line front/mutan.y:298
+		//line front/mutan.y:295
 		{
-			yyVAL.tnode = yyS[yypt-0].tnode
+			yyVAL.tnode = NewNode(OpTy, yyS[yypt-0].tnode)
+			yyVAL.tnode.Constant = yyS[yypt-1].str
 		}
 	case 82:
 		//line front/mutan.y:299
@@ -1117,31 +1116,31 @@ yydefault:
 	case 83:
 		//line front/mutan.y:300
 		{
-			yyVAL.tnode = NewNode(RefTy)
-			yyVAL.tnode.Constant = yyS[yypt-0].str
+			yyVAL.tnode = yyS[yypt-0].tnode
 		}
 	case 84:
 		//line front/mutan.y:301
 		{
-			yyVAL.tnode = NewNode(ConstantTy)
+			yyVAL.tnode = NewNode(RefTy)
 			yyVAL.tnode.Constant = yyS[yypt-0].str
 		}
 	case 85:
 		//line front/mutan.y:302
 		{
-			yyVAL.tnode = NewNode(ArrayTy, yyS[yypt-1].tnode)
-			yyVAL.tnode.Constant = yyS[yypt-3].str
+			yyVAL.tnode = NewNode(ConstantTy)
+			yyVAL.tnode.Constant = yyS[yypt-0].str
 		}
 	case 86:
 		//line front/mutan.y:303
 		{
-			yyVAL.tnode = NewNode(BoolTy)
-			yyVAL.tnode.Constant = yyS[yypt-0].str
+			yyVAL.tnode = NewNode(ArrayTy, yyS[yypt-1].tnode)
+			yyVAL.tnode.Constant = yyS[yypt-3].str
 		}
 	case 87:
 		//line front/mutan.y:304
 		{
-			yyVAL.tnode = yyS[yypt-0].tnode
+			yyVAL.tnode = NewNode(BoolTy)
+			yyVAL.tnode.Constant = yyS[yypt-0].str
 		}
 	case 88:
 		//line front/mutan.y:305
@@ -1149,40 +1148,45 @@ yydefault:
 			yyVAL.tnode = yyS[yypt-0].tnode
 		}
 	case 89:
-		//line front/mutan.y:309
+		//line front/mutan.y:306
+		{
+			yyVAL.tnode = yyS[yypt-0].tnode
+		}
+	case 90:
+		//line front/mutan.y:310
 		{
 			yyVAL.tnode = NewNode(DerefPtrTy)
 			yyVAL.tnode.Constant = yyS[yypt-0].str
 		}
-	case 90:
-		//line front/mutan.y:313
-		{
-			yyVAL.tnode = yyS[yypt-0].tnode
-		}
 	case 91:
 		//line front/mutan.y:314
 		{
-			yyVAL.tnode = NewNode(NilTy)
+			yyVAL.tnode = yyS[yypt-0].tnode
 		}
 	case 92:
-		//line front/mutan.y:318
+		//line front/mutan.y:315
+		{
+			yyVAL.tnode = NewNode(NilTy)
+		}
+	case 93:
+		//line front/mutan.y:319
 		{
 			yyVAL.tnode = NewNode(IdentifierTy)
 			yyVAL.tnode.Constant = yyS[yypt-0].str
 		}
-	case 93:
-		//line front/mutan.y:322
+	case 94:
+		//line front/mutan.y:323
 		{
 			yyVAL.tnode = NewNode(StringTy)
 			yyVAL.tnode.Constant = yyS[yypt-1].str
 		}
-	case 94:
-		//line front/mutan.y:326
+	case 95:
+		//line front/mutan.y:327
 		{
 			yyVAL.tnode = NewNode(EmptyTy)
 		}
-	case 95:
-		//line front/mutan.y:330
+	case 96:
+		//line front/mutan.y:331
 		{
 			yyVAL.tnode = NewNode(EmptyTy)
 		}

@@ -421,6 +421,18 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		cc(value, th, b)
 
 		return value
+	case Sha3Ty:
+		l := gen.MakeIntCode(tree.Children[1])
+		addr, err := gen.getMemoryAddress(tree.Children[0])
+		if err != nil {
+			gen.addError(err)
+			return addr
+		}
+		sha3 := newIntInstr(IntSha3, "")
+
+		cc(l, addr, sha3)
+
+		return l
 	case NewArrayTy: // Create a new array
 		c, err := gen.initNewArray(tree)
 		if err != nil {

@@ -308,6 +308,7 @@ func TestPointers(t *testing.T) {
 	}
 }
 
+/*
 func TestAsm(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	func sha3(var *a, var s) var {
@@ -336,6 +337,7 @@ func TestAsm(t *testing.T) {
 	}
 
 }
+*/
 
 func TestWhile(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
@@ -486,6 +488,19 @@ func TestByte(t *testing.T) {
 
 	this.data
 
+	`), false)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}
+
+func TestSh3Single(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var a = 100
+	var s = sha3(a, 32)
 	`), false)
 
 	if err != nil {

@@ -91,6 +91,7 @@ const (
 	IntCreate
 	IntSizeof
 	IntByte
+	IntSha3
 
 	IntIgnore
 	IntInlineCode
@@ -183,6 +184,7 @@ var instrAsString = []string{
 	"create",
 	"sizeof",
 	"byte",
+	"sha3",
 
 	"ignore",
 	"inline",
