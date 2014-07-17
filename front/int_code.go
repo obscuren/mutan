@@ -541,18 +541,6 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			concat(offset, newIntInstr(IntReturn, ""))
 
 			return cons
-		case StoreTy:
-			blk1 := gen.MakeIntCode(tree.Children[0])
-			store := makeStore(0)
-			size := gen.makePush("32")
-			offset := gen.makePush("0")
-
-			concat(blk1, store)
-			concat(store, size)
-			concat(size, offset)
-			concat(offset, newIntInstr(IntReturn, ""))
-
-			return blk1
 		case IdentifierTy:
 			variable := gen.GetVar(tree.Children[0].Constant)
 			if variable == nil {
@@ -569,11 +557,26 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			concat(offs, newIntInstr(IntReturn, ""))
 
 			return size
-		default:
-			c, err := gen.Errorf(tree, "return; '%v' not (yet) supported", tree.Children[0].Type)
-			gen.addError(err)
 
-			return c
+		default: //case StoreTy:
+			blk1 := gen.MakeIntCode(tree.Children[0])
+			store := makeStore(0)
+			size := gen.makePush("32")
+			offset := gen.makePush("0")
+
+			concat(blk1, store)
+			concat(store, size)
+			concat(size, offset)
+			concat(offset, newIntInstr(IntReturn, ""))
+
+			return blk1
+			/*
+				default:
+					c, err := gen.Errorf(tree, "return; '%v' not (yet) supported", tree.Children[0].Type)
+					gen.addError(err)
+
+					return c
+			*/
 		}
 
 		return newIntInstr(IntIgnore, "")
