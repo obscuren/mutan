@@ -118,6 +118,8 @@ func (c *EthereumBackend) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("and")
 		case IntAdd:
 			c.add("add")
+		case IntSuicide:
+			c.add("suicide")
 		case IntAssign:
 		case IntEmpty:
 		case IntMStore:

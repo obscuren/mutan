@@ -336,7 +336,7 @@ func lexTxScope(l *Lexer) stateFn {
 	switch l.blob() {
 	case "gasPrice":
 		l.emit(itemGasPrice)
-	case "origin":
+	case "sender":
 		l.emit(itemOrigin)
 	case "value":
 		l.emit(itemCallVal)

@@ -512,7 +512,7 @@ func TestSh3Single(t *testing.T) {
 
 func TestSuicide(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	suicide(tx.origin())
+	suicide(tx.sender())
 	`), false)
 
 	if err != nil {
