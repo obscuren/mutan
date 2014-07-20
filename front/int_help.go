@@ -232,6 +232,15 @@ func (gen *IntGen) stringToInstr(variable Var, b []byte, t Instr) (*IntInstr, in
 	return ignore, i
 }
 
+func (gen *IntGen) getMemoryAddress(tree *SyntaxTree) (*IntInstr, error) {
+	variable := gen.GetVar(tree.Constant)
+	if variable == nil {
+		return gen.Errorf(tree, "Undefined variable: %v", tree.Constant)
+	}
+
+	return gen.getAddress(variable), nil
+}
+
 // Generates asm for getting a memory address
 func (gen *IntGen) getMemory(tree *SyntaxTree) (*IntInstr, error) {
 	variable := gen.GetVar(tree.Constant)

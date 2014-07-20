@@ -48,19 +48,12 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
     	check bool
 }
 
-/*
-<<<<<<< Updated upstream
-%token ASSIGN EQUAL IF ELSE FOR LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
-%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA SIZEOF QUOTE
-%token END_STMT EXIT CREATE TRANSACT NIL BALANCE VAR_ASSIGN LAMBDA COLON ADDRESS RETURN PUSH POP BYTE
-%token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR VAR FUNC FUNC_CALL IMPORT
-=======
-*/
 /* objects */
 %token BLOCK TX CONTRACT CALL_S
 /* build ins */
 %token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE CALL SIZEOF EXIT CREATE BALANCE SHA3
 %token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS ADDRESS BYTE PUSH POP TRANSACT STORE 
+<<<<<<< HEAD
 %token SUICIDE
 /* Ops */
 %token ASSIGN EQUAL
@@ -70,10 +63,10 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 %token IF ELSE FOR LEFT_BRACES RIGHT_BRACES LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
 %token FOR VAR FUNC FUNC_CALL IMPORT DOT ARRAY COMMA QUOTE
 
-/*>>>>>>> Stashed changes*/
 %token <str> ID NUMBER INLINE_ASM OP DOP STR BOOLEAN CODE oper AND MUL
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
-%type <tnode> if_statement op_expression buildins closure_funcs new_variable arguments sep get_id string
+%type <tnode> block_funcs contract_funcs tx_funcs call_funcs
+%type <tnode> if_statement op_expression buildins new_variable arguments sep get_id string
 %type <tnode> for_statement optional_else_statement ptr opt_arg_def_list opt_arg_call_list
 %type <tnode> deref_ptr opt_lpar opt_rpar
 %type <check> optional_type
@@ -157,27 +150,36 @@ sep
 	;
 
 
-closure_funcs
-	: ORIGIN LEFT_PAR RIGHT_PAR { $$ = NewNode(OriginTy) }
-	| ADDRESS LEFT_PAR RIGHT_PAR { $$ = NewNode(AddressTy) }
-	| CALLER LEFT_PAR RIGHT_PAR { $$ = NewNode(CallerTy) }
-	| CALLVAL LEFT_PAR RIGHT_PAR { $$ = NewNode(CallValTy) }
-	| CALLDATALOAD LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(CallDataLoadTy, $3) }
-	| CALLDATALOAD { $$ = NewNode(CallDataSizeTy) }
-	| DIFFICULTY LEFT_PAR RIGHT_PAR { $$ = NewNode(DiffTy) }
-	| PREVHASH LEFT_PAR RIGHT_PAR { $$ = NewNode(PrevHashTy) }
-	| TIMESTAMP LEFT_PAR RIGHT_PAR { $$ = NewNode(TimestampTy) }
-	| GASPRICE LEFT_PAR RIGHT_PAR { $$ = NewNode(GasPriceTy) }
-	| BLOCKNUM LEFT_PAR RIGHT_PAR { $$ = NewNode(BlockNumTy) }
-	| COINBASE LEFT_PAR RIGHT_PAR { $$ = NewNode(CoinbaseTy) }
-	| BALANCE LEFT_PAR get_variable RIGHT_PAR { $$ = NewNode(BalanceTy, $3) }
-	| GAS LEFT_PAR RIGHT_PAR { $$ = NewNode(GasTy) }
+contract_funcs
+	: ADDRESS LEFT_PAR RIGHT_PAR { $$ = NewNode(AddressTy) }
 	| STORE LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(StoreTy, $3) }
 	| STORE LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression
 		{
 			node := NewNode(SetStoreTy, $3)
 			$$ = NewNode(AssignmentTy, $6, node)
 		}
+	;
+
+call_funcs
+	: CALLER LEFT_PAR RIGHT_PAR { $$ = NewNode(CallerTy) }
+	| CALLDATALOAD LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(CallDataLoadTy, $3) }
+	| CALLDATALOAD { $$ = NewNode(CallDataSizeTy) }
+	| GAS LEFT_PAR RIGHT_PAR { $$ = NewNode(GasTy) }
+	;
+
+
+block_funcs
+	: TIMESTAMP LEFT_PAR RIGHT_PAR { $$ = NewNode(TimestampTy) }
+	| DIFFICULTY LEFT_PAR RIGHT_PAR { $$ = NewNode(DiffTy) }
+	| PREVHASH LEFT_PAR RIGHT_PAR { $$ = NewNode(PrevHashTy) }
+	| BLOCKNUM LEFT_PAR RIGHT_PAR { $$ = NewNode(BlockNumTy) }
+	| COINBASE LEFT_PAR RIGHT_PAR { $$ = NewNode(CoinbaseTy) }
+	;
+
+tx_funcs
+	: ORIGIN LEFT_PAR RIGHT_PAR { $$ = NewNode(OriginTy) }
+	| GASPRICE LEFT_PAR RIGHT_PAR { $$ = NewNode(GasPriceTy) }
+	| CALLVAL LEFT_PAR RIGHT_PAR { $$ = NewNode(CallValTy) }
 	;
 
 if_statement
@@ -293,6 +295,7 @@ op_expression
 	| simple_expression OP simple_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
 	| simple_expression AND simple_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
 	| simple_expression MUL simple_expression { $$ = NewNode(OpTy, $1, $3); $$.Constant = $2 }
+	| OP simple_expression { $$ = NewNode(OpTy, $2); $$.Constant = $1 }
 	;
 
 get_variable

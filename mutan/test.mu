@@ -1,11 +1,11 @@
 return compile {
 	to := this.data[0]
-	from := this.origin()
+	from := this.address()
 	value := this.data[1]
 
-	if this.store[from] >= value {
-		this.store[from] = this.store[from] - value
-			this.store[to] = this.store[to] + value
+	if contract.storage[from] >= value {
+		contract.storage[from] = contract.storage[from] - value
+		contract.storage[to] = contract.storage[to] + value
 	}
 }
 

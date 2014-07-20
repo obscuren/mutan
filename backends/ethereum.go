@@ -178,6 +178,8 @@ func (c *EthereumBackend) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("return")
 		case IntByte:
 			c.add("byte")
+		case IntSha3:
+			c.add("sha3")
 		case IntASM:
 			c.add(instr.Constant)
 		case IntTarget:

@@ -31,20 +31,21 @@ func TestCompiler(t *testing.T) {
 	var a
 	var b
 
-	if 200 < this.value() {
+	if 200 < tx.value() {
 		a = 20
 		b = 30
 	}
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(asm)
 	}
-	fmt.Println(asm)
 }
 
 func TestArray(t *testing.T) {
-	_, err := CompileStage(strings.NewReader(`
+	asm, err := CompileStage(strings.NewReader(`
 	var[10] a
 	var[10] b
 	var address = 0xa46df28529eb8aa8b8c025b0b413c5f4b688352f
@@ -53,35 +54,38 @@ func TestArray(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(asm)
 	}
 }
 
 func TestPlusPlus(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
+	asm, err := CompileStage(strings.NewReader(`
 	      var i = 0
 	      i++
 	`), false)
-
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(asm)
 	}
-	fmt.Println(ast)
 }
 
 func TestElse(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	      if 20 < 10 {
-		      this.store[1001] = 10^20
+		      contract.storage[1001] = 10^20
 	      } else {
-		      this.store[1001] = 10^50
+		      contract.storage[1001] = 10^50
 	      }
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-	fmt.Println(ast)
 }
 
 func TestHex(t *testing.T) {
@@ -90,9 +94,10 @@ func TestHex(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-	fmt.Println(ast)
 }
 
 func TestData(t *testing.T) {
@@ -106,10 +111,10 @@ func TestData(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestCreate(t *testing.T) {
@@ -119,10 +124,10 @@ func TestCreate(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestOpt(t *testing.T) {
@@ -132,10 +137,10 @@ func TestOpt(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestOps(t *testing.T) {
@@ -152,10 +157,10 @@ func TestOps(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestBoolean(t *testing.T) {
@@ -165,10 +170,10 @@ func TestBoolean(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestNot(t *testing.T) {
@@ -176,12 +181,12 @@ func TestNot(t *testing.T) {
 		if !this.data[0] {
 		}
 	`), false)
-
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
 
-	fmt.Println(ast)
 }
 
 func TestShift(t *testing.T) {
@@ -189,58 +194,58 @@ func TestShift(t *testing.T) {
 		var test = 8 << 2
 		test = 256 >> 3
 	`), false)
-
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
 
-	fmt.Println(ast)
 }
 
 func TestString(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	a := "hello world"
 	b := 10
-	this.store[1] = "hello"
+	contract.storage[1] = "hello"
 
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestReturn(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		exit 1000
-		exit this.store[this.data[0]]
+		exit contract.storage[this.data[0]]
 		var a = 10
 		var b = 20
 		exit b
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestSome(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	var a = this.address()
+	var a = contract.address()
 	var in = "jeff"
 	var out
 	var res = call(0xa4976648142a1e624c27dca4e9b1a6d8195f660c, 0, 0, in, out)
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestFuncDef(t *testing.T) {
@@ -263,10 +268,10 @@ func TestFuncDef(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestFuncArgs(t *testing.T) {
@@ -282,10 +287,10 @@ func TestFuncArgs(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestPointers(t *testing.T) {
@@ -297,12 +302,13 @@ func TestPointers(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
+/*
 func TestAsm(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	func sha3(var *a, var s) var {
@@ -331,6 +337,7 @@ func TestAsm(t *testing.T) {
 	}
 
 }
+*/
 
 func TestWhile(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
@@ -354,10 +361,10 @@ func TestTransact(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestStatementList(t *testing.T) {
@@ -426,11 +433,11 @@ func TestLocalScope(t *testing.T) {
 
 func TestSyntaxErr(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	this.call(
+	contract.call(
 	`), false)
 
 	if err == nil {
-		fmt.Println("expected error")
+		t.Error("expected error")
 	}
 
 	fmt.Println(ast)
@@ -438,17 +445,17 @@ func TestSyntaxErr(t *testing.T) {
 
 func TestBalance(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		var a = this.balance(0xaabbccddeeff)
+		var a = balance(0xaabbccddeeff)
 		if a > 10 {
 			var b = 10
 		}
 	`), false)
-
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
 
-	fmt.Println(ast)
 }
 
 func TestInlineCompile(t *testing.T) {
@@ -465,10 +472,10 @@ func TestInlineCompile(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
-
-	fmt.Println(ast)
 }
 
 func TestByte(t *testing.T) {
@@ -484,10 +491,23 @@ func TestByte(t *testing.T) {
 	`), false)
 
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
 	}
+}
 
-	fmt.Println(ast)
+func TestSh3Single(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var a = 100
+	var s = sha3(a, 32)
+	`), false)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
 }
 
 func TestSuicide(t *testing.T) {

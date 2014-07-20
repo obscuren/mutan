@@ -32,6 +32,7 @@ const (
 	RefTy
 	DerefPtrTy
 
+	Sha3Ty
 	OriginTy
 	AddressTy
 	CallerTy
@@ -102,6 +103,7 @@ var astAsString = []string{
 	"Reference",
 	"Dereference pointer",
 
+	"Sha3",
 	"Origin",
 	"Address",
 	"Caller",

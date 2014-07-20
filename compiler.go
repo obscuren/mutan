@@ -19,6 +19,8 @@ type Compiler struct {
 	Debug bool
 
 	Silent bool
+
+	OptimizeCode bool
 }
 
 func NewCompiler(backend CompilerBackend) *Compiler {
@@ -78,6 +80,11 @@ func (self *Compiler) IntermediateStage(code string) (intCode *frontend.IntInstr
 		}
 		return nil, gen.Errors
 	}
+
+	if self.OptimizeCode {
+		intCode = self.Optimize(intCode)
+	}
+
 	intCode.LinkCode(gen.InlineCode)
 	intCode.SetNumbers(0, gen)
 	intCode.LinkTargets()
