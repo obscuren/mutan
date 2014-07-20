@@ -489,3 +489,15 @@ func TestByte(t *testing.T) {
 
 	fmt.Println(ast)
 }
+
+func TestSuicide(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	suicide(tx.origin())
+	`), false)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}

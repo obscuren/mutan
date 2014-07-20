@@ -46,6 +46,7 @@ const (
 	BalanceTy
 	GasTy
 	BlockNumTy
+	SuicideTy
 
 	NewArrayTy
 	NewVarTy
@@ -115,6 +116,7 @@ var astAsString = []string{
 	"Balance",
 	"Gas",
 	"Block number",
+	"Suicide",
 
 	"Create array",
 	"New var",

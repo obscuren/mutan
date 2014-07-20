@@ -48,10 +48,29 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
     	check bool
 }
 
+/*
+<<<<<<< Updated upstream
 %token ASSIGN EQUAL IF ELSE FOR LEFT_BRACES RIGHT_BRACES STORE LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
 %token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE DOT THIS ARRAY CALL COMMA SIZEOF QUOTE
 %token END_STMT EXIT CREATE TRANSACT NIL BALANCE VAR_ASSIGN LAMBDA COLON ADDRESS RETURN PUSH POP BYTE
 %token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS FOR VAR FUNC FUNC_CALL IMPORT
+=======
+*/
+/* objects */
+%token BLOCK TX CONTRACT CALL_S
+/* build ins */
+%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE CALL SIZEOF EXIT CREATE BALANCE SHA3
+%token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS ADDRESS BYTE PUSH POP TRANSACT STORE 
+%token SUICIDE
+/* Ops */
+%token ASSIGN EQUAL
+/* smts */
+%token END_STMT  NIL VAR_ASSIGN LAMBDA COLON RETURN PUSH POP
+/* expr */
+%token IF ELSE FOR LEFT_BRACES RIGHT_BRACES LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
+%token FOR VAR FUNC FUNC_CALL IMPORT DOT ARRAY COMMA QUOTE
+
+/*>>>>>>> Stashed changes*/
 %token <str> ID NUMBER INLINE_ASM OP DOP STR BOOLEAN CODE oper AND MUL
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> if_statement op_expression buildins closure_funcs new_variable arguments sep get_id string
@@ -117,7 +136,13 @@ buildins
 	| PUSH LEFT_PAR expression RIGHT_PAR { $$ = NewNode(PushTy, $3) }
 	| POP LEFT_PAR RIGHT_PAR { $$ = NewNode(PopTy) }
 	| BYTE LEFT_PAR simple_expression COMMA simple_expression RIGHT_PAR { $$ = NewNode(ByteTy, $3, $5) }
-	| THIS DOT closure_funcs { $$ = $3 }
+	| BALANCE LEFT_PAR get_variable RIGHT_PAR { $$ = NewNode(BalanceTy, $3) }
+	| SHA3 LEFT_PAR ptr COMMA simple_expression RIGHT_PAR { $$ = NewNode(Sha3Ty, $3, $5) }
+	| SUICIDE LEFT_PAR simple_expression RIGHT_PAR { $$ = NewNode(SuicideTy, $3) }
+	| BLOCK DOT block_funcs { $$ = $3 }
+	| TX DOT tx_funcs { $$ = $3 }
+	| CONTRACT DOT contract_funcs { $$ = $3 }
+	| CALL_S DOT call_funcs { $$ = $3 }
 	| LAMBDA LEFT_BRACKET CODE RIGHT_BRACKET { $$ = NewNode(LambdaTy); $$.Constant = $3 }
 	;
 

@@ -80,6 +80,7 @@ const (
 	IntGas
 	IntBlockNum
 	IntReturn
+	IntSuicide
 
 	IntFuncDef
 	IntFuncCall
@@ -173,6 +174,7 @@ var instrAsString = []string{
 	"gas",
 	"blocknum",
 	"return",
+	"suicide",
 
 	"func def",
 	"func call",

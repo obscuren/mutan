@@ -67,6 +67,8 @@ const (
 	itemBlockNum              = BLOCKNUM
 	itemCoinbase              = COINBASE
 	itemBalance               = BALANCE
+	itemSha3                  = SHA3
+	itemSuicide               = SUICIDE
 	itemGas                   = GAS
 	itemDot                   = DOT
 	itemThis                  = THIS
@@ -193,6 +195,12 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemImport)
 	case "byte":
 		l.emit(itemByte)
+	case "balance":
+		l.emit(itemBalance)
+	case "sha3":
+		l.emit(itemSha3)
+	case "suicide":
+		l.emit(itemSuicide)
 	default:
 		l.emit(itemIdentifier)
 	}
