@@ -506,7 +506,8 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 
 		var t Instr
 		if identifier.Type == SetStoreTy {
-			return gen.makePush("0x" + hex.EncodeToString([]byte(tree.Constant)))
+			rhs = gen.makePush("0x" + hex.EncodeToString([]byte(tree.Constant)))
+			break
 		} else {
 			t = IntMStore
 			variable.SetType(varStrTy)
