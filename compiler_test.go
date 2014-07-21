@@ -10,6 +10,7 @@ import (
 
 func CompileStage(reader io.Reader, debug bool) (asm []interface{}, errors []error) {
 	compiler := NewCompiler(backend.NewEthereumBackend())
+	compiler.Debug = true
 
 	ic, errors := compiler.Intermediate(reader)
 	if errors != nil {
@@ -200,21 +201,6 @@ func TestShift(t *testing.T) {
 		fmt.Println(ast)
 	}
 
-}
-
-func TestString(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-	a := "hello world"
-	b := 10
-	contract.storage[1] = "hello"
-
-	`), false)
-
-	if err != nil {
-		t.Error(err)
-	} else {
-		fmt.Println(ast)
-	}
 }
 
 func TestReturn(t *testing.T) {
@@ -513,6 +499,18 @@ func TestSh3Single(t *testing.T) {
 func TestSuicide(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	suicide(tx.sender())
+	`), false)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}
+
+func TestString(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	contract.storage[1] = "hello"
 	`), false)
 
 	if err != nil {
