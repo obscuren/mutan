@@ -160,8 +160,9 @@ func (gen *IntGen) compileLambda(memOffset int, tree *SyntaxTree) (*IntInstr, in
 		length     = gen.makePush(strconv.Itoa(len(code)))
 		cOffset    = newIntInstr(IntPush4, "")
 		cConst     = newIntInstr(IntConst, "")
-		mOffset    = newIntInstr(IntMSize, "") // gen.makePush("0")
-		codecopy   = newIntInstr(IntCodeCopy, "")
+		//mOffset    = newIntInstr(IntMSize, "") // gen.makePush("0")
+		mOffset  = gen.makePush("0")
+		codecopy = newIntInstr(IntCodeCopy, "")
 	)
 
 	cConst.Constant = "0x" + hex.EncodeToString(numberToBytes(int32(0), 32))
