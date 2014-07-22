@@ -724,11 +724,17 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		instr, l := gen.compileLambda(0, tree)
 
 		size := gen.makePush(strconv.Itoa(l))
-		dup := gen.makePush(strconv.Itoa(l - 1))
-		offset := newIntInstr(IntMSize, "")
-		sub := newIntInstr(IntSub, "")
+		/*
+			s := ((l+31)/32*32 - l)
 
-		cc(instr, size, dup, offset, sub)
+			dup := gen.makePush(strconv.Itoa(s))
+			offset := newIntInstr(IntMSize, "")
+			sub := newIntInstr(IntSub, "")
+
+			cc(instr, size, dup, offset, sub)
+		*/
+
+		cc(instr, size, gen.makePush("0"))
 
 		return instr
 	case EmptyTy:
