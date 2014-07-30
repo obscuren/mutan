@@ -80,12 +80,16 @@ func (gen *IntGen) makeArg(t *SyntaxTree) (*IntInstr, error) {
 }
 
 func (gen *IntGen) makeString(tree *SyntaxTree) *IntInstr {
-	byts := []byte(tree.Constant)
-	hexStr := "0x" + hex.EncodeToString(byts)
+	slice := []byte(tree.Constant)
 
-	push := newIntInstr(Instr(int(IntPush1)-1+len(byts)), "")
+	padded := make([]byte, 32)
+	copy(padded[0:len(slice)], slice)
+
+	hexStr := "0x" + hex.EncodeToString(padded)
+
+	push := newIntInstr(Instr(int(IntPush1)-1+len(padded)), "")
 	cons := newIntInstr(IntConst, hexStr)
-	cons.size = len(byts)
+	cons.size = len(padded)
 
 	concat(push, cons)
 
