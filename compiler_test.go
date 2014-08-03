@@ -2,10 +2,11 @@ package mutan
 
 import (
 	"fmt"
-	"github.com/obscuren/mutan/backends"
 	"io"
 	"strings"
 	"testing"
+
+	"github.com/obscuren/mutan/backends"
 )
 
 func CompileStage(reader io.Reader, debug bool) (asm []interface{}, errors []error) {
@@ -507,18 +508,6 @@ func TestSuicide(t *testing.T) {
 	}
 }
 
-func TestString(t *testing.T) {
-	ast, err := CompileStage(strings.NewReader(`
-	contract.storage[1] = "hello"
-	`), false)
-
-	if err != nil {
-		t.Error(err)
-	} else {
-		fmt.Println(ast)
-	}
-}
-
 func TestTestIt(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 	#define DIFF 1
@@ -570,6 +559,18 @@ func TestTestIt(t *testing.T) {
 			// TODO update difficulty
 		}
 	}
+	`), false)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}
+
+func TestString(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var i = "test"
 	`), false)
 
 	if err != nil {

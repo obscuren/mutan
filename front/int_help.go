@@ -79,13 +79,20 @@ func (gen *IntGen) makeArg(t *SyntaxTree) (*IntInstr, error) {
 	return pushOff, nil
 }
 
+func padr(slice []byte, size int) []byte {
+	padded := make([]byte, size)
+	copy(padded[0:len(slice)], slice)
+
+	return padded
+}
+
 func (gen *IntGen) makeString(tree *SyntaxTree) *IntInstr {
 	slice := []byte(tree.Constant)
 
-	padded := make([]byte, 32)
-	copy(padded[0:len(slice)], slice)
+	padded := padr(slice, 32)
 
 	hexStr := "0x" + hex.EncodeToString(padded)
+	fmt.Println("string add", hexStr)
 
 	push := newIntInstr(Instr(int(IntPush1)-1+len(padded)), "")
 	cons := newIntInstr(IntConst, hexStr)
@@ -509,21 +516,26 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 			return c
 		}
 
-		var t Instr
+		//var t Instr
 		if identifier.Type == SetStoreTy {
-			rhs = gen.makePush("0x" + hex.EncodeToString([]byte(tree.Constant)))
+			padded := padr([]byte(tree.Constant), 32)
+			rhs = gen.makePush("0x" + hex.EncodeToString(padded))
 			break
 		} else {
-			t = IntMStore
+			//t = IntMStore
 			variable.SetType(varStrTy)
 		}
 
-		var length int
-		rhs, length = gen.stringToInstr(variable, []byte(tree.Constant), t)
+		/*
+			var length int
+			rhs, length = gen.stringToInstr(variable, []byte(tree.Constant), t)
 
-		if identifier.Type != SetStoreTy {
-			variable.SetSize(int(math.Max(math.Max(float64(variable.Size()), float64(length)), 32.0)))
-		}
+			if identifier.Type != SetStoreTy {
+				variable.SetSize(int(math.Max(math.Max(float64(variable.Size()), float64(length)), 32.0)))
+			}
+		*/
+		rhs = gen.makeString(tree)
+		variable.SetSize(32)
 	case ConstantTy:
 		if identifier.Type != SetStoreTy {
 			variable.SetType(varNumTy)
