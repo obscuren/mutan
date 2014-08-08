@@ -311,7 +311,7 @@ func lexCallScope(l *Lexer) stateFn {
 		l.emit(itemCallDataLoad)
 	case "gas":
 		l.emit(itemGas)
-	case "address":
+	case "caller":
 		l.emit(itemCaller)
 	default:
 		l.err = fmt.Errorf("Undefined '%s'", l.blob())

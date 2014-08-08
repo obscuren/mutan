@@ -1,6 +1,6 @@
 return compile {
 	to := this.data[0]
-	from := this.address()
+	from := this.caller()
 	value := this.data[1]
 
 	if contract.storage[from] >= value {
