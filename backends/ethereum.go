@@ -22,12 +22,76 @@ func (c *EthereumBackend) Compile(instr *IntInstr) ([]interface{}, error) {
 	// The following code is very explicit. I could have used string.Upcase
 	for instr != nil {
 		switch instr.Code {
-		case IntDup:
-			c.add("dup")
 		case IntPc:
 			c.add("pc")
-		case IntSwp:
-			c.add("swap")
+		case IntMulMod:
+			c.add("mulmod")
+		case IntAddMod:
+			c.add("addmod")
+		case IntSwp1:
+			c.add("swap1")
+		case IntSwp2:
+			c.add("swap2")
+		case IntSwp3:
+			c.add("swap3")
+		case IntSwp4:
+			c.add("swap4")
+		case IntSwp5:
+			c.add("swap5")
+		case IntSwp6:
+			c.add("swap6")
+		case IntSwp7:
+			c.add("swap7")
+		case IntSwp8:
+			c.add("swap8")
+		case IntSwp9:
+			c.add("swap9")
+		case IntSwp10:
+			c.add("swap10")
+		case IntSwp11:
+			c.add("swap11")
+		case IntSwp12:
+			c.add("swap12")
+		case IntSwp13:
+			c.add("swap13")
+		case IntSwp14:
+			c.add("swap14")
+		case IntSwp15:
+			c.add("swap15")
+		case IntSwp16:
+			c.add("dup16")
+		case IntDup1:
+			c.add("dup1")
+		case IntDup2:
+			c.add("dup2")
+		case IntDup3:
+			c.add("dup3")
+		case IntDup4:
+			c.add("dup4")
+		case IntDup5:
+			c.add("dup5")
+		case IntDup6:
+			c.add("dup6")
+		case IntDup7:
+			c.add("dup7")
+		case IntDup8:
+			c.add("dup8")
+		case IntDup9:
+			c.add("dup9")
+		case IntDup10:
+			c.add("dup10")
+		case IntDup11:
+			c.add("dup11")
+		case IntDup12:
+			c.add("dup12")
+		case IntDup13:
+			c.add("dup13")
+		case IntDup14:
+			c.add("dup14")
+		case IntDup15:
+			c.add("dup15")
+		case IntDup16:
+			c.add("dup16")
 		case IntPush1:
 			c.add("push1")
 		case IntPush2:

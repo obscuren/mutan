@@ -24,10 +24,12 @@ var OpCodes = map[string]byte{
 	"not":  0x0f,
 
 	// 0x10 range - bit ops
-	"and":  0x10,
-	"or":   0x11,
-	"xor":  0x12,
-	"byte": 0x13,
+	"and":    0x10,
+	"or":     0x11,
+	"xor":    0x12,
+	"byte":   0x13,
+	"addmod": 0x14,
+	"mulmod": 0x15,
 
 	// 0x20 range - crypto
 	"sha3": 0x20,
@@ -55,8 +57,6 @@ var OpCodes = map[string]byte{
 
 	// 0x50 range - 'storage' and execution
 	"pop":     0x50,
-	"dup":     0x51,
-	"swap":    0x52,
 	"mload":   0x53,
 	"mstore":  0x54,
 	"mstore8": 0x55,
@@ -101,6 +101,40 @@ var OpCodes = map[string]byte{
 	"push30": 0x7d,
 	"push31": 0x7e,
 	"push32": 0x7f,
+
+	"dup1":  0x80,
+	"dup2":  0x81,
+	"dup3":  0x82,
+	"dup4":  0x83,
+	"dup5":  0x84,
+	"dup6":  0x85,
+	"dup7":  0x86,
+	"dup8":  0x87,
+	"dup9":  0x88,
+	"dup10": 0x89,
+	"dup11": 0x8a,
+	"dup12": 0x8b,
+	"dup13": 0x8c,
+	"dup14": 0x8d,
+	"dup15": 0x8e,
+	"dup16": 0x8f,
+
+	"swap1":  0x90,
+	"swap2":  0x91,
+	"swap3":  0x92,
+	"swap4":  0x93,
+	"swap5":  0x94,
+	"swap6":  0x95,
+	"swap7":  0x96,
+	"swap8":  0x97,
+	"swap9":  0x98,
+	"swap10": 0x99,
+	"swap11": 0x9a,
+	"swap12": 0x9b,
+	"swap13": 0x9c,
+	"swap14": 0x9d,
+	"swap15": 0x9e,
+	"swap16": 0x9f,
 
 	// 0xf0 range - closures
 	"create": 0xf0,

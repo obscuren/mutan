@@ -659,9 +659,9 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		// Pop frame mechanism
 		ptr := gen.loadStackPtr()
-		dup := newIntInstr(IntDup, "")
+		dup := newIntInstr(IntDup1, "")
 		// Load stack pointer as offset
-		dup2 := newIntInstr(IntDup, "")
+		dup2 := newIntInstr(IntDup1, "")
 		// Increment by 1 word
 		offset := gen.makePush("32")
 		add := newIntInstr(IntAdd, "")

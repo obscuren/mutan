@@ -92,7 +92,6 @@ func (gen *IntGen) makeString(tree *SyntaxTree) *IntInstr {
 	padded := padr(slice, 32)
 
 	hexStr := "0x" + hex.EncodeToString(padded)
-	fmt.Println("string add", hexStr)
 
 	push := newIntInstr(Instr(int(IntPush1)-1+len(padded)), "")
 	cons := newIntInstr(IntConst, hexStr)

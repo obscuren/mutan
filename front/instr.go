@@ -4,9 +4,7 @@ type Instr byte
 
 const (
 	IntEqual Instr = iota
-	IntDup
 	IntPc
-	IntSwp
 	IntGt
 	IntLt
 	IntMul
@@ -55,6 +53,38 @@ const (
 	IntPush30
 	IntPush31
 	IntPush32
+	IntDup1
+	IntDup2
+	IntDup3
+	IntDup4
+	IntDup5
+	IntDup6
+	IntDup7
+	IntDup8
+	IntDup9
+	IntDup10
+	IntDup11
+	IntDup12
+	IntDup13
+	IntDup14
+	IntDup15
+	IntDup16
+	IntSwp1
+	IntSwp2
+	IntSwp3
+	IntSwp4
+	IntSwp5
+	IntSwp6
+	IntSwp7
+	IntSwp8
+	IntSwp9
+	IntSwp10
+	IntSwp11
+	IntSwp12
+	IntSwp13
+	IntSwp14
+	IntSwp15
+	IntSwp16
 
 	IntMStore
 	IntMLoad
@@ -92,6 +122,8 @@ const (
 	IntCreate
 	IntSizeof
 	IntByte
+	IntAddMod
+	IntMulMod
 	IntSha3
 
 	IntIgnore
@@ -151,6 +183,38 @@ var instrAsString = []string{
 	"push30",
 	"push31",
 	"push32",
+	"dup1",
+	"dup2",
+	"dup3",
+	"dup4",
+	"dup5",
+	"dup6",
+	"dup7",
+	"dup8",
+	"dup9",
+	"dup10",
+	"dup11",
+	"dup12",
+	"dup13",
+	"dup14",
+	"dup15",
+	"dup16",
+	"swp1",
+	"swp2",
+	"swp3",
+	"swp4",
+	"swp5",
+	"swp6",
+	"swp7",
+	"swp8",
+	"swp9",
+	"swp10",
+	"swp11",
+	"swp12",
+	"swp13",
+	"swp14",
+	"swp15",
+	"swp16",
 	"mstore",
 	"mload",
 	"msize",
@@ -186,6 +250,8 @@ var instrAsString = []string{
 	"create",
 	"sizeof",
 	"byte",
+	"addmod",
+	"mulmod",
 	"sha3",
 
 	"ignore",

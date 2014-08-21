@@ -139,7 +139,7 @@ func (self *Function) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
 	retVal := gen.MakeIntCode(expr)
 
 	rPos := gen.loadStackPtr()
-	dup := newIntInstr(IntDup, "")
+	dup := newIntInstr(IntDup1, "")
 	// Increment by 1 word
 	offset := gen.makePush("32")
 	add := newIntInstr(IntAdd, "")
