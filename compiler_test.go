@@ -616,7 +616,7 @@ func TestAnd(t *testing.T) {
 
 func TestOr(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	return 1 || 0 && 2
+	return 1 || 0
 	`), true)
 
 	fmt.Println("TestAnd")
