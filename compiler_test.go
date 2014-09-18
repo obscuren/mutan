@@ -606,7 +606,6 @@ func TestAnd(t *testing.T) {
 	return 0 && 1
 	`), true)
 
-	fmt.Println("TestAnd")
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -619,7 +618,19 @@ func TestOr(t *testing.T) {
 	return 1 || 0
 	`), true)
 
-	fmt.Println("TestAnd")
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}
+
+func TestPrint(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	//print("hello world")
+	print(1)
+	`), true)
+
 	if err != nil {
 		t.Error(err)
 	} else {

@@ -786,6 +786,15 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		suicide := newIntInstr(IntSuicide, "")
 
 		return cc(receiverAddr, suicide)
+	case PrintTy:
+		blk1 := gen.MakeIntCode(tree.Children[0])
+		dup := newIntInstr(IntDup1, "")
+		p1 := newIntInstr(IntPop, "")
+		p2 := newIntInstr(IntPop, "")
+
+		cc(blk1, dup, p1, p2)
+
+		return blk1
 	case EmptyTy:
 		return newIntInstr(IntEmpty, "")
 	}

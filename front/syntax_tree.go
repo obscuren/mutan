@@ -73,6 +73,7 @@ const (
 	ImportTy
 
 	ByteTy
+	PrintTy
 
 	NilTy
 )
@@ -144,6 +145,7 @@ var astAsString = []string{
 	"Import",
 
 	"Byte",
+	"Print",
 
 	"Nil",
 }

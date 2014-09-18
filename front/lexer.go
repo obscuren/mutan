@@ -99,6 +99,7 @@ const (
 	itemPop                   = POP
 	itemImport                = IMPORT
 	itemByte                  = BYTE
+	itemPrint                 = PRINT
 )
 
 type item struct {
@@ -217,6 +218,8 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemSha3)
 	case "suicide":
 		l.emit(itemSuicide)
+	case "print":
+		l.emit(itemPrint)
 	default:
 		l.emit(itemIdentifier)
 	}

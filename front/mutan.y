@@ -60,7 +60,7 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 %token END_STMT  NIL VAR_ASSIGN LAMBDA COLON RETURN PUSH POP
 /* expr */
 %token IF ELSE FOR LEFT_BRACES RIGHT_BRACES LEFT_BRACKET RIGHT_BRACKET ASM LEFT_PAR RIGHT_PAR STOP
-%token FOR VAR FUNC FUNC_CALL IMPORT DOT ARRAY COMMA QUOTE
+%token FOR VAR FUNC FUNC_CALL IMPORT DOT ARRAY COMMA QUOTE PRINT
 
 %token <str> ID NUMBER INLINE_ASM OP DOP STR BOOLEAN CODE oper AND MUL
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
@@ -136,6 +136,7 @@ buildins
 	| CONTRACT DOT contract_funcs { $$ = $3 }
 	| CALL_S DOT call_funcs { $$ = $3 }
 	| LAMBDA LEFT_BRACKET CODE RIGHT_BRACKET { $$ = NewNode(LambdaTy); $$.Constant = $3 }
+	| PRINT LEFT_PAR simple_expression RIGHT_PAR { $$ = NewNode(PrintTy, $3) }
 	;
 
 arguments
