@@ -40,6 +40,9 @@ b := 10
 
 if a > b {
     stop()
+} else if 0 && 1 || 0 {
+    // :-(
+    stop()
 } else {
     // :-)
     if !a {
