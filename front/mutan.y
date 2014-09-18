@@ -196,6 +196,14 @@ optional_else_statement
 		{
 			$$ = $3
 		}
+	| ELSE IF simple_expression LEFT_BRACES statement_list RIGHT_BRACES optional_else_statement
+		{
+			if $7 == nil {
+				$$ = NewNode(IfThenTy, $3, $5)
+			} else {
+				$$ = NewNode(IfThenElseTy, $3, $5, $7)
+			}
+		}
 	| /* Empty */ { $$ = nil }
 	;
 

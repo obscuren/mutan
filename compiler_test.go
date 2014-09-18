@@ -579,3 +579,24 @@ func TestString(t *testing.T) {
 		fmt.Println(ast)
 	}
 }
+
+func TestElseIf(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var a = 1
+	if a == 0 {
+		return 1
+	} else if a == 1 {
+		return 2
+	} else if a == 2 {
+		return 3
+	} else {
+		return 4
+	}
+	`), false)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}
