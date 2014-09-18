@@ -627,8 +627,27 @@ func TestOr(t *testing.T) {
 
 func TestPrint(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-	//print("hello world")
+	print("hello world")
 	print(1)
+	`), true)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}
+
+func TestScope(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	var x = 10
+
+	{
+		var x = 20
+		return x
+	}
+
+	return x
 	`), true)
 
 	if err != nil {

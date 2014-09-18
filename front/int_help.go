@@ -52,8 +52,19 @@ func (self *IntGen) addStackPtr(size int) *IntInstr {
 	return push
 }
 
+func (self *IntGen) CheckGlobal() bool {
+	// Recheck frames for _global_
+	for e := self.scopes.Front(); e != nil; e = e.Next() {
+		if _, ok := e.Value.(*Function); ok {
+			return false
+		}
+	}
+
+	return true
+}
+
 /******************
- * END
+* END
  */
 
 // XXX This is actually a range function. FIXME

@@ -21,7 +21,7 @@ type Function struct {
 	Id         string
 	ArgCount   int
 	Ret        bool
-	//VarTable      map[string]*Variable
+
 	VarTable      Variables
 	ArgTable      ArgList
 	frame, offset int

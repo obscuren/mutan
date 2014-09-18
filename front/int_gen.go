@@ -143,3 +143,34 @@ func (gen *IntGen) PushScope(scope Scope) {
 func (gen *IntGen) addError(e error) {
 	gen.Errors = append(gen.Errors, e)
 }
+
+func (gen *IntGen) Push() *IntInstr {
+
+	stackPtr := gen.loadStackPtr()
+	setPtr := gen.addStackPtr(gen.CurrentScope().Size())
+	nStackPtr := gen.loadStackPtr()
+	sizeStore := newIntInstr(IntMStore, "")
+
+	cc(stackPtr, setPtr, nStackPtr, sizeStore)
+
+	scope := NewLocalScope()
+	scope.NewVar("___frameSize", varNumTy)
+
+	gen.PushScope(scope)
+
+	return stackPtr
+}
+
+func (gen *IntGen) Pop() *IntInstr {
+	gen.PopScope()
+
+	ptr := gen.loadStackPtr()
+	load := newIntInstr(IntMLoad, "")
+	// Now pop the frame off the stack
+	stackPtrOffset := gen.makePush("0")
+	stackPtrStore := newIntInstr(IntMStore, "")
+
+	cc(ptr, load, stackPtrOffset, stackPtrStore)
+
+	return ptr
+}

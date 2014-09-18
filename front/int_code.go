@@ -556,10 +556,16 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 		return script
 	case ScopeTy:
-		// TODO
-		return gen.MakeIntCode(tree.Children[0])
+		begin := gen.Push()
+		body := gen.MakeIntCode(tree.Children[0])
+		end := gen.Pop()
+
+		cc(begin, body, end)
+
+		return begin
 	case ReturnTy:
-		if gen.CurrentScope() != gen {
+
+		if !gen.CheckGlobal() {
 			return gen.CurrentScope().MakeReturn(tree.Children[0], gen)
 		}
 
@@ -585,22 +591,14 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 
 			return cons
 		case IdentifierTy:
-			variable := gen.GetVar(tree.Children[0].Constant)
-			if variable == nil {
-				i, err := gen.Errorf(tree, "Undefined variable: %v", tree.Constant)
-				gen.addError(err)
-
-				return i
-			}
-
-			offset := strconv.Itoa(variable.Offset())
 			size := gen.makePush("32")
-			offs := gen.makePush(offset)
-			concat(size, offs)
-			concat(offs, newIntInstr(IntReturn, ""))
+			c, err := gen.getMemoryAddress(tree.Children[0])
+			if err != nil {
+				gen.addError(err)
+			}
+			cc(size, c, newIntInstr(IntReturn, ""))
 
 			return size
-
 		default: //case StoreTy:
 			blk1 := gen.MakeIntCode(tree.Children[0])
 			store := makeStore(0)
