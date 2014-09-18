@@ -3,19 +3,22 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/obscuren/mutan"
-	"github.com/obscuren/mutan/backends"
 	"io"
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/obscuren/mutan"
+	"github.com/obscuren/mutan/backends"
 )
 
 var (
 	StrCode       = flag.String("s", "", "code string")
 	ByteArray     = flag.Bool("b", false, "output byte array instead of hex")
 	ShowAssembler = flag.Bool("asm", false, "output assembler")
-	Version       = flag.Bool("v", false, "show version")
+	ShowVersion   = flag.Bool("v", false, "show version")
+
+	Version = "0.2"
 )
 
 func Panic(format string, v ...interface{}) {
@@ -30,8 +33,8 @@ func main() {
 	}
 	flag.Parse()
 
-	if *Version {
-		fmt.Fprintf(os.Stdout, "Mutan version 0.4 (EVM 0.5) (%s)\n", runtime.GOOS)
+	if *ShowVersion {
+		fmt.Fprintf(os.Stdout, "Mutan %s (EVM 0.6, Frontend %s) (%s, %s)\n", mutan.Version, Version, runtime.GOOS, runtime.Version())
 		os.Exit(0)
 	}
 

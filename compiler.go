@@ -2,9 +2,14 @@ package mutan
 
 import (
 	"fmt"
-	"github.com/obscuren/mutan/front"
 	"io"
 	"io/ioutil"
+
+	"github.com/obscuren/mutan/front"
+)
+
+const (
+	Version = "0.6"
 )
 
 type CompilerBackend interface {
