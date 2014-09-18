@@ -37,6 +37,9 @@ type IntGen struct {
 	filename string
 
 	InlineCode []InlineCode
+
+	// Shared jump target. Used by the && / || ops
+	sharedJumpTarget *IntInstr
 }
 
 func NewGen() *IntGen {

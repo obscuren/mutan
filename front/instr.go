@@ -53,6 +53,7 @@ const (
 	IntPush30
 	IntPush31
 	IntPush32
+	IntPop
 	IntDup1
 	IntDup2
 	IntDup3
@@ -183,6 +184,7 @@ var instrAsString = []string{
 	"push30",
 	"push31",
 	"push32",
+	"pop",
 	"dup1",
 	"dup2",
 	"dup3",

@@ -114,7 +114,6 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 	case IfThenTy:
 		cond := gen.MakeIntCode(tree.Children[0])
 		not := newIntInstr(IntNot, "")
-		//jmpi := newIntInstr(IntJumpi, "")
 		p, jmpi := newJumpInstr(IntJumpi)
 		then := gen.MakeIntCode(tree.Children[1])
 		target := newIntInstr(IntTarget, "")
@@ -352,6 +351,50 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 			opinstr := newIntInstr(IntNot, "")
 			return concat(blk1, opinstr)
 		case "&&":
+			var createdTarget bool
+			if gen.sharedJumpTarget == nil {
+				createdTarget = true
+				gen.sharedJumpTarget = newIntInstr(IntTarget, "")
+				defer func() { gen.sharedJumpTarget = nil }()
+			}
+
+			push, cons := pushConstant("1")
+			lh := gen.MakeIntCode(tree.Children[0])
+			not := newIntInstr(IntNot, "")
+			p, jmpi := newJumpInstr(IntJumpi)
+			pop := newIntInstr(IntPop, "")
+			rh := gen.MakeIntCode(tree.Children[1])
+			jmpi.Target = gen.sharedJumpTarget
+
+			concat(push, cons)
+			concat(cons, lh)
+			concat(lh, not)
+			concat(not, p)
+			concat(p, pop)
+			concat(pop, rh)
+
+			if createdTarget {
+				concat(rh, gen.sharedJumpTarget)
+			}
+
+			return push
+		case "||":
+			push, cons := pushConstant("1")
+			lh := gen.MakeIntCode(tree.Children[0])
+			p, jmpi := newJumpInstr(IntJumpi)
+			pop := newIntInstr(IntPop, "")
+			rh := gen.MakeIntCode(tree.Children[1])
+			target := newIntInstr(IntTarget, "")
+			jmpi.Target = target
+
+			concat(push, cons)
+			concat(cons, lh)
+			concat(lh, p)
+			concat(p, pop)
+			concat(pop, rh)
+			concat(rh, target)
+
+			return push
 
 		default:
 			c, err := gen.Errorf(tree, "Expected operator, got '%v'", tree.Constant)

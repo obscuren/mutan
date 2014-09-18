@@ -600,3 +600,29 @@ func TestElseIf(t *testing.T) {
 		fmt.Println(ast)
 	}
 }
+
+func TestAnd(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	return 0 && 1
+	`), true)
+
+	fmt.Println("TestAnd")
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}
+
+func TestOr(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	return 1 || 0 && 2
+	`), true)
+
+	fmt.Println("TestAnd")
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}

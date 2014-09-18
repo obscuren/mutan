@@ -26,6 +26,8 @@ func (c *EthereumBackend) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add("pc")
 		case IntMulMod:
 			c.add("mulmod")
+		case IntPop:
+			c.add("pop")
 		case IntAddMod:
 			c.add("addmod")
 		case IntSwp1:
