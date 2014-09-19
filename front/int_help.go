@@ -341,7 +341,6 @@ func (gen *IntGen) initNewNumber(tree *SyntaxTree) (*IntInstr, error) {
 func (gen *IntGen) sizeof(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
 	variable := gen.CurrentScope().GetVar(name)
-
 	if variable == nil {
 		return gen.Errorf(tree, "undefined variable: '%s'", name)
 	}
@@ -503,6 +502,12 @@ func (gen *IntGen) err(err error) *IntInstr {
 
 func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {
 	variable := gen.GetVar(identifier.Constant)
+	if variable == nil {
+		c, err := gen.Errorf(tree, "undefined variable: '%s'", identifier.Constant)
+		gen.addError(err)
+
+		return c
+	}
 
 	var lhs, rhs *IntInstr
 	var err error

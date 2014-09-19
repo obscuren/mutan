@@ -656,3 +656,15 @@ func TestScope(t *testing.T) {
 		fmt.Println(ast)
 	}
 }
+
+func TestBah(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	y = 10
+	`), true)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}
