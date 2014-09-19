@@ -57,14 +57,14 @@ if a > b {
 } else {
     // :-)
     if !a {
-        if this.data[0] ** 10 >= 10 {
-            this.data[0] = 1000;
+        if message.data[0] ** 10 >= 10 {
+            message.data[0] = 1000;
         }
     }
 }
 
-this.store[a] = 10000
-this.store[b] = this.origin()
+message.store[a] = 10000
+message.store[b] = message.origin()
 
 for i := 0; i < 10; i++ {
     var[10] out

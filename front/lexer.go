@@ -165,7 +165,7 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemBlock)
 
 		return lexBlockScope
-	case "message":
+	case "message", "this":
 		l.emit(itemMsg)
 
 		return lexCallScope
