@@ -97,8 +97,6 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 	stackPtr := gen.loadStackPtr()
 	setPtr := gen.addStackPtr(scope.Size())
 	nStackPtr := gen.loadStackPtr()
-	offset := gen.makePush("32")
-	add1 := newIntInstr(IntAdd, "")
 	sizeStore := newIntInstr(IntMStore, "")
 
 	argInstr := newIntInstr(IntIgnore, "")
@@ -110,27 +108,17 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 		concat(arg, assign)
 	}
 
-	pc := newIntInstr(IntPc, "")
-	push := gen.makePush("14")
-	add := newIntInstr(IntAdd, "")
-	ret := gen.loadStackPtr()
-	retStore := newIntInstr(IntMStore, "")
-
-	p, jmp := newJumpInstr(IntJump)
+	pc := newIntInstr(IntPc, "")           // 1
+	push := gen.makePush("17")             // 2
+	add := newIntInstr(IntAdd, "")         // 1
+	ret := gen.loadStackPtr()              // 3
+	offset := gen.makePush("32")           // 2
+	add2 := newIntInstr(IntAdd, "")        // 1
+	retStore := newIntInstr(IntMStore, "") // 1
+	p, jmp := newJumpInstr(IntJump)        // 6
 	jmp.Target = self.CallTarget
 
-	concat(stackPtr, setPtr)
-	concat(setPtr, nStackPtr)
-	concat(nStackPtr, offset)
-	concat(offset, add1)
-	concat(add1, sizeStore)
-	concat(sizeStore, argInstr)
-	concat(argInstr, pc)
-	concat(pc, push)
-	concat(push, add)
-	concat(add, ret)
-	concat(ret, retStore)
-	concat(retStore, p)
+	cc(stackPtr, setPtr, nStackPtr, sizeStore, argInstr, pc, push, add, ret, offset, add2, retStore, p)
 
 	return stackPtr
 }
@@ -140,25 +128,17 @@ func (self *Function) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
 
 	rPos := gen.loadStackPtr()
 	dup := newIntInstr(IntDup1, "")
-	// Increment by 1 word
-	offset := gen.makePush("32")
-	add := newIntInstr(IntAdd, "")
 	sizeLoad := newIntInstr(IntMLoad, "")
 	stackPtrOffset := gen.makePush("0")
 	stackPtrStore := newIntInstr(IntMStore, "")
 
+	offset := gen.makePush("32")
+	add := newIntInstr(IntAdd, "")
+
 	rPosLoad := newIntInstr(IntMLoad, "")
 	jumpBack := newIntInstr(IntJump, "")
 
-	concat(retVal, rPos)
-	concat(rPos, dup)
-	concat(dup, offset)
-	concat(offset, add)
-	concat(add, sizeLoad)
-	concat(sizeLoad, stackPtrOffset)
-	concat(stackPtrOffset, stackPtrStore)
-	concat(stackPtrStore, rPosLoad)
-	concat(rPosLoad, jumpBack)
+	cc(retVal, rPos, dup, sizeLoad, stackPtrOffset, stackPtrStore, offset, add, rPosLoad, jumpBack)
 
 	return retVal
 }

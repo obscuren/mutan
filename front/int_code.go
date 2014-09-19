@@ -676,10 +676,10 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		/****
 		 * Stack frame
 		 *
-		 * | ret pos | frame size | return val |
+		 * | frame size | ret pos | return val |
 		 */
-		fn.NewVar("___retPtr", varNumTy)
 		fn.NewVar("___frameSize", varNumTy)
+		fn.NewVar("___retPtr", varNumTy)
 
 		for _, i := range tree.ArgList {
 			var t varType
@@ -703,29 +703,21 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		dup := newIntInstr(IntDup1, "")
 		// Load stack pointer as offset
 		dup2 := newIntInstr(IntDup1, "")
-		// Increment by 1 word
-		offset := gen.makePush("32")
-		add := newIntInstr(IntAdd, "")
 		sizeLoad := newIntInstr(IntMLoad, "")
 		// Now pop the frame off the stack
 		stackPtrOffset := gen.makePush("0")
 		stackPtrStore := newIntInstr(IntMStore, "")
+		// Increment by 1 word
+		offset := gen.makePush("32")
+		add := newIntInstr(IntAdd, "")
 		retLoad := newIntInstr(IntMLoad, "")
 		jumpBack := newIntInstr(IntJump, "")
 
-		concat(jmp, callTarget)
-		concat(callTarget, body)
-		concat(body, ptr)
-		concat(ptr, dup)
-		concat(dup, dup2)
-		concat(dup2, offset)
-		concat(offset, add)
-		concat(add, sizeLoad)
-		concat(sizeLoad, stackPtrOffset)
-		concat(stackPtrOffset, stackPtrStore)
-		concat(stackPtrStore, retLoad)
-		concat(retLoad, jumpBack)
-		concat(jumpBack, target)
+		cc(
+			jmp, callTarget, body, ptr, dup, dup2, sizeLoad,
+			stackPtrOffset, stackPtrStore, offset, add, retLoad,
+			jumpBack, target,
+		)
 
 		gen.PopScope()
 
