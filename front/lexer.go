@@ -74,7 +74,7 @@ const (
 	itemBlock                 = BLOCK
 	itemTx                    = TX
 	itemContract              = CONTRACT
-	itemCallS                 = CALL_S
+	itemMsg                   = MSG
 	itemArray                 = ARRAY
 	itemComma                 = COMMA
 	itemCall                  = CALL
@@ -165,8 +165,8 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemBlock)
 
 		return lexBlockScope
-	case "this":
-		l.emit(itemCallS)
+	case "message":
+		l.emit(itemMsg)
 
 		return lexCallScope
 	case "tx":

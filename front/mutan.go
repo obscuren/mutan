@@ -54,7 +54,7 @@ type yySymType struct {
 const BLOCK = 57346
 const TX = 57347
 const CONTRACT = 57348
-const CALL_S = 57349
+const MSG = 57349
 const ADDR = 57350
 const ORIGIN = 57351
 const CALLER = 57352
@@ -125,7 +125,7 @@ var yyToknames = []string{
 	"BLOCK",
 	"TX",
 	"CONTRACT",
-	"CALL_S",
+	"MSG",
 	"ADDR",
 	"ORIGIN",
 	"CALLER",

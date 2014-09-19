@@ -49,7 +49,7 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 }
 
 /* objects */
-%token BLOCK TX CONTRACT CALL_S
+%token BLOCK TX CONTRACT MSG
 /* build ins */
 %token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE CALL SIZEOF EXIT CREATE BALANCE SHA3
 %token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS ADDRESS BYTE PUSH POP TRANSACT STORE 
@@ -64,7 +64,7 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 
 %token <str> ID NUMBER INLINE_ASM OP DOP STR BOOLEAN CODE oper AND MUL
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
-%type <tnode> block_funcs contract_funcs tx_funcs call_funcs
+%type <tnode> block_funcs contract_funcs tx_funcs msg_funcs
 %type <tnode> if_statement op_expression buildins new_variable arguments sep get_id string
 %type <tnode> for_statement optional_else_statement ptr opt_arg_def_list opt_arg_call_list
 %type <tnode> deref_ptr opt_lpar opt_rpar
@@ -134,7 +134,7 @@ buildins
 	| BLOCK DOT block_funcs { $$ = $3 }
 	| TX DOT tx_funcs { $$ = $3 }
 	| CONTRACT DOT contract_funcs { $$ = $3 }
-	| CALL_S DOT call_funcs { $$ = $3 }
+	| MSG DOT msg_funcs { $$ = $3 }
 	| LAMBDA LEFT_BRACKET CODE RIGHT_BRACKET { $$ = NewNode(LambdaTy); $$.Constant = $3 }
 	| PRINT LEFT_PAR simple_expression RIGHT_PAR { $$ = NewNode(PrintTy, $3) }
 	;
@@ -160,7 +160,7 @@ contract_funcs
 		}
 	;
 
-call_funcs
+msg_funcs
 	: CALLER LEFT_PAR RIGHT_PAR { $$ = NewNode(CallerTy) }
 	| CALLDATALOAD LEFT_BRACKET expression RIGHT_BRACKET { $$ = NewNode(CallDataLoadTy, $3) }
 	| CALLDATALOAD { $$ = NewNode(CallDataSizeTy) }

@@ -103,7 +103,7 @@ func TestHex(t *testing.T) {
 
 func TestData(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		var t = this.data[2]
+		var t = message.data[2]
 		// OR
 		asm {
 			PUSH 64
@@ -179,7 +179,7 @@ func TestBoolean(t *testing.T) {
 
 func TestNot(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-		if !this.data[0] {
+		if !message.data[0] {
 		}
 	`), false)
 	if err != nil {
@@ -206,7 +206,7 @@ func TestShift(t *testing.T) {
 func TestReturn(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
 		exit 1000
-		exit contract.storage[this.data[0]]
+		exit contract.storage[message.data[0]]
 		var a = 10
 		var b = 20
 		exit b
@@ -472,7 +472,7 @@ func TestByte(t *testing.T) {
 		stop()
 	}
 
-	this.data
+	message.data
 
 	`), false)
 
@@ -528,7 +528,7 @@ func TestTestIt(t *testing.T) {
 
 	return compile {
 		if tx.sender() == contract.storage[JEFF] {
-			if this.data[0] == "die" {
+			if message.data[0] == "die" {
 				suicide(contract.storage[JEFF])
 			}
 		}
@@ -536,7 +536,7 @@ func TestTestIt(t *testing.T) {
 		var diff = contract.storage[DIFF]
 
 		var[2] ndat
-		ndat[0] = this.data[0]
+		ndat[0] = message.data[0]
 		ndat[1] = contract.storage[SEED]
 
 		var nonce = sha3(ndat, sizeof(ndat))
