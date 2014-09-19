@@ -7,7 +7,7 @@ full, dynamic higher level language that compiles to native
 Ethereum Assembler. The language definition and documentation
 can be found on [go-ethereum wiki](https://github.com/ethereum/go-ethereum/wiki/Mutan).
 
-A simple online editor and compiler can be found [here](http://mutan.jeffew.com)
+A simple online editor and compiler can be found [here](http://mut.etherian.io)
 
 ### Install compiler
 
@@ -29,7 +29,7 @@ mutan [flags] filename
 * Scoping using `{ var x = 10; }`
 * Proper else if clauses `if { } else if { } else { }`
 * Added logical and / or `var x = 1 && 2; if 1 && 0 { }`
-* Changed the "this" keyword to "message".
+* Changed the `this` keyword to `message`.
 
 ##### 0.4
 
