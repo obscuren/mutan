@@ -29,6 +29,7 @@ mutan [flags] filename
 * Scoping using `{ var x = 10; }`
 * Proper else if clauses `if { } else if { } else { }`
 * Added logical and / or `var x = 1 && 2; if 1 && 0 { }`
+* Changed the "this" keyword to "message".
 
 ##### 0.4
 
