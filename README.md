@@ -22,6 +22,17 @@ mutan [flags] filename
 -b           Output raw byte array instead of hex
 ```
 
+### Release notes
+
+##### 0.5 (Upcoming)
+
+* Scoping using `{ var x = 10; }`
+* Proper else if clauses `if { } else if { } else { }`
+* Added logical and / or `var x = 1 && 2; if 1 && 0 { }`
+
+##### 0.4
+
+Didn't keep release notes :-)
 
 ### Syntax
 
