@@ -2,6 +2,7 @@ package frontend
 
 import (
 	"container/list"
+	"errors"
 	"fmt"
 )
 
@@ -54,7 +55,9 @@ func NewGen() *IntGen {
 
 // Creates an error and returns an ignore instruction
 func (p *IntGen) Errorf(tree *SyntaxTree, format string, v ...interface{}) (*IntInstr, error) {
-	return newIntInstr(IntIgnore, ""), fmt.Errorf("%s:%d: "+format, append([]interface{}{p.filename, tree.Lineno}, v...)...)
+	msg := fmt.Sprintf("%s:%d: "+format, append([]interface{}{p.filename, tree.Lineno}, v...)...)
+
+	return newIntInstr(IntErr, msg), errors.New(msg)
 }
 
 func (self *IntGen) NewVar(id string, typ varType) (Var, error) {

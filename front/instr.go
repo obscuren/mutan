@@ -4,6 +4,7 @@ type Instr byte
 
 const (
 	IntEqual Instr = iota
+	IntErr
 	IntPc
 	IntGt
 	IntLt
@@ -133,6 +134,7 @@ const (
 
 var instrAsString = []string{
 	"equal",
+	"error",
 	"dup",
 	"pc",
 	"swap",

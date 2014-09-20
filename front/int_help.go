@@ -502,12 +502,6 @@ func (gen *IntGen) err(err error) *IntInstr {
 
 func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntInstr {
 	variable := gen.GetVar(identifier.Constant)
-	if variable == nil {
-		c, err := gen.Errorf(tree, "undefined variable: '%s'", identifier.Constant)
-		gen.addError(err)
-
-		return c
-	}
 
 	var lhs, rhs *IntInstr
 	var err error
@@ -520,6 +514,10 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 		}
 	default:
 		lhs = gen.MakeIntCode(identifier)
+	}
+
+	if lhs.Code == IntErr {
+		return lhs
 	}
 
 	switch tree.Type {
