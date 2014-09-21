@@ -92,6 +92,7 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 		return newIntInstr(IntIgnore, "")
 	}
 
+	// Push all arguments on to the local VM stack
 	argsPush := newIntInstr(IntIgnore, "")
 	for _, arg := range args {
 		push := gen.MakeIntCode(arg)
@@ -99,11 +100,12 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 		concat(argsPush, push)
 	}
 
+	// Push new stack frame
 	stack := gen.PushStack()
 
+	// Pop stack values and assign to memory
 	argsPop := newIntInstr(IntIgnore, "")
 	for i, _ := range args {
-		//arg := gen.MakeIntCode(arg)
 		pop := gen.assignMemory(self.ArgTable[i].Offset())
 
 		concat(argsPop, pop)
@@ -129,12 +131,6 @@ func (self *Function) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
 
 	rPos := gen.loadStackPtr()
 	stack := gen.PopStack()
-	/*
-		dup := newIntInstr(IntDup1, "")
-		sizeLoad := newIntInstr(IntMLoad, "")
-		stackPtrOffset := gen.makePush("0")
-		stackPtrStore := newIntInstr(IntMStore, "")
-	*/
 
 	offset := gen.makePush("32")
 	add := newIntInstr(IntAdd, "")

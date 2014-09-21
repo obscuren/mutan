@@ -96,16 +96,6 @@ func (self *IntGen) GetVar(id string) Var {
 		}
 	}
 	return self.VarTable[id]
-
-	/*
-		TODO local scopes (for, if, etc)
-			for e := self.scopes.Back(); e != nil; e = e.Prev() {
-				variable := e.Value.(Scope).GetVar(id)
-				if variable != nil {
-					return variable
-				}
-			}
-	*/
 }
 
 func (self *IntGen) Size() (size int) {
