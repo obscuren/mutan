@@ -91,7 +91,7 @@ statement
 			$$ = NewNode(FuncDefTy, $8);
 			$$.Constant = $2
 			$$.HasRet = $6
-			$$.ArgList = makeArgs($4, true)
+			$$.ArgList = makeArgs($4, false)
 		}
 	| ASM LEFT_BRACES INLINE_ASM RIGHT_BRACES { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
 	| IMPORT string { $$ = NewNode(ImportTy); $$.Constant = $2.Constant }

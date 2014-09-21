@@ -731,7 +731,7 @@ yydefault:
 			yyVAL.tnode = NewNode(FuncDefTy, yyS[yypt-1].tnode)
 			yyVAL.tnode.Constant = yyS[yypt-7].str
 			yyVAL.tnode.HasRet = yyS[yypt-3].check
-			yyVAL.tnode.ArgList = makeArgs(yyS[yypt-5].tnode, true)
+			yyVAL.tnode.ArgList = makeArgs(yyS[yypt-5].tnode, false)
 		}
 	case 8:
 		//line front/mutan.y:96

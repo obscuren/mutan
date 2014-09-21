@@ -60,6 +60,10 @@ func (p *IntGen) Errorf(tree *SyntaxTree, format string, v ...interface{}) (*Int
 	return newIntInstr(IntErr, msg), errors.New(msg)
 }
 
+func (gen *IntGen) addError(e error) {
+	gen.Errors = append(gen.Errors, e)
+}
+
 func (self *IntGen) NewVar(id string, typ varType) (Var, error) {
 	if self.VarTable[id] != nil {
 		return nil, fmt.Errorf("redeclaration of '%v'", id)
@@ -143,37 +147,44 @@ func (gen *IntGen) PushScope(scope Scope) {
 	gen.scopes.PushBack(scope)
 }
 
-func (gen *IntGen) addError(e error) {
-	gen.Errors = append(gen.Errors, e)
-}
-
-func (gen *IntGen) Push() *IntInstr {
-
-	stackPtr := gen.loadStackPtr()
-	setPtr := gen.addStackPtr(gen.CurrentScope().Size())
-	nStackPtr := gen.loadStackPtr()
+func (self *IntGen) PushStack() *IntInstr {
+	stackPtr := self.loadStackPtr()
+	setPtr := self.addStackPtr(self.CurrentScope().Size())
+	nStackPtr := self.loadStackPtr()
 	sizeStore := newIntInstr(IntMStore, "")
 
 	cc(stackPtr, setPtr, nStackPtr, sizeStore)
+
+	return stackPtr
+}
+
+func (self *IntGen) PopStack() *IntInstr {
+	ptr := self.loadStackPtr()
+	load := newIntInstr(IntMLoad, "")
+	// Now pop the frame off the stack
+	stackPtrOffset := self.makePush("0")
+	stackPtrStore := newIntInstr(IntMStore, "")
+
+	cc(ptr, load, stackPtrOffset, stackPtrStore)
+
+	return ptr
+}
+
+func (gen *IntGen) Push() *IntInstr {
+	stack := gen.PushStack()
 
 	scope := NewLocalScope()
 	scope.NewVar("___frameSize", varNumTy)
 
 	gen.PushScope(scope)
 
-	return stackPtr
+	return stack
 }
 
 func (gen *IntGen) Pop() *IntInstr {
 	gen.PopScope()
 
-	ptr := gen.loadStackPtr()
-	load := newIntInstr(IntMLoad, "")
-	// Now pop the frame off the stack
-	stackPtrOffset := gen.makePush("0")
-	stackPtrStore := newIntInstr(IntMStore, "")
+	stack := gen.PopStack()
 
-	cc(ptr, load, stackPtrOffset, stackPtrStore)
-
-	return ptr
+	return stack
 }

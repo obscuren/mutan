@@ -92,20 +92,21 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 		return newIntInstr(IntIgnore, "")
 	}
 
-	self.frame = self.Size() + scope.Size()
+	argsPush := newIntInstr(IntIgnore, "")
+	for _, arg := range args {
+		push := gen.MakeIntCode(arg)
 
-	stackPtr := gen.loadStackPtr()
-	setPtr := gen.addStackPtr(scope.Size())
-	nStackPtr := gen.loadStackPtr()
-	sizeStore := newIntInstr(IntMStore, "")
+		concat(argsPush, push)
+	}
 
-	argInstr := newIntInstr(IntIgnore, "")
-	for i, arg := range args {
-		arg := gen.MakeIntCode(arg)
-		assign := gen.assignMemory(self.ArgTable[i].Offset())
+	stack := gen.PushStack()
 
-		concat(argInstr, arg)
-		concat(arg, assign)
+	argsPop := newIntInstr(IntIgnore, "")
+	for i, _ := range args {
+		//arg := gen.MakeIntCode(arg)
+		pop := gen.assignMemory(self.ArgTable[i].Offset())
+
+		concat(argsPop, pop)
 	}
 
 	pc := newIntInstr(IntPc, "")           // 1
@@ -118,19 +119,22 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 	p, jmp := newJumpInstr(IntJump)        // 6
 	jmp.Target = self.CallTarget
 
-	cc(stackPtr, setPtr, nStackPtr, sizeStore, argInstr, pc, push, add, ret, offset, add2, retStore, p)
+	cc(argsPush, stack, argsPop, pc, push, add, ret, offset, add2, retStore, p)
 
-	return stackPtr
+	return argsPush
 }
 
 func (self *Function) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
 	retVal := gen.MakeIntCode(expr)
 
 	rPos := gen.loadStackPtr()
-	dup := newIntInstr(IntDup1, "")
-	sizeLoad := newIntInstr(IntMLoad, "")
-	stackPtrOffset := gen.makePush("0")
-	stackPtrStore := newIntInstr(IntMStore, "")
+	stack := gen.PopStack()
+	/*
+		dup := newIntInstr(IntDup1, "")
+		sizeLoad := newIntInstr(IntMLoad, "")
+		stackPtrOffset := gen.makePush("0")
+		stackPtrStore := newIntInstr(IntMStore, "")
+	*/
 
 	offset := gen.makePush("32")
 	add := newIntInstr(IntAdd, "")
@@ -138,7 +142,7 @@ func (self *Function) MakeReturn(expr *SyntaxTree, gen *IntGen) *IntInstr {
 	rPosLoad := newIntInstr(IntMLoad, "")
 	jumpBack := newIntInstr(IntJump, "")
 
-	cc(retVal, rPos, dup, sizeLoad, stackPtrOffset, stackPtrStore, offset, add, rPosLoad, jumpBack)
+	cc(retVal, rPos, stack, offset, add, rPosLoad, jumpBack)
 
 	return retVal
 }

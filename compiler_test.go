@@ -599,17 +599,12 @@ func TestScope(t *testing.T) {
 
 func TestFunc(t *testing.T) {
 	ast, err := CompileStage(strings.NewReader(`
-return compile {
-	to := message.data[0]
-	from := message.caller()
-	value := message.data[1]
-
-	if contract.storage[from] >= value {
-		contract.storage[from] = contract.storage[from] - value
-		contract.storage[to] = contract.storage[to] + value
+	func test(var a) {
+		return a
 	}
-}
 
+	var x = 10
+	return test(x)
 	`), true)
 
 	if err != nil {
