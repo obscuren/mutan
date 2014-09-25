@@ -480,6 +480,20 @@ func (gen *IntGen) setArray(tree *SyntaxTree) (*IntInstr, error) {
 	return val, nil
 }
 
+func (gen *IntGen) setArrayWithIndex(variable Var, value *SyntaxTree, idx int) *IntInstr {
+	val := gen.MakeIntCode(value)
+	ptr := gen.getAddress(variable)
+	push, cons := pushConstant(strconv.Itoa(idx))
+	size, sizeConst := pushConstant("32")
+	mul := newIntInstr(IntMul, "")
+	iAdd := newIntInstr(IntAdd, "")
+	store := newIntInstr(IntMStore, "")
+
+	cc(val, ptr, push, cons, size, sizeConst, mul, iAdd, store)
+
+	return val
+}
+
 func (gen *IntGen) initNewArray(tree *SyntaxTree) (*IntInstr, error) {
 	name := tree.Constant
 	variable := gen.CurrentScope().GetVar(name)
@@ -557,6 +571,17 @@ func (gen *IntGen) setVariable(tree *SyntaxTree, identifier *SyntaxTree) *IntIns
 		rhs = gen.MakeIntCode(tree)
 	case DerefPtrTy:
 		rhs = cc(gen.MakeIntCode(tree), newIntInstr(IntMLoad, ""))
+	case InitListTy:
+		// Push all arguments on to the local VM stack
+		argsPush := newIntInstr(IntIgnore, "")
+		for i, arg := range tree.ArgList {
+			instr := gen.setArrayWithIndex(variable, arg, i)
+
+			concat(argsPush, instr)
+		}
+
+		// Return without concat
+		return argsPush
 	default:
 		rhs = gen.MakeIntCode(tree)
 	}

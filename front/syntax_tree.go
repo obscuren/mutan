@@ -31,7 +31,6 @@ const (
 	ReturnTy
 	RefTy
 	DerefPtrTy
-
 	Sha3Ty
 	OriginTy
 	AddressTy
@@ -48,7 +47,6 @@ const (
 	GasTy
 	BlockNumTy
 	SuicideTy
-
 	NewArrayTy
 	NewVarTy
 	ArrayTy
@@ -59,23 +57,17 @@ const (
 	ArgTy
 	SizeofTy
 	StringTy
-
 	LambdaTy
-
 	FuncDefTy
 	FuncCallTy
-
 	PushTy
 	PopTy
-
 	ScopeTy
-
 	ImportTy
-
 	ByteTy
 	PrintTy
-
 	NilTy
+	InitListTy
 )
 
 var astAsString = []string{
@@ -103,7 +95,6 @@ var astAsString = []string{
 	"Return",
 	"Reference",
 	"Dereference pointer",
-
 	"Sha3",
 	"Origin",
 	"Address",
@@ -120,7 +111,6 @@ var astAsString = []string{
 	"Gas",
 	"Block number",
 	"Suicide",
-
 	"Create array",
 	"New var",
 	"Array",
@@ -131,23 +121,17 @@ var astAsString = []string{
 	"Arg",
 	"Sizeof",
 	"String",
-
 	"Lambda",
-
 	"Func def",
 	"Func call",
-
 	"Push",
 	"Pop",
-
 	"Scope",
-
 	"Import",
-
 	"Byte",
 	"Print",
-
 	"Nil",
+	"Init list",
 }
 
 func (ast AstType) String() string {

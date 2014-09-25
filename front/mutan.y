@@ -66,7 +66,7 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 %type <tnode> program statement_list statement expression assign_expression simple_expression get_variable
 %type <tnode> block_funcs contract_funcs tx_funcs msg_funcs
 %type <tnode> if_statement op_expression buildins new_variable arguments sep get_id string
-%type <tnode> for_statement optional_else_statement ptr opt_arg_def_list opt_arg_call_list
+%type <tnode> for_statement optional_else_statement ptr opt_arg_def_list opt_list
 %type <tnode> deref_ptr opt_lpar opt_rpar
 %type <check> optional_type
 
@@ -228,8 +228,8 @@ expression
 	| /* Empty */  { $$ = NewNode(EmptyTy) }
 	;
 
-opt_arg_call_list
-	: opt_arg_call_list expression sep { $$ = NewNode(ArgTy, $1, $2);}
+opt_list
+	: opt_list expression sep { $$ = NewNode(ArgTy, $1, $2);}
 	| /* Empty */ { $$ = nil }
 	;
 
@@ -288,7 +288,12 @@ simple_expression
 	| op_expression { $$ = $1 }
 	| opt_lpar get_variable opt_rpar { $$ = $2 }
 	| opt_lpar op_expression opt_rpar { $$ = $2 }
-	| ID LEFT_PAR opt_arg_call_list RIGHT_PAR
+	| LEFT_BRACES opt_list RIGHT_BRACES
+		{
+			$$ = NewNode(InitListTy)
+			$$.ArgList = makeArgs($2, false)
+		}
+	| ID LEFT_PAR opt_list RIGHT_PAR
 		{
 			$$ = NewNode(FuncCallTy, $3)
 			$$.Constant = $1

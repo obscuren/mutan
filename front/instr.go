@@ -87,7 +87,6 @@ const (
 	IntSwp14
 	IntSwp15
 	IntSwp16
-
 	IntMStore
 	IntMLoad
 	IntMSize
@@ -113,11 +112,8 @@ const (
 	IntBlockNum
 	IntReturn
 	IntSuicide
-
 	IntFuncDef
 	IntFuncCall
-
-	// Asm is a special opcode. It's not malformed in anyway
 	IntASM
 	IntArray
 	IntCall
@@ -127,7 +123,6 @@ const (
 	IntAddMod
 	IntMulMod
 	IntSha3
-
 	IntIgnore
 	IntInlineCode
 )
