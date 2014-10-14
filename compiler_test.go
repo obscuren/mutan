@@ -625,3 +625,17 @@ func TestInitializerList(t *testing.T) {
 		fmt.Println(ast)
 	}
 }
+
+func TestConst(t *testing.T) {
+	ast, err := CompileStage(strings.NewReader(`
+	const test= "hello"
+
+	return test
+	`), true)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(ast)
+	}
+}

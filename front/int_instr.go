@@ -41,7 +41,7 @@ func (instr *IntInstr) SetNumbers(i int, gen *IntGen) {
 			//num.Constant = strconv.Itoa(gen.locals[num.ConstRef].pos)
 		}
 
-		if num.Code != IntTarget && num.Code != IntIgnore {
+		if num.Code != IntIgnore {
 			switch num.Code {
 			case IntConst:
 				i += num.size

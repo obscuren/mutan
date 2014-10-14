@@ -67,6 +67,7 @@ var OpCodes = map[string]byte{
 	"pc":      0x5a,
 	"msize":   0x5b,
 	"gas":     0x5c,
+	"dest":    0x5d,
 
 	// 0x60 range
 	"push1":  0x60,

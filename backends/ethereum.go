@@ -251,6 +251,7 @@ func (c *EthereumBackend) Compile(instr *IntInstr) ([]interface{}, error) {
 		case IntASM:
 			c.add(instr.Constant)
 		case IntTarget:
+			c.add("dest")
 		}
 
 		instr = instr.Next
