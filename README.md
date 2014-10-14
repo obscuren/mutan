@@ -24,7 +24,11 @@ mutan [flags] filename
 
 ### Release notes
 
-##### 0.5 (Upcoming)
+##### 0.6 (develop)
+
+* `const a = 10`
+
+##### 0.5
 
 * Scoping using `{ var x = 10; }`
 * Proper else if clauses `if { } else if { } else { }`
