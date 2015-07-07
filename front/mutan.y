@@ -51,7 +51,7 @@ func makeArgs(tree *SyntaxTree, reverse bool) (ret []*SyntaxTree) {
 /* objects */
 %token BLOCK TX CONTRACT MSG
 /* build ins */
-%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE CALL SIZEOF EXIT CREATE BALANCE SHA3
+%token ADDR ORIGIN CALLER CALLVAL CALLDATALOAD CALLDATASIZE GASPRICE CALL CALLCODE SIZEOF EXIT CREATE BALANCE SHA3
 %token DIFFICULTY PREVHASH TIMESTAMP GASPRICE BLOCKNUM COINBASE GAS ADDRESS BYTE PUSH POP TRANSACT STORE 
 %token SUICIDE
 /* Ops */
@@ -116,6 +116,10 @@ buildins
 	: STOP LEFT_PAR RIGHT_PAR { $$ = NewNode(StopTy) }
 	/*| CALL LEFT_PAR arguments RIGHT_PAR { $$ = NewNode(CallTy, $3) }*/
 	| CALL LEFT_PAR get_variable COMMA get_variable COMMA get_variable COMMA ptr COMMA ptr RIGHT_PAR
+	  {
+		  $$ = NewNode(CallTy, $3, $5, $7, $9, $11)
+	  }
+	| CALLCODE LEFT_PAR get_variable COMMA get_variable COMMA get_variable COMMA ptr COMMA ptr RIGHT_PAR
 	  {
 		  $$ = NewNode(CallTy, $3, $5, $7, $9, $11)
 	  }

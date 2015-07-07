@@ -78,6 +78,7 @@ const (
 	itemArray                 = ARRAY
 	itemComma                 = COMMA
 	itemCall                  = CALL
+	itemCallcode              = CALLCODE
 	itemTransact              = TRANSACT
 	itemCreate                = CREATE
 	itemSizeof                = SIZEOF
@@ -192,6 +193,8 @@ func lexStatement(l *Lexer) stateFn {
 		l.emit(itemBoolean)
 	case "call":
 		l.emit(itemCall)
+	case "callcode":
+		l.emit(itemCallcode)
 	case "create":
 		l.emit(itemCreate)
 	case "transact":

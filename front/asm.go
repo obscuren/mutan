@@ -2,6 +2,8 @@ package frontend
 
 import (
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 var OpCodes = map[string]byte{
@@ -175,13 +177,11 @@ func IsOpCode(s string) bool {
 // Attempts to compile and parse the given instruction in "s"
 // and returns the byte sequence
 func CompileInstr(s interface{}) ([]byte, error) {
-	switch s.(type) {
+	switch s := s.(type) {
+	case vm.OpCode:
+		return []byte{byte(s)}, nil
 	case string:
-		str := s.(string)
-		isOp := IsOpCode(str)
-		if isOp {
-			return []byte{OpCodes[str]}, nil
-		}
+		str := s
 
 		// Check for pre formatted byte array
 		// Jumps are preformatted
@@ -198,9 +198,9 @@ func CompileInstr(s interface{}) ([]byte, error) {
 
 		return num.Bytes(), nil
 	case int:
-		return big.NewInt(int64(s.(int))).Bytes(), nil
+		return big.NewInt(int64(s)).Bytes(), nil
 	case []byte:
-		return new(big.Int).SetBytes(s.([]byte)).Bytes(), nil
+		return new(big.Int).SetBytes(s).Bytes(), nil
 	}
 
 	return nil, nil
