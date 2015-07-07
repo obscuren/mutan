@@ -68,6 +68,12 @@ if a > b {
     }
 }
 
+func ptrs(var * a) {
+	*a = *a * 10;
+}
+
+ptrs(&a)
+
 message.store[a] = 10000
 message.store[b] = message.origin()
 
