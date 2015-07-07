@@ -93,7 +93,6 @@ statement
 			$$.HasRet = $6
 			$$.ArgList = makeArgs($4, false)
 		}
-	| ASM LEFT_BRACES INLINE_ASM RIGHT_BRACES { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
 	| IMPORT string { $$ = NewNode(ImportTy); $$.Constant = $2.Constant }
 	| LEFT_BRACES statement_list RIGHT_BRACES { $$ = NewNode(ScopeTy, $2) }
 	| END_STMT { $$ = NewNode(EmptyTy); }
@@ -226,6 +225,7 @@ for_statement
 expression
 	: assign_expression { $$ = $1 }
 	| simple_expression { $$ = $1 }
+	| ASM LEFT_BRACES INLINE_ASM RIGHT_BRACES { $$ = NewNode(InlineAsmTy); $$.Constant = $3 }
 	| new_variable { $$ = $1 }
 	| RETURN simple_expression { $$ = NewNode(ReturnTy, $2) }
 	| EXIT simple_expression { $$ = NewNode(ExitTy, $2) }

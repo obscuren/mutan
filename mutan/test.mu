@@ -1,15 +1,8 @@
-to := message.data[0]
-from := message.caller()
-value := message.data[1]
-
-if contract.storage[from] >= value {
-    contract.storage[from] = contract.storage[from] - value
-    contract.storage[to] = contract.storage[to] + value
+func test(var *a) {
+    *a = 4
 }
 
+var b = 2;
+test(&b);
 
-t := compile {
-    func t(var *a) {
-        *a = 10;
-    }
-}
+return b;

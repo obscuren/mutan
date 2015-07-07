@@ -120,8 +120,9 @@ func (self *Function) Call(args []*SyntaxTree, gen *IntGen, scope Scope) *IntIns
 	retStore := newIntInstr(IntMStore, "") // 1
 	p, jmp := newJumpInstr(IntJump)        // 6
 	jmp.Target = self.CallTarget
+	retTarget := newIntInstr(IntTarget, "")
 
-	cc(argsPush, stack, argsPop, pc, push, add, ret, offset, add2, retStore, p)
+	cc(argsPush, stack, argsPop, pc, push, add, ret, offset, add2, retStore, p, retTarget)
 
 	return argsPush
 }
