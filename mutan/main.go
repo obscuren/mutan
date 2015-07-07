@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/obscuren/mutan"
 	"github.com/obscuren/mutan/backends"
 )
@@ -64,9 +65,17 @@ func main() {
 	}
 
 	if *ShowAssembler {
-		s := fmt.Sprintln(asm)
-
-		fmt.Println(s[1 : len(s)-2])
+		for _, c := range asm {
+			switch c := c.(type) {
+			case vm.OpCode:
+				fmt.Printf("%v ", c)
+			case string:
+				fmt.Printf("%s ", c)
+			default:
+				fmt.Printf("%x ", c)
+			}
+		}
+		fmt.Println()
 	} else {
 		bytes, err := compiler.AssemblerStage(asm...)
 		if err != nil {

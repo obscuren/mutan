@@ -47,7 +47,7 @@ func (instr *IntInstr) SetNumbers(i int, gen *IntGen) {
 				i += num.size
 			case IntInlineCode:
 				//gen.InlineCode[num.Number].OffsetInstr.Constant = "0x" + hex.EncodeToString(numberToBytes(int32(i), 32))
-				gen.InlineCode[num.Number].OffsetInstr.Constant = string(numberToBytes(int32(i), 32))
+				gen.InlineCode[num.Number].OffsetInstr.Constant = numberToBytes(int32(i), 32)
 
 				i += num.size
 			default:
@@ -66,7 +66,7 @@ func (self *IntInstr) LinkTargets() {
 			// Set the target constant which we couldn't set before hand
 			// when the instrbers weren't all set.
 			if instr.TargetNum != nil {
-				instr.TargetNum.Constant = string(numberToBytes(int32(instr.Target.n), 32))
+				instr.TargetNum.Constant = numberToBytes(int32(instr.Target.n), 32)
 				//instr.TargetNum.Constant = "0x" + hex.EncodeToString(numberToBytes(int32(instr.Target.n), 32))
 			}
 		}
