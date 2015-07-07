@@ -241,6 +241,8 @@ func (c *EthereumBackend) Compile(instr *IntInstr) ([]interface{}, error) {
 			c.add(vm.NUMBER)
 		case IntCall:
 			c.add(vm.CALL)
+		case IntCallCode:
+			c.add(vm.CALLCODE)
 		case IntCreate:
 			c.add(vm.CREATE)
 		case IntReturn:

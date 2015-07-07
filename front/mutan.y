@@ -120,7 +120,7 @@ buildins
 	  }
 	| CALLCODE LEFT_PAR get_variable COMMA get_variable COMMA get_variable COMMA ptr COMMA ptr RIGHT_PAR
 	  {
-		  $$ = NewNode(CallTy, $3, $5, $7, $9, $11)
+		  $$ = NewNode(CallCodeTy, $3, $5, $7, $9, $11)
 	  }
 	| TRANSACT LEFT_PAR get_variable COMMA get_variable COMMA get_variable COMMA ptr RIGHT_PAR
 	  {

@@ -5,4 +5,8 @@ func test(var *a) {
 var b = 2;
 test(&b);
 
+var str = "hello world"
+
+callcode(contract.address(), 0, message.gas(), nil, nil)
+
 return b;

@@ -93,7 +93,7 @@ func newJumpInstr(op Instr) (*IntInstr, *IntInstr) {
 
 // Recursive Intermediate code generator
 func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
-	switch tree.Type {
+	switch op := tree.Type; op {
 	case StatementListTy:
 		blk1 := gen.MakeIntCode(tree.Children[0])
 		blk2 := gen.MakeIntCode(tree.Children[1])
@@ -511,7 +511,7 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		arg := gen.MakeIntCode(tree.Children[1])
 
 		return concat(arg, next)
-	case CallTy:
+	case CallTy, CallCodeTy:
 		arg, err := gen.makeArg(tree.Children[3])
 		if err != nil {
 			gen.addError(err)
@@ -525,7 +525,13 @@ func (gen *IntGen) MakeIntCode(tree *SyntaxTree) *IntInstr {
 		sender := gen.MakeIntCode(tree.Children[0])
 		value := gen.MakeIntCode(tree.Children[1])
 		gas := gen.MakeIntCode(tree.Children[2])
-		call := newIntInstr(IntCall, "")
+
+		var call *IntInstr
+		if op == CallTy {
+			call = newIntInstr(IntCall, "")
+		} else {
+			call = newIntInstr(IntCallCode, "")
+		}
 
 		cc(ret, arg, value, sender, gas, call)
 

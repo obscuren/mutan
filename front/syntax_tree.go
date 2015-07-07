@@ -52,6 +52,7 @@ const (
 	ArrayTy
 	AssignArrayTy
 	CallTy
+	CallCodeTy
 	TransactTy
 	CreateTy
 	ArgTy
@@ -116,6 +117,7 @@ var astAsString = []string{
 	"Array",
 	"Set array",
 	"Call",
+	"CallCode",
 	"Transact",
 	"Create",
 	"Arg",

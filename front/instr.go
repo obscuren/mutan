@@ -117,6 +117,7 @@ const (
 	IntASM
 	IntArray
 	IntCall
+	IntCallCode
 	IntCreate
 	IntSizeof
 	IntByte
@@ -246,6 +247,7 @@ var instrAsString = []string{
 	"IntASM",
 	"IntArray",
 	"IntCall",
+	"IntCallCode",
 	"IntCreate",
 	"IntSizeof",
 	"IntByte",
